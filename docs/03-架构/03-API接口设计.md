@@ -1,4 +1,16 @@
+---
+文档类型: 架构文档
+需求编号: DOC-2025-11-001
+创建日期: 2025-11-15
+创建者: claude-sonnet-4-5 (claude-sonnet-4-5-20250929)
+最后更新: 2025-11-26
+更新者: claude-sonnet-4-5 (claude-sonnet-4-5-20250929)
+状态: 已批准
+---
+
 # AI标书智能创作平台 - API接口设计
+
+> **架构说明**: 本系统采用混合后端架构，Java Spring Boot负责核心业务API，Python FastAPI负责AI服务API。本文档详细标注了各API的服务归属。
 
 ## 📋 API设计概览
 
@@ -30,18 +42,18 @@
 
 ```yaml
 API分类:
-  认证授权API: /api/v1/auth
-  用户管理API: /api/v1/users
-  组织管理API: /api/v1/organizations
-  项目管理API: /api/v1/projects
-  文档管理API: /api/v1/documents
-  模板管理API: /api/v1/templates
-  AI服务API: /api/v1/ai
-  企业能力API: /api/v1/capabilities
-  协作API: /api/v1/collaboration
-  审批API: /api/v1/approval
-  导出API: /api/v1/export
-  系统管理API: /api/v1/admin
+  认证授权API: /api/v1/auth (Java服务)
+  用户管理API: /api/v1/users (Java服务)
+  组织管理API: /api/v1/organizations (Java服务)
+  项目管理API: /api/v1/projects (Java服务)
+  文档管理API: /api/v1/documents (Java服务)
+  模板管理API: /api/v1/templates (Java服务)
+  AI服务API: /api/v1/ai (Python服务)
+  企业能力API: /api/v1/capabilities (Java服务)
+  协作API: /api/v1/collaboration (Java服务)
+  审批API: /api/v1/approval (Java服务)
+  导出API: /api/v1/export (Java服务)
+  系统管理API: /api/v1/admin (Java服务)
 ```
 
 ## 🔐 认证授权
@@ -186,6 +198,9 @@ interface ErrorResponse {
 
 ## 🔑 认证授权API
 
+> **服务**: Java Spring Boot
+> **端口**: 8080
+
 ### 1. 用户注册
 
 ```yaml
@@ -316,6 +331,9 @@ Response: 200 OK
 ```
 
 ## 📁 项目管理API
+
+> **服务**: Java Spring Boot
+> **端口**: 8080
 
 ### 1. 获取项目列表
 
@@ -528,6 +546,10 @@ Errors:
 
 ## 📄 文档管理API
 
+> **服务**: Java Spring Boot (业务逻辑) + Python FastAPI (文件解析)
+> **端口**: 8080 (Java), 8001 (Python)
+> **说明**: 文档业务管理由Java服务提供，复杂的文档解析由Python服务提供
+
 ### 1. 解析招标文件
 
 ```yaml
@@ -734,6 +756,11 @@ Response: 200 OK
 
 ## 🤖 AI服务API
 
+> **服务**: Python FastAPI
+> **端口**: 8001
+> **技术栈**: LlamaIndex (主力) + LangChain (备用) + Elasticsearch
+> **说明**: 所有AI相关功能由独立的Python服务提供
+
 ### 1. 分析需求
 
 ```yaml
@@ -863,6 +890,9 @@ Response: 200 OK
 
 ## 📋 模板管理API
 
+> **服务**: Java Spring Boot
+> **端口**: 8080
+
 ### 1. 获取模板列表
 
 ```yaml
@@ -924,6 +954,9 @@ Response: 201 Created
 ```
 
 ## 🏢 企业能力API
+
+> **服务**: Java Spring Boot
+> **端口**: 8080
 
 ### 1. 获取产品服务列表
 
@@ -996,6 +1029,10 @@ Response: 201 Created
 
 ## 👥 协作API
 
+> **服务**: Java Spring Boot
+> **端口**: 8080
+> **协议**: WebSocket
+
 ### 1. WebSocket连接
 
 ```yaml
@@ -1045,6 +1082,9 @@ Response: 201 Created
 ```
 
 ## 📤 导出API
+
+> **服务**: Java Spring Boot
+> **端口**: 8080
 
 ### 1. 导出为PDF
 
@@ -1377,7 +1417,18 @@ ReDoc: https://api.example.com/redoc
 
 ---
 
-**文档版本**: v1.0
-**创建时间**: 2025年11月14日
+## 修改历史
+
+| 日期 | 版本 | 修改者 | 修改内容概要 |
+|------|------|--------|-------------|
+| 2025-11-26 | 1.1 | claude-sonnet-4-5 (claude-sonnet-4-5-20250929) | 添加元信息头部；标注各API所属服务(Java/Python)；说明混合后端架构 |
+| 2025-11-15 | 1.0 | claude-sonnet-4-5 (claude-sonnet-4-5-20250929) | 创建文档 |
+
+---
+
+**文档版本**: v1.1
+**创建时间**: 2025年11月15日
+**最后更新**: 2025年11月26日
 **API版本**: v1
 **基础URL**: https://api.aibidcomposer.com/api/v1
+**架构**: Java Spring Boot (8080) + Python FastAPI (8001)

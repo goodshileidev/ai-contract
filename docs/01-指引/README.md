@@ -30,7 +30,7 @@
 ### 新成员入职必读
 
 1. **第一步**: 阅读 [CLAUDE.md](./CLAUDE.md)
-   - 了解项目技术栈（纯 Java 技术栈）
+   - 了解项目技术栈（混合后端架构：Java + Python）
    - 掌握项目铁律（10条核心原则）
    - 熟悉开发工作流
    - 理解文档规范
@@ -54,15 +54,16 @@
 
 ### CLAUDE.md 核心要点
 
-**技术栈原则**:
-- ✅ 后端：纯 Java 技术栈（Spring Boot 3.2 + Spring AI）
+**技术栈原则（混合后端架构）**:
+- ✅ 后端数据维护：Java Spring Boot 3.2
+- ✅ 后端AI能力：Python FastAPI + LangChain
 - ✅ 前端：React 18 + TypeScript + Ant Design Pro
 - ✅ 数据库：PostgreSQL + Elasticsearch + Redis
-- ❌ 禁止：引入 Python、Node.js 等其他后端语言
+- ❌ 禁止：跨服务职责混淆（Java不调用大模型，Python不处理CRUD）
 
 **项目铁律（10条）**:
 1. 简体中文优先
-2. 纯 Java 后端技术栈
+2. 混合后端架构职责明确
 3. 文档集中管理
 4. 文档目录标准化
 5. 文档元信息完整

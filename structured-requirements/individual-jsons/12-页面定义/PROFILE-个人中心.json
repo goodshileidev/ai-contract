@@ -1,0 +1,30 @@
+{
+  "page_id": 6,
+  "page_name": "个人中心",
+  "page_key": "PROFILE",
+  "page_title": "个人中心",
+  "page_title_cn": "个人中心",
+  "page_title_en": "Profile",
+  "page_title_jp": "个人中心",
+  "module_id": 1,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-006",
+  "project_id": 1,
+  "demand_description": "当前用户个人中心",
+  "basic_description": "当前用户个人中心",
+  "scope_type": "global",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "用户",
+      "entity_key": "users",
+      "table_key": "users",
+      "table_name": "用户",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

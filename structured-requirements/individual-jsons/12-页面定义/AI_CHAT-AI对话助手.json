@@ -1,0 +1,21 @@
+{
+  "page_id": 27,
+  "page_name": "AI对话助手",
+  "page_key": "AI_CHAT",
+  "page_title": "AI对话助手",
+  "page_title_cn": "AI对话助手",
+  "page_title_en": "Ai Chat",
+  "page_title_jp": "AI对话助手",
+  "module_id": 6,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-027",
+  "project_id": 1,
+  "demand_description": "AI智能助手对话界面",
+  "basic_description": "AI智能助手对话界面",
+  "scope_type": "global",
+  "page_type": "组件",
+  "page_version": "1.0",
+  "data_src_table_list": [],
+  "program_api_list": [],
+  "is_locked": "N"
+}

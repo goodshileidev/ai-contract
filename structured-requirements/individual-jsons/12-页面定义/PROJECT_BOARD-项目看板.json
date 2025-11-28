@@ -1,0 +1,30 @@
+{
+  "page_id": 10,
+  "page_name": "项目看板",
+  "page_key": "PROJECT_BOARD",
+  "page_title": "项目看板",
+  "page_title_cn": "项目看板",
+  "page_title_en": "Project Board",
+  "page_title_jp": "项目看板",
+  "module_id": 2,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-010",
+  "project_id": 1,
+  "demand_description": "项目看板视图，展示项目进度",
+  "basic_description": "项目看板视图，展示项目进度",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "项目",
+      "entity_key": "projects",
+      "table_key": "projects",
+      "table_name": "项目",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

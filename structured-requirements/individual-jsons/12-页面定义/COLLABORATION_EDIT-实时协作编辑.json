@@ -1,0 +1,30 @@
+{
+  "page_id": 30,
+  "page_name": "实时协作编辑",
+  "page_key": "COLLABORATION_EDIT",
+  "page_title": "实时协作编辑",
+  "page_title_cn": "实时协作编辑",
+  "page_title_en": "Collaboration Edit",
+  "page_title_jp": "实时协作编辑",
+  "module_id": 7,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-030",
+  "project_id": 1,
+  "demand_description": "多人实时协作编辑",
+  "basic_description": "多人实时协作编辑",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "协作会话",
+      "entity_key": "collaboration_sessions",
+      "table_key": "collaboration_sessions",
+      "table_name": "协作会话",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

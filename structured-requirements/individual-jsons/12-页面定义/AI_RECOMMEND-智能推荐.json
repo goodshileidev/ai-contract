@@ -1,0 +1,21 @@
+{
+  "page_id": 28,
+  "page_name": "智能推荐",
+  "page_key": "AI_RECOMMEND",
+  "page_title": "智能推荐",
+  "page_title_cn": "智能推荐",
+  "page_title_en": "Ai Recommend",
+  "page_title_jp": "智能推荐",
+  "module_id": 6,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-028",
+  "project_id": 1,
+  "demand_description": "智能案例和模板推荐",
+  "basic_description": "智能案例和模板推荐",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [],
+  "program_api_list": [],
+  "is_locked": "N"
+}

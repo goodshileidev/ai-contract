@@ -1,0 +1,18 @@
+{
+  "page_section_id": 7,
+  "page_id": 14,
+  "page_section_name": "富文本编辑器",
+  "page_section_key": "RICH_TEXT_EDITOR",
+  "page_section_title_cn": "富文本编辑器",
+  "page_section_title_en": "Rich Text Editor",
+  "page_section_title_jp": "富文本编辑器",
+  "page_section_type": "editor",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 3,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

@@ -1,0 +1,30 @@
+{
+  "page_id": 35,
+  "page_name": "审计日志",
+  "page_key": "AUDIT_LOGS",
+  "page_title": "审计日志",
+  "page_title_cn": "审计日志",
+  "page_title_en": "Audit Logs",
+  "page_title_jp": "审计日志",
+  "module_id": 11,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-035",
+  "project_id": 1,
+  "demand_description": "系统审计日志查询",
+  "basic_description": "系统审计日志查询",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "审计日志",
+      "entity_key": "audit_logs",
+      "table_key": "audit_logs",
+      "table_name": "审计日志",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

@@ -1,0 +1,30 @@
+{
+  "page_id": 13,
+  "page_name": "文档列表",
+  "page_key": "DOCUMENT_LIST",
+  "page_title": "文档列表",
+  "page_title_cn": "文档列表",
+  "page_title_en": "Document List",
+  "page_title_jp": "文档列表",
+  "module_id": 3,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-013",
+  "project_id": 1,
+  "demand_description": "标书文档列表",
+  "basic_description": "标书文档列表",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "标书文档",
+      "entity_key": "bid_documents",
+      "table_key": "bid_documents",
+      "table_name": "标书文档",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

@@ -1,0 +1,38 @@
+{
+  "page_id": 14,
+  "page_name": "文档编辑",
+  "page_key": "DOCUMENT_EDIT",
+  "page_title": "文档编辑",
+  "page_title_cn": "文档编辑",
+  "page_title_en": "Document Edit",
+  "page_title_jp": "文档编辑",
+  "module_id": 3,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-014",
+  "project_id": 1,
+  "demand_description": "标书文档编辑器",
+  "basic_description": "标书文档编辑器",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "标书文档",
+      "entity_key": "bid_documents",
+      "table_key": "bid_documents",
+      "table_name": "标书文档",
+      "input_output_type": "input_output"
+    },
+    {
+      "entity_id": 0,
+      "entity_name": "文档章节",
+      "entity_key": "document_sections",
+      "table_key": "document_sections",
+      "table_name": "文档章节",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

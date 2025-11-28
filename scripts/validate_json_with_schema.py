@@ -75,6 +75,14 @@ class JsonSchemaValidator:
         if parent_dir == '15-权限定义':
             return 'permission'
 
+        # 12-页面定义目录下的文件使用 page schema
+        if parent_dir == '12-页面定义':
+            return 'page'
+
+        # 13-页面组件目录下的文件使用 page_section schema
+        if parent_dir == '13-页面组件':
+            return 'page_section'
+
         # 映射规则（针对文件名）
         schema_mapping = {
             # 4-模块定义（只匹配纯模块关键字，避免与功能混淆）
@@ -185,6 +193,8 @@ class JsonSchemaValidator:
             '9-数据实体': [],
             '9-数据实体/字段': [],
             '11-内部API': [],
+            '12-页面定义': [],
+            '13-页面组件': [],
             '14-系统角色': [],
             '15-权限定义': []
         }

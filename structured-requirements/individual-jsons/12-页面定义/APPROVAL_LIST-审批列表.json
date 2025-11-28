@@ -1,0 +1,30 @@
+{
+  "page_id": 31,
+  "page_name": "审批列表",
+  "page_key": "APPROVAL_LIST",
+  "page_title": "审批列表",
+  "page_title_cn": "审批列表",
+  "page_title_en": "Approval List",
+  "page_title_jp": "审批列表",
+  "module_id": 8,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-031",
+  "project_id": 1,
+  "demand_description": "待审批和已审批任务列表",
+  "basic_description": "待审批和已审批任务列表",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "审批任务",
+      "entity_key": "approval_tasks",
+      "table_key": "approval_tasks",
+      "table_name": "审批任务",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

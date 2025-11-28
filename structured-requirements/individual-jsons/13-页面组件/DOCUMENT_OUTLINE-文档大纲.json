@@ -1,0 +1,18 @@
+{
+  "page_section_id": 6,
+  "page_id": 14,
+  "page_section_name": "文档大纲",
+  "page_section_key": "DOCUMENT_OUTLINE",
+  "page_section_title_cn": "文档大纲",
+  "page_section_title_en": "Document Outline",
+  "page_section_title_jp": "文档大纲",
+  "page_section_type": "navigation_tree",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 3,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

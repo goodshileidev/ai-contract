@@ -1,0 +1,30 @@
+{
+  "page_id": 29,
+  "page_name": "协作空间",
+  "page_key": "COLLABORATION_SPACE",
+  "page_title": "协作空间",
+  "page_title_cn": "协作空间",
+  "page_title_en": "Collaboration Space",
+  "page_title_jp": "协作空间",
+  "module_id": 7,
+  "source_type": "frontend_design",
+  "page_no": "PAGE-029",
+  "project_id": 1,
+  "demand_description": "团队协作工作空间",
+  "basic_description": "团队协作工作空间",
+  "scope_type": "module",
+  "page_type": "主页面",
+  "page_version": "1.0",
+  "data_src_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "协作会话",
+      "entity_key": "collaboration_sessions",
+      "table_key": "collaboration_sessions",
+      "table_name": "协作会话",
+      "input_output_type": "input_output"
+    }
+  ],
+  "program_api_list": [],
+  "is_locked": "N"
+}

@@ -1,0 +1,18 @@
+{
+  "page_section_id": 12,
+  "page_id": 26,
+  "page_section_name": "生成结果预览",
+  "page_section_key": "GENERATE_RESULT",
+  "page_section_title_cn": "生成结果预览",
+  "page_section_title_en": "Generate Result",
+  "page_section_title_jp": "生成结果预览",
+  "page_section_type": "preview_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 6,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

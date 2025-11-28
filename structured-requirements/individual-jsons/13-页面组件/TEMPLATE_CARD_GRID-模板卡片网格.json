@@ -1,0 +1,18 @@
+{
+  "page_section_id": 56,
+  "page_id": 17,
+  "page_section_name": "模板卡片网格",
+  "page_section_key": "TEMPLATE_CARD_GRID",
+  "page_section_title_cn": "模板卡片网格",
+  "page_section_title_en": "Template Card Grid",
+  "page_section_title_jp": "模板卡片网格",
+  "page_section_type": "card_grid",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 4,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

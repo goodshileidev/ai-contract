@@ -1,0 +1,18 @@
+{
+  "page_section_id": 50,
+  "page_id": 15,
+  "page_section_name": "PDF预览器",
+  "page_section_key": "PDF_PREVIEW",
+  "page_section_title_cn": "PDF预览器",
+  "page_section_title_en": "Pdf Preview",
+  "page_section_title_jp": "PDF预览器",
+  "page_section_type": "preview_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 3,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

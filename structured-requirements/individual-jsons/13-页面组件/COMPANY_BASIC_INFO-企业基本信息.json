@@ -1,0 +1,18 @@
+{
+  "page_section_id": 65,
+  "page_id": 20,
+  "page_section_name": "企业基本信息",
+  "page_section_key": "COMPANY_BASIC_INFO",
+  "page_section_title_cn": "企业基本信息",
+  "page_section_title_en": "Company Basic Info",
+  "page_section_title_jp": "企业基本信息",
+  "page_section_type": "info_card",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 5,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

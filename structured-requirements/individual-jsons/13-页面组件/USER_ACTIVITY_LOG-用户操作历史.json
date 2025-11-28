@@ -1,0 +1,18 @@
+{
+  "page_section_id": 24,
+  "page_id": 5,
+  "page_section_name": "用户操作历史",
+  "page_section_key": "USER_ACTIVITY_LOG",
+  "page_section_title_cn": "用户操作历史",
+  "page_section_title_en": "User Activity Log",
+  "page_section_title_jp": "用户操作历史",
+  "page_section_type": "timeline",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

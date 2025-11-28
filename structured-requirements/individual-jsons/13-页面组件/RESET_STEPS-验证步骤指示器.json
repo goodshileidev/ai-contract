@@ -1,0 +1,18 @@
+{
+  "page_section_id": 21,
+  "page_id": 3,
+  "page_section_name": "验证步骤指示器",
+  "page_section_key": "RESET_STEPS",
+  "page_section_title_cn": "验证步骤指示器",
+  "page_section_title_en": "Reset Steps",
+  "page_section_title_jp": "验证步骤指示器",
+  "page_section_type": "progress_indicator",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

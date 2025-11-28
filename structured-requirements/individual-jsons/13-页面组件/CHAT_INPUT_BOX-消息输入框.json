@@ -1,0 +1,18 @@
+{
+  "page_section_id": 85,
+  "page_id": 27,
+  "page_section_name": "消息输入框",
+  "page_section_key": "CHAT_INPUT_BOX",
+  "page_section_title_cn": "消息输入框",
+  "page_section_title_en": "Chat Input Box",
+  "page_section_title_jp": "消息输入框",
+  "page_section_type": "input_field",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 6,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

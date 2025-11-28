@@ -1,0 +1,18 @@
+{
+  "page_section_id": 64,
+  "page_id": 19,
+  "page_section_name": "模板属性面板",
+  "page_section_key": "TEMPLATE_PROPERTIES",
+  "page_section_title_cn": "模板属性面板",
+  "page_section_title_en": "Template Properties",
+  "page_section_title_jp": "模板属性面板",
+  "page_section_type": "property_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 4,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

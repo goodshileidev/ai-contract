@@ -1,0 +1,18 @@
+{
+  "page_section_id": 23,
+  "page_id": 5,
+  "page_section_name": "用户角色标签",
+  "page_section_key": "USER_ROLE_TAGS",
+  "page_section_title_cn": "用户角色标签",
+  "page_section_title_en": "User Role Tags",
+  "page_section_title_jp": "用户角色标签",
+  "page_section_type": "tag_list",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

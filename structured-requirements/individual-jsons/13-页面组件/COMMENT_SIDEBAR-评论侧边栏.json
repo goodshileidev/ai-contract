@@ -1,0 +1,18 @@
+{
+  "page_section_id": 94,
+  "page_id": 30,
+  "page_section_name": "评论侧边栏",
+  "page_section_key": "COMMENT_SIDEBAR",
+  "page_section_title_cn": "评论侧边栏",
+  "page_section_title_en": "Comment Sidebar",
+  "page_section_title_jp": "评论侧边栏",
+  "page_section_type": "sidebar_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 7,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

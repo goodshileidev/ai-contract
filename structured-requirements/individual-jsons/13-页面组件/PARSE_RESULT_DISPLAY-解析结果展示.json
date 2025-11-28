@@ -1,0 +1,18 @@
+{
+  "page_section_id": 82,
+  "page_id": 25,
+  "page_section_name": "解析结果展示",
+  "page_section_key": "PARSE_RESULT_DISPLAY",
+  "page_section_title_cn": "解析结果展示",
+  "page_section_title_en": "Parse Result Display",
+  "page_section_title_jp": "解析结果展示",
+  "page_section_type": "result_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 6,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

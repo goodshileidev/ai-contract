@@ -1,0 +1,18 @@
+{
+  "page_section_id": 77,
+  "page_id": 24,
+  "page_section_name": "证书列表",
+  "page_section_key": "CERT_LIST",
+  "page_section_title_cn": "证书列表",
+  "page_section_title_en": "Cert List",
+  "page_section_title_jp": "证书列表",
+  "page_section_type": "card_list",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 5,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

@@ -1,0 +1,18 @@
+{
+  "page_section_id": 70,
+  "page_id": 21,
+  "page_section_name": "添加产品按钮",
+  "page_section_key": "ADD_PRODUCT_BUTTON",
+  "page_section_title_cn": "添加产品按钮",
+  "page_section_title_en": "Add Product Button",
+  "page_section_title_jp": "添加产品按钮",
+  "page_section_type": "action_button",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 5,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

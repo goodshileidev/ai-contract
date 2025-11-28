@@ -1,0 +1,18 @@
+{
+  "page_section_id": 18,
+  "page_id": 2,
+  "page_section_name": "注册表单",
+  "page_section_key": "REGISTER_FORM",
+  "page_section_title_cn": "注册表单",
+  "page_section_title_en": "Register Form",
+  "page_section_title_jp": "注册表单",
+  "page_section_type": "form_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

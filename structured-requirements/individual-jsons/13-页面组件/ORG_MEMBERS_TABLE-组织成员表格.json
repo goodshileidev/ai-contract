@@ -1,0 +1,18 @@
+{
+  "page_section_id": 33,
+  "page_id": 8,
+  "page_section_name": "组织成员表格",
+  "page_section_key": "ORG_MEMBERS_TABLE",
+  "page_section_title_cn": "组织成员表格",
+  "page_section_title_en": "Org Members Table",
+  "page_section_title_jp": "组织成员表格",
+  "page_section_type": "data_table",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

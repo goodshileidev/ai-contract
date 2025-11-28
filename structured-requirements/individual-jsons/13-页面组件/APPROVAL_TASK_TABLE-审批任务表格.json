@@ -1,0 +1,18 @@
+{
+  "page_section_id": 97,
+  "page_id": 31,
+  "page_section_name": "审批任务表格",
+  "page_section_key": "APPROVAL_TASK_TABLE",
+  "page_section_title_cn": "审批任务表格",
+  "page_section_title_en": "Approval Task Table",
+  "page_section_title_jp": "审批任务表格",
+  "page_section_type": "data_table",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 8,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

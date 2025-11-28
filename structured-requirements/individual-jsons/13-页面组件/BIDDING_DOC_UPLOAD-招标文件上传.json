@@ -1,0 +1,18 @@
+{
+  "page_section_id": 45,
+  "page_id": 12,
+  "page_section_name": "招标文件上传",
+  "page_section_key": "BIDDING_DOC_UPLOAD",
+  "page_section_title_cn": "招标文件上传",
+  "page_section_title_en": "Bidding Doc Upload",
+  "page_section_title_jp": "招标文件上传",
+  "page_section_type": "upload_component",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 2,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

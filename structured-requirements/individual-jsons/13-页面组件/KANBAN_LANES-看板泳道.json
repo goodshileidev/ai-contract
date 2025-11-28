@@ -1,0 +1,18 @@
+{
+  "page_section_id": 36,
+  "page_id": 10,
+  "page_section_name": "看板泳道",
+  "page_section_key": "KANBAN_LANES",
+  "page_section_title_cn": "看板泳道",
+  "page_section_title_en": "Kanban Lanes",
+  "page_section_title_jp": "看板泳道",
+  "page_section_type": "kanban_board",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 2,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

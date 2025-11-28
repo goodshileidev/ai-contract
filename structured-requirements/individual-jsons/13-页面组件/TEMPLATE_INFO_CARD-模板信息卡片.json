@@ -1,0 +1,18 @@
+{
+  "page_section_id": 58,
+  "page_id": 18,
+  "page_section_name": "模板信息卡片",
+  "page_section_key": "TEMPLATE_INFO_CARD",
+  "page_section_title_cn": "模板信息卡片",
+  "page_section_title_en": "Template Info Card",
+  "page_section_title_jp": "模板信息卡片",
+  "page_section_type": "info_card",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 4,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

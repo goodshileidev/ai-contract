@@ -1,0 +1,18 @@
+{
+  "page_section_id": 32,
+  "page_id": 8,
+  "page_section_name": "组织基本信息",
+  "page_section_key": "ORG_BASIC_INFO",
+  "page_section_title_cn": "组织基本信息",
+  "page_section_title_en": "Org Basic Info",
+  "page_section_title_jp": "组织基本信息",
+  "page_section_type": "info_card",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

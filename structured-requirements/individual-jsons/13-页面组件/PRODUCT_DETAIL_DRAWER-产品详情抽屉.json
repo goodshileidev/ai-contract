@@ -1,0 +1,18 @@
+{
+  "page_section_id": 69,
+  "page_id": 21,
+  "page_section_name": "产品详情抽屉",
+  "page_section_key": "PRODUCT_DETAIL_DRAWER",
+  "page_section_title_cn": "产品详情抽屉",
+  "page_section_title_en": "Product Detail Drawer",
+  "page_section_title_jp": "产品详情抽屉",
+  "page_section_type": "drawer_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 5,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

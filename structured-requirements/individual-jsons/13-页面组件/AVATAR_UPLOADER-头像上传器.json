@@ -1,0 +1,18 @@
+{
+  "page_section_id": 26,
+  "page_id": 6,
+  "page_section_name": "头像上传器",
+  "page_section_key": "AVATAR_UPLOADER",
+  "page_section_title_cn": "头像上传器",
+  "page_section_title_en": "Avatar Uploader",
+  "page_section_title_jp": "头像上传器",
+  "page_section_type": "upload_component",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 1,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

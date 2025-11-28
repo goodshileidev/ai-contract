@@ -1,0 +1,18 @@
+{
+  "page_section_id": 54,
+  "page_id": 16,
+  "page_section_name": "版本对比视图",
+  "page_section_key": "VERSION_DIFF_VIEW",
+  "page_section_title_cn": "版本对比视图",
+  "page_section_title_en": "Version Diff View",
+  "page_section_title_jp": "版本对比视图",
+  "page_section_type": "diff_panel",
+  "scope_type": "function",
+  "project_id": 1,
+  "module_id": 3,
+  "entity_id": 0,
+  "entity_name": "",
+  "field_list": [],
+  "page_action_list": [],
+  "is_locked": "N"
+}

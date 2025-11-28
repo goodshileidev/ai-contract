@@ -1,0 +1,17 @@
+{
+  "project_id": 1,
+  "project_name": "AIBidComposer智能标书创作平台",
+  "project_description": "基于AI技术的企业级标书智能创作SaaS平台",
+  "project_type": "产品研发",
+  "start_date": "2025-11-01",
+  "end_date": "2026-06-30",
+  "project_status": "进行中",
+  "project_manager": "张三",
+  "budget": 5000000,
+  "team_size": 20,
+  "project_no": "AIBC-2025",
+  "project_key": "AIBC",
+  "app_name": "AIBidComposer",
+  "company_name": "AIBidComposer科技有限公司",
+  "default_page_layout_template_id": 1
+}

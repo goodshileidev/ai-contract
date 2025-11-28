@@ -1,0 +1,373 @@
+{
+  "pages": [
+    {
+      "page_code": "P001",
+      "page_name": "用户注册页",
+      "page_type": "表单页",
+      "page_url": "/auth/register",
+      "function_code": "F001",
+      "page_sections": ["PS001", "PS002"],
+      "page_fields": ["PF001", "PF002", "PF003", "PF004", "PF005"],
+      "page_actions": ["PA001", "PA002"],
+      "layout": "单列布局"
+    },
+    {
+      "page_code": "P002",
+      "page_name": "用户登录页",
+      "page_type": "表单页",
+      "page_url": "/auth/login",
+      "function_code": "F001",
+      "page_sections": ["PS003"],
+      "page_fields": ["PF006", "PF007", "PF008"],
+      "page_actions": ["PA003", "PA004"],
+      "layout": "居中卡片"
+    },
+    {
+      "page_code": "P003",
+      "page_name": "密码重置页",
+      "page_type": "表单页",
+      "page_url": "/auth/reset-password",
+      "function_code": "F001",
+      "page_sections": ["PS004"],
+      "page_fields": ["PF009", "PF010"],
+      "page_actions": ["PA005"],
+      "layout": "居中卡片"
+    },
+    {
+      "page_code": "P004",
+      "page_name": "组织管理列表",
+      "page_type": "列表页",
+      "page_url": "/organization/list",
+      "function_code": "F002",
+      "page_sections": ["PS005", "PS006"],
+      "page_actions": ["PA006", "PA007", "PA008"],
+      "layout": "上下布局"
+    },
+    {
+      "page_code": "P005",
+      "page_name": "组织详情编辑",
+      "page_type": "表单页",
+      "page_url": "/organization/edit",
+      "function_code": "F002",
+      "page_sections": ["PS007", "PS008"],
+      "page_actions": ["PA009", "PA010"],
+      "layout": "多Tab布局"
+    },
+    {
+      "page_code": "P006",
+      "page_name": "角色管理",
+      "page_type": "列表页",
+      "page_url": "/role/list",
+      "function_code": "F003",
+      "page_sections": ["PS009", "PS010"],
+      "page_actions": ["PA011", "PA012"],
+      "layout": "左右布局"
+    },
+    {
+      "page_code": "P007",
+      "page_name": "权限配置",
+      "page_type": "配置页",
+      "page_url": "/permission/config",
+      "function_code": "F003",
+      "page_sections": ["PS011"],
+      "page_actions": ["PA013"],
+      "layout": "树形布局"
+    },
+    {
+      "page_code": "P008",
+      "page_name": "用户管理",
+      "page_type": "列表页",
+      "page_url": "/user/list",
+      "function_code": "F004",
+      "page_sections": ["PS012", "PS013"],
+      "page_actions": ["PA014", "PA015", "PA016"],
+      "layout": "上下布局"
+    },
+    {
+      "page_code": "P009",
+      "page_name": "招标文档上传",
+      "page_type": "上传页",
+      "page_url": "/bidding/upload",
+      "function_code": "F005",
+      "page_sections": ["PS014", "PS015"],
+      "page_actions": ["PA017", "PA018"],
+      "layout": "步骤布局"
+    },
+    {
+      "page_code": "P010",
+      "page_name": "需求提取结果",
+      "page_type": "展示页",
+      "page_url": "/bidding/requirements",
+      "function_code": "F006",
+      "page_sections": ["PS016", "PS017"],
+      "page_actions": ["PA019", "PA020"],
+      "layout": "分栏布局"
+    },
+    {
+      "page_code": "P011",
+      "page_name": "评分标准展示",
+      "page_type": "展示页",
+      "page_url": "/bidding/scoring",
+      "function_code": "F007",
+      "page_sections": ["PS018"],
+      "page_actions": ["PA021"],
+      "layout": "表格布局"
+    },
+    {
+      "page_code": "P012",
+      "page_name": "产品服务列表",
+      "page_type": "列表页",
+      "page_url": "/capability/product/list",
+      "function_code": "F008",
+      "page_sections": ["PS019", "PS020"],
+      "page_actions": ["PA022", "PA023"],
+      "layout": "卡片网格"
+    },
+    {
+      "page_code": "P013",
+      "page_name": "产品服务编辑",
+      "page_type": "表单页",
+      "page_url": "/capability/product/edit",
+      "function_code": "F008",
+      "page_sections": ["PS021", "PS022", "PS023"],
+      "page_actions": ["PA024", "PA025"],
+      "layout": "多步骤表单"
+    },
+    {
+      "page_code": "P014",
+      "page_name": "项目案例列表",
+      "page_type": "列表页",
+      "page_url": "/capability/case/list",
+      "function_code": "F009",
+      "page_sections": ["PS024"],
+      "page_actions": ["PA026", "PA027"],
+      "layout": "时间轴布局"
+    },
+    {
+      "page_code": "P015",
+      "page_name": "案例详情编辑",
+      "page_type": "表单页",
+      "page_url": "/capability/case/edit",
+      "function_code": "F009",
+      "page_sections": ["PS025", "PS026"],
+      "page_actions": ["PA028"],
+      "layout": "分组表单"
+    },
+    {
+      "page_code": "P016",
+      "page_name": "人员资质列表",
+      "page_type": "列表页",
+      "page_url": "/capability/personnel/list",
+      "function_code": "F010",
+      "page_sections": ["PS027"],
+      "page_actions": ["PA029", "PA030"],
+      "layout": "表格布局"
+    },
+    {
+      "page_code": "P017",
+      "page_name": "人员信息编辑",
+      "page_type": "表单页",
+      "page_url": "/capability/personnel/edit",
+      "function_code": "F010",
+      "page_sections": ["PS028"],
+      "page_actions": ["PA031"],
+      "layout": "标签页布局"
+    },
+    {
+      "page_code": "P018",
+      "page_name": "资质证书管理",
+      "page_type": "列表页",
+      "page_url": "/capability/certificate/list",
+      "function_code": "F011",
+      "page_sections": ["PS029"],
+      "page_actions": ["PA032", "PA033"],
+      "layout": "卡片列表"
+    },
+    {
+      "page_code": "P019",
+      "page_name": "智能内容生成",
+      "page_type": "交互页",
+      "page_url": "/ai/generate",
+      "function_code": "F012",
+      "page_sections": ["PS030", "PS031", "PS032"],
+      "page_actions": ["PA034", "PA035"],
+      "layout": "左右分栏"
+    },
+    {
+      "page_code": "P020",
+      "page_name": "内容优化建议",
+      "page_type": "对比页",
+      "page_url": "/ai/optimize",
+      "function_code": "F013",
+      "page_sections": ["PS033", "PS034"],
+      "page_actions": ["PA036", "PA037"],
+      "layout": "对比布局"
+    },
+    {
+      "page_code": "P021",
+      "page_name": "AI助手对话",
+      "page_type": "聊天页",
+      "page_url": "/ai/assistant",
+      "function_code": "F014",
+      "page_sections": ["PS035", "PS036"],
+      "page_actions": ["PA038"],
+      "layout": "聊天布局"
+    },
+    {
+      "page_code": "P022",
+      "page_name": "模板列表",
+      "page_type": "列表页",
+      "page_url": "/template/list",
+      "function_code": "F015",
+      "page_sections": ["PS037", "PS038"],
+      "page_actions": ["PA039", "PA040"],
+      "layout": "网格布局"
+    },
+    {
+      "page_code": "P023",
+      "page_name": "模板编辑器",
+      "page_type": "编辑器页",
+      "page_url": "/template/editor",
+      "function_code": "F015",
+      "page_sections": ["PS039", "PS040"],
+      "page_actions": ["PA041", "PA042"],
+      "layout": "编辑器布局"
+    },
+    {
+      "page_code": "P024",
+      "page_name": "模板分类管理",
+      "page_type": "管理页",
+      "page_url": "/template/category",
+      "function_code": "F016",
+      "page_sections": ["PS041"],
+      "page_actions": ["PA043"],
+      "layout": "树形布局"
+    },
+    {
+      "page_code": "P025",
+      "page_name": "模板推荐",
+      "page_type": "推荐页",
+      "page_url": "/template/recommend",
+      "function_code": "F017",
+      "page_sections": ["PS042"],
+      "page_actions": ["PA044"],
+      "layout": "推荐布局"
+    },
+    {
+      "page_code": "P026",
+      "page_name": "创建标书",
+      "page_type": "向导页",
+      "page_url": "/document/create",
+      "function_code": "F018",
+      "page_sections": ["PS043", "PS044"],
+      "page_actions": ["PA045"],
+      "layout": "向导布局"
+    },
+    {
+      "page_code": "P027",
+      "page_name": "标书编辑器",
+      "page_type": "编辑器页",
+      "page_url": "/document/editor",
+      "function_code": "F019",
+      "page_sections": ["PS045", "PS046", "PS047"],
+      "page_actions": ["PA046", "PA047", "PA048"],
+      "layout": "全屏编辑器"
+    },
+    {
+      "page_code": "P028",
+      "page_name": "版本管理",
+      "page_type": "版本页",
+      "page_url": "/document/versions",
+      "function_code": "F020",
+      "page_sections": ["PS048"],
+      "page_actions": ["PA049", "PA050"],
+      "layout": "时间线布局"
+    },
+    {
+      "page_code": "P029",
+      "page_name": "文档导出",
+      "page_type": "导出页",
+      "page_url": "/document/export",
+      "function_code": "F021",
+      "page_sections": ["PS049"],
+      "page_actions": ["PA051", "PA052"],
+      "layout": "选项布局"
+    },
+    {
+      "page_code": "P030",
+      "page_name": "协作编辑",
+      "page_type": "协作页",
+      "page_url": "/collaboration/edit",
+      "function_code": "F022",
+      "page_sections": ["PS050", "PS051"],
+      "page_actions": ["PA053"],
+      "layout": "协作布局"
+    },
+    {
+      "page_code": "P031",
+      "page_name": "审批流程配置",
+      "page_type": "配置页",
+      "page_url": "/approval/config",
+      "function_code": "F023",
+      "page_sections": ["PS052"],
+      "page_actions": ["PA054"],
+      "layout": "流程图布局"
+    },
+    {
+      "page_code": "P032",
+      "page_name": "审批任务",
+      "page_type": "任务页",
+      "page_url": "/approval/task",
+      "function_code": "F023",
+      "page_sections": ["PS053"],
+      "page_actions": ["PA055", "PA056"],
+      "layout": "任务布局"
+    },
+    {
+      "page_code": "P033",
+      "page_name": "评论批注",
+      "page_type": "评论页",
+      "page_url": "/comment/list",
+      "function_code": "F024",
+      "page_sections": ["PS054"],
+      "page_actions": ["PA057"],
+      "layout": "评论布局"
+    },
+    {
+      "page_code": "P034",
+      "page_name": "数据统计看板",
+      "page_type": "仪表盘",
+      "page_url": "/dashboard/statistics",
+      "function_code": "F025",
+      "page_sections": ["PS055", "PS056"],
+      "page_actions": ["PA058"],
+      "layout": "仪表盘布局"
+    },
+    {
+      "page_code": "P035",
+      "page_name": "成功率分析",
+      "page_type": "分析页",
+      "page_url": "/dashboard/analysis",
+      "function_code": "F026",
+      "page_sections": ["PS057"],
+      "page_actions": ["PA059"],
+      "layout": "分析布局"
+    },
+    {
+      "page_code": "P036",
+      "page_name": "自定义报表",
+      "page_type": "报表页",
+      "page_url": "/report/custom",
+      "function_code": "F027",
+      "page_sections": ["PS058"],
+      "page_actions": ["PA060"],
+      "layout": "报表布局"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_pages": 36,
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27"
+  }
+}

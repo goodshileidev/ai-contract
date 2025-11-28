@@ -1,0 +1,55 @@
+{
+  "project": {
+    "project_no": "PROJ-001",
+    "project_name": "AIBidComposer - AI标书智能创作平台",
+    "project_code": "AIBC",
+    "project_type": "SaaS产品",
+    "project_description": "基于AI技术的企业级标书智能创作平台，提供从招标文件解析到标书生成的全流程智能化解决方案",
+    "start_date": "2025-11-01",
+    "planned_end_date": "2026-04-30",
+    "status": "开发中",
+    "version": "1.0.0",
+    "project_manager": "项目经理",
+    "technical_lead": "技术负责人",
+    "team_size": 12,
+    "budget": "500万",
+    "technology_stack": {
+      "frontend": ["React 18", "TypeScript", "Ant Design Pro"],
+      "backend": ["Java Spring Boot", "Python FastAPI"],
+      "database": ["PostgreSQL", "Redis", "Elasticsearch"],
+      "ai": ["GPT-4", "Claude", "LlamaIndex", "LangChain"],
+      "infrastructure": ["Docker", "Kubernetes", "MinIO"]
+    },
+    "deployment": {
+      "environment": "云原生",
+      "platform": "Kubernetes",
+      "regions": ["中国大陆", "香港"],
+      "scalability": "支持水平扩展"
+    },
+    "milestones": [
+      {
+        "milestone_no": "MS-001",
+        "milestone_name": "MVP版本",
+        "target_date": "2026-01-31",
+        "deliverables": ["核心功能", "基础UI", "API接口"]
+      },
+      {
+        "milestone_no": "MS-002",
+        "milestone_name": "Beta版本",
+        "target_date": "2026-03-31",
+        "deliverables": ["完整功能", "性能优化", "安全加固"]
+      },
+      {
+        "milestone_no": "MS-003",
+        "milestone_name": "正式发布",
+        "target_date": "2026-04-30",
+        "deliverables": ["生产就绪", "运维支持", "用户文档"]
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0",
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27"
+  }
+}

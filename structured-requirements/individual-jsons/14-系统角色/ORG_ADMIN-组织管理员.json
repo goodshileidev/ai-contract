@@ -1,0 +1,17 @@
+{
+  "role_id": 2,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "组织管理员",
+  "role_code": "ORG_ADMIN",
+  "role_title": "组织管理员",
+  "role_title_cn": "组织管理员",
+  "role_title_en": "Org Admin",
+  "role_title_jp": "组织管理员",
+  "description": "组织级管理员，可管理本组织内的用户、项目和数据",
+  "role_level": 2,
+  "is_system_role": "Y",
+  "can_be_assigned": "Y",
+  "is_locked": "Y",
+  "version": "1.0"
+}

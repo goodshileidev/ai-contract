@@ -1,0 +1,116 @@
+{
+  "internal_api_id": 1,
+  "internal_api_name": "用户注册",
+  "internal_api_key": "POST__AUTH_REGISTER",
+  "source_type": "openapi_design",
+  "create_type": "auto_generated",
+  "project_id": 1,
+  "module_id": 1,
+  "internal_api_type": "create",
+  "basic_description": "创建新用户账号",
+  "api_version": "v1",
+  "api_template_version": "1.0",
+  "request_param_list": [
+    {
+      "field_name": "email",
+      "field_key": "EMAIL",
+      "param_name": "email",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": true,
+      "description": "邮箱地址",
+      "example": "user@example.com"
+    },
+    {
+      "field_name": "username",
+      "field_key": "USERNAME",
+      "param_name": "username",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": true,
+      "description": "用户名",
+      "example": "john_doe"
+    },
+    {
+      "field_name": "password",
+      "field_key": "PASSWORD",
+      "param_name": "password",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": true,
+      "description": "密码（至少8位）",
+      "example": "SecurePass123!"
+    },
+    {
+      "field_name": "full_name",
+      "field_key": "FULL_NAME",
+      "param_name": "full_name",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": false,
+      "description": "全名",
+      "example": "John Doe"
+    },
+    {
+      "field_name": "organization_name",
+      "field_key": "ORGANIZATION_NAME",
+      "param_name": "organization_name",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": false,
+      "description": "组织名称",
+      "example": "ACME Corporation"
+    }
+  ],
+  "response_field_list": [
+    {
+      "field_name": "user_id",
+      "field_key": "USER_ID",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "email",
+      "field_key": "EMAIL",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "username",
+      "field_key": "USERNAME",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "full_name",
+      "field_key": "FULL_NAME",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "organization_id",
+      "field_key": "ORGANIZATION_ID",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "created_at",
+      "field_key": "CREATED_AT",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    }
+  ],
+  "http_method": "POST",
+  "http_path": "/auth/register",
+  "operation_id": "register",
+  "tags": [
+    "认证授权"
+  ],
+  "is_locked": "N"
+}

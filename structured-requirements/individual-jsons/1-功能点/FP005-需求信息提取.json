@@ -1,0 +1,13 @@
+{
+  "function_point_id": 5,
+  "function_point_name": "需求信息提取",
+  "function_point_no": "FP005",
+  "project_id": 1,
+  "module_id": 2,
+  "function_id": 2,
+  "user_requirement_id": 2,
+  "demand_description": "从文档中智能提取需求信息",
+  "basic_description": "识别技术需求、商务需求、评分标准等",
+  "detail_description": "使用LLM进行语义理解和信息抽取，结构化存储需求",
+  "is_locked": "N"
+}

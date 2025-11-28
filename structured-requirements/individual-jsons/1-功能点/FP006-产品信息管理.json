@@ -1,0 +1,13 @@
+{
+  "function_point_id": 6,
+  "function_point_name": "产品信息管理",
+  "function_point_no": "FP006",
+  "project_id": 1,
+  "module_id": 3,
+  "function_id": 3,
+  "user_requirement_id": 3,
+  "demand_description": "管理企业的产品和服务信息",
+  "basic_description": "产品的增删改查、分类管理、特性描述",
+  "detail_description": "支持富文本描述、图片上传、技术参数、应用场景等",
+  "is_locked": "N"
+}

@@ -1,0 +1,10 @@
+{
+  "function_id": 6,
+  "function_name": "实时协作",
+  "function_description": "多用户实时协作编辑",
+  "module_id": 6,
+  "function_type": "协作功能",
+  "is_core": "N",
+  "function_key": "REALTIME_COLLAB",
+  "project_id": 1
+}

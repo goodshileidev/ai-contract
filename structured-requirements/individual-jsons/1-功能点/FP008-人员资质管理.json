@@ -1,0 +1,13 @@
+{
+  "function_point_id": 8,
+  "function_point_name": "人员资质管理",
+  "function_point_no": "FP008",
+  "project_id": 1,
+  "module_id": 3,
+  "function_id": 3,
+  "user_requirement_id": 3,
+  "demand_description": "管理团队成员和资质证书",
+  "basic_description": "人员简历、技能特长、资质证书的管理",
+  "detail_description": "支持批量导入、资质有效期提醒、人员画像生成",
+  "is_locked": "N"
+}

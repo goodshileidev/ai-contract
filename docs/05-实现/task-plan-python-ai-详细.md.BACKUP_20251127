@@ -1,0 +1,7077 @@
+# Python FastAPI AI 服务任务计划（详细版）
+
+**文档类型**: 实现文档
+**需求编号**: REQ-AI-001 ~ REQ-AI-004
+**创建日期**: 2025-11-26
+**创建者**: claude-sonnet-4-5 (claude-sonnet-4-5-20250929)
+**最后更新**: 2025-11-26 11:15
+**更新者**: claude-sonnet-4-5 (claude-sonnet-4-5-20250929)
+**状态**: 待开始
+**版本**: v2.0 (细化版)
+
+---
+
+## 修改历史
+
+| 日期 | 时间 | 版本 | 修改者 | 修改内容概要 |
+|------|------|------|--------|-------------|
+| 2025-11-26 | 10:00 | 1.0 | claude-sonnet-4-5 | 从task-plan.md拆分出Python AI服务任务 |
+| 2025-11-26 | 11:15 | 2.0 | claude-sonnet-4-5 | 应用5类别细分（数据/前端/Java/Python/部署），细化到最小粒度 |
+
+---
+
+## 模块概述
+
+本模块包含 Python FastAPI AI 服务的所有 AI 能力开发任务。
+
+**技术栈**:
+- Python 3.11+ + FastAPI 0.104+
+- LlamaIndex 0.14.8 (主力RAG框架) ✅ 已升级
+- LangChain 1.1.0 (备用框架) ✅ 已添加
+- Elasticsearch 9.2.1 (向量存储+全文检索) ✅ 已升级
+- OpenAI SDK 1.0+ + Anthropic SDK 0.7+
+
+**服务职责**:
+- 招标文件智能解析和向量化
+- 智能内容生成和优化
+- 企业能力库向量化和检索
+- 智能匹配分析和推荐
+
+**总体进度**: 0% (0/4 主任务，0/24 二级任务完成)
+
+---
+
+## AI-001: 招标文件智能解析模块
+
+**需求编号**: REQ-AI-001
+**负责人**: Python AI 开发
+**优先级**: P1 - 高优先级
+**开始时间**: YYYY-MM-DD
+**预计完成**: YYYY-MM-DD
+**实际完成**: -
+**当前状态**: ⏸️ 待开始
+**完成进度**: 0% (0/6 二级任务)
+
+---
+
+### 二级任务 1.1: PDF文档解析引擎
+
+**预计工作量**: 3 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 1.1.1 数据定义
+
+**待完成任务**:
+- [ ] 定义 `ParsedDocument` 数据模型
+  ```python
+  # app/models/parsed_document.py
+  from pydantic import BaseModel
+  from typing import List, Dict, Any, Optional
+  from datetime import datetime
+
+  class ParsedDocument(BaseModel):
+      """解析后的文档数据模型"""
+      document_id: str
+      file_name: str
+      file_type: str  # 'pdf' | 'docx' | 'xlsx'
+      file_size: int
+      page_count: int
+      parsed_content: Dict[str, Any]  # 结构化内容
+      plain_text: str  # 纯文本
+      metadata: Dict[str, Any]
+      created_at: datetime
+  ```
+
+- [ ] 定义 `DocumentMetadata` 结构
+  ```python
+  class DocumentMetadata(BaseModel):
+      """文档元数据"""
+      title: Optional[str]
+      author: Optional[str]
+      created_date: Optional[datetime]
+      modified_date: Optional[datetime]
+      keywords: List[str]
+      page_count: int
+  ```
+
+- [ ] 定义 `ParsedPage` 结构（PDF页面）
+  ```python
+  class ParsedPage(BaseModel):
+      """PDF页面解析结果"""
+      page_number: int
+      text_content: str
+      images: List[str]  # Base64 encoded images
+      tables: List[Dict[str, Any]]
+      bounding_boxes: List[Dict[str, float]]
+  ```
+
+- [ ] 设计 PostgreSQL 存储表结构
+  ```sql
+  -- Java服务负责创建表
+  -- Python服务通过REST API写入数据
+  CREATE TABLE bidding_documents (
+      id UUID PRIMARY KEY,
+      project_id UUID NOT NULL,
+      file_name VARCHAR(255) NOT NULL,
+      file_path TEXT NOT NULL,
+      file_size BIGINT NOT NULL,
+      file_type VARCHAR(50) NOT NULL,
+      parsed_status VARCHAR(20) DEFAULT 'pending',
+      parsed_content JSONB,  -- 存储ParsedDocument JSON
+      parsed_at TIMESTAMP WITH TIME ZONE,
+      parse_error TEXT,
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+  );
+  ```
+
+**验收标准**:
+- [ ] 所有数据模型通过 Pydantic 验证
+- [ ] 数据模型支持 JSON 序列化/反序列化
+- [ ] 表结构设计文档已更新
+
+---
+
+#### 1.1.2 前端实现
+
+**待完成任务**:
+- [ ] 创建文件上传组件
+  ```typescript
+  // apps/frontend/src/components/upload/DocumentUpload.tsx
+  import { ProFormUploadButton } from '@ant-design/pro-form';
+  import { message } from 'antd';
+
+  export function DocumentUpload({ projectId, onSuccess }: Props) {
+      return (
+          <ProFormUploadButton
+              name="file"
+              label="上传招标文件"
+              max={1}
+              fieldProps={{
+                  accept: '.pdf,.docx,.xlsx',
+                  customRequest: async ({ file, onSuccess, onError }) => {
+                      try {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          formData.append('project_id', projectId);
+
+                          const response = await fetch('http://localhost:8001/api/v1/ai/parse-document', {
+                              method: 'POST',
+                              body: formData,
+                          });
+
+                          if (response.ok) {
+                              onSuccess(await response.json());
+                              message.success('文件上传成功，正在解析...');
+                          }
+                      } catch (error) {
+                          onError(error);
+                          message.error('上传失败');
+                      }
+                  }
+              }}
+              extra="支持 PDF、Word、Excel 格式，最大 50MB"
+          />
+      );
+  }
+  ```
+
+- [ ] 创建解析进度显示组件
+  ```typescript
+  // apps/frontend/src/components/parsing/ParsingProgress.tsx
+  import { Progress, Card, Spin } from 'antd';
+
+  export function ParsingProgress({ taskId }: { taskId: string }) {
+      const { data, isLoading } = useQuery({
+          queryKey: ['parsing-progress', taskId],
+          queryFn: () => fetch(`http://localhost:8001/api/v1/ai/tasks/${taskId}`).then(r => r.json()),
+          refetchInterval: 1000,  // 每秒轮询
+      });
+
+      return (
+          <Card title="文档解析中...">
+              <Progress percent={data?.progress || 0} status="active" />
+              <p>{data?.status_message}</p>
+          </Card>
+      );
+  }
+  ```
+
+- [ ] 创建解析结果展示页面
+  ```typescript
+  // apps/frontend/src/pages/documents/ParsingResult.tsx
+  import { ProDescriptions } from '@ant-design/pro-descriptions';
+
+  export default function ParsingResult({ documentId }: Props) {
+      // 展示解析后的结构化内容
+      // - 项目基本信息
+      // - 技术要求
+      // - 商务条款
+      // - 评分标准
+  }
+  ```
+
+- [ ] 集成到项目详情页
+  ```typescript
+  // apps/frontend/src/pages/projects/ProjectDetail.tsx
+  // 添加"上传招标文件"按钮
+  // 显示已上传文件列表
+  // 支持查看解析结果
+  ```
+
+**验收标准**:
+- [ ] 上传组件支持拖拽上传
+- [ ] 实时显示上传进度
+- [ ] 解析进度实时更新
+- [ ] 解析结果正确展示
+
+---
+
+#### 1.1.3 Java后端实现
+
+**待完成任务**:
+- [ ] 创建 `BiddingDocument` 实体（已存在，需验证字段完整性）
+  ```java
+  // apps/backend-java/ac-dao-postgres/src/main/java/com/aibidcomposer/dao/entity/BiddingDocument.java
+  @Data
+  @TableName(value = "bidding_documents", autoResultMap = true)
+  public class BiddingDocument extends BaseEntity {
+      @TableField("project_id")
+      private String projectId;
+
+      @TableField("file_name")
+      private String fileName;
+
+      @TableField("file_path")
+      private String filePath;
+
+      @TableField("file_size")
+      private Long fileSize;
+
+      @TableField("file_type")
+      private String fileType;
+
+      @TableField("parsed_status")
+      private String parsedStatus;  // 'pending'|'processing'|'success'|'failed'
+
+      @TableField(value = "parsed_content", typeHandler = JacksonTypeHandler.class)
+      private Map<String, Object> parsedContent;
+
+      @TableField("parsed_at")
+      private LocalDateTime parsedAt;
+
+      @TableField("parse_error")
+      private String parseError;
+  }
+  ```
+
+- [ ] 创建 `BiddingDocumentService` 业务逻辑
+  ```java
+  // apps/backend-java/ac-service/src/main/java/com/aibidcomposer/service/BiddingDocumentService.java
+  @Service
+  @RequiredArgsConstructor
+  public class BiddingDocumentService {
+
+      /**
+       * 创建招标文件记录（文件上传时调用）
+       * 需求编号: REQ-AI-001
+       */
+      public BiddingDocument createRecord(String projectId, String fileName,
+                                          String filePath, Long fileSize, String fileType) {
+          BiddingDocument doc = new BiddingDocument();
+          doc.setProjectId(projectId);
+          doc.setFileName(fileName);
+          doc.setFilePath(filePath);
+          doc.setFileSize(fileSize);
+          doc.setFileType(fileType);
+          doc.setParsedStatus("pending");
+
+          biddingDocumentMapper.insert(doc);
+
+          // 发送RabbitMQ消息通知Python服务开始解析
+          rabbitTemplate.convertAndSend("ai.parse.queue", doc.getId());
+
+          return doc;
+      }
+
+      /**
+       * 更新解析状态（Python服务回调）
+       * 需求编号: REQ-AI-001
+       */
+      public void updateParseStatus(String docId, String status,
+                                    Map<String, Object> content, String error) {
+          BiddingDocument doc = biddingDocumentMapper.selectById(docId);
+          doc.setParsedStatus(status);
+          doc.setParsedContent(content);
+          doc.setParsedAt(LocalDateTime.now());
+          doc.setParseError(error);
+
+          biddingDocumentMapper.updateById(doc);
+      }
+  }
+  ```
+
+- [ ] 创建 `BiddingDocumentController` REST API
+  ```java
+  // apps/backend-java/ac-web-api/src/main/java/com/aibidcomposer/web/controller/BiddingDocumentController.java
+  @RestController
+  @RequestMapping("/api/v1/bidding-documents")
+  @RequiredArgsConstructor
+  public class BiddingDocumentController {
+
+      private final BiddingDocumentService biddingDocumentService;
+
+      /**
+       * 获取招标文件列表
+       * 需求编号: REQ-AI-001
+       */
+      @GetMapping
+      public Result<Page<BiddingDocument>> list(@RequestParam String projectId,
+                                                  @RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "20") int pageSize) {
+          Page<BiddingDocument> result = biddingDocumentService.listByProject(projectId, page, pageSize);
+          return Result.success(result);
+      }
+
+      /**
+       * 获取解析结果
+       * 需求编号: REQ-AI-001
+       */
+      @GetMapping("/{id}")
+      public Result<BiddingDocument> get(@PathVariable String id) {
+          BiddingDocument doc = biddingDocumentService.getById(id);
+          return Result.success(doc);
+      }
+  }
+  ```
+
+- [ ] 配置 RabbitMQ 消息队列（Java → Python通信）
+  ```java
+  // apps/backend-java/ac-service/src/main/java/com/aibidcomposer/config/RabbitMQConfig.java
+  @Configuration
+  public class RabbitMQConfig {
+
+      @Bean
+      public Queue aiParseQueue() {
+          return new Queue("ai.parse.queue", true);  // durable=true
+      }
+
+      @Bean
+      public Queue aiParseResultQueue() {
+          return new Queue("ai.parse.result.queue", true);
+      }
+  }
+  ```
+
+**验收标准**:
+- [ ] BiddingDocument实体映射正确
+- [ ] Java服务可以创建解析记录
+- [ ] Java服务可以查询解析结果
+- [ ] RabbitMQ消息发送成功
+
+---
+
+#### 1.1.4 Python后端实现
+
+**待完成任务**:
+- [ ] 创建 FastAPI 文件上传端点
+  ```python
+  # apps/backend-python/app/api/v1/document_parser.py
+  from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+  from app.services.ai.document_parser import DocumentParserService
+  from app.models.parsed_document import ParsedDocument
+
+  router = APIRouter(prefix="/api/v1/ai", tags=["Document Parser"])
+
+  @router.post("/parse-document")
+  async def parse_document(
+      file: UploadFile = File(...),
+      project_id: str = Form(...)
+  ):
+      """
+      解析招标文件
+      需求编号: REQ-AI-001
+      """
+      # 1. 验证文件类型和大小
+      if file.content_type not in ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+          raise HTTPException(status_code=400, detail="不支持的文件类型")
+
+      if file.size > 50 * 1024 * 1024:  # 50MB
+          raise HTTPException(status_code=400, detail="文件大小超过限制")
+
+      # 2. 保存文件到MinIO（通过Java服务API）
+      file_path = await save_to_storage(file, project_id)
+
+      # 3. 创建解析任务记录（调用Java服务API）
+      doc_record = await create_document_record(project_id, file.filename, file_path, file.size)
+
+      # 4. 异步解析（发送到Celery任务队列）
+      from app.tasks.document_parsing import parse_pdf_task
+      task = parse_pdf_task.delay(doc_record['id'], file_path)
+
+      return {
+          "task_id": task.id,
+          "document_id": doc_record['id'],
+          "status": "processing",
+          "message": "文档解析任务已提交"
+      }
+  ```
+
+- [ ] 实现 PDF 解析服务
+  ```python
+  # apps/backend-python/app/services/ai/document_parser.py
+  import pdfplumber
+  from typing import Dict, Any, List
+
+  class DocumentParserService:
+      """文档解析服务"""
+
+      async def parse_pdf(self, file_path: str) -> ParsedDocument:
+          """
+          解析PDF文档
+          需求编号: REQ-AI-001
+          """
+          pages = []
+
+          with pdfplumber.open(file_path) as pdf:
+              for i, page in enumerate(pdf.pages):
+                  # 提取文本
+                  text = page.extract_text()
+
+                  # 提取表格
+                  tables = page.extract_tables()
+
+                  # 提取图片（可选）
+                  # images = page.images
+
+                  pages.append({
+                      "page_number": i + 1,
+                      "text_content": text,
+                      "tables": tables,
+                  })
+
+          # 合并所有页面文本
+          plain_text = "\n\n".join([p["text_content"] for p in pages])
+
+          return ParsedDocument(
+              document_id=...,
+              file_name=...,
+              file_type="pdf",
+              page_count=len(pages),
+              parsed_content={"pages": pages},
+              plain_text=plain_text,
+              metadata={}
+          )
+  ```
+
+- [ ] 实现 Celery 异步任务
+  ```python
+  # apps/backend-python/app/tasks/document_parsing.py
+  from celery import Task
+  from app.tasks.celery_app import celery_app
+  from app.services.ai.document_parser import DocumentParserService
+
+  @celery_app.task(bind=True, max_retries=3)
+  def parse_pdf_task(self: Task, document_id: str, file_path: str):
+      """
+      异步解析PDF任务
+      需求编号: REQ-AI-001
+      """
+      try:
+          # 1. 更新Java服务：状态=processing
+          await update_java_status(document_id, "processing")
+
+          # 2. 解析PDF
+          parser = DocumentParserService()
+          parsed_doc = await parser.parse_pdf(file_path)
+
+          # 3. 更新Java服务：状态=success，内容=parsed_doc
+          await update_java_status(
+              document_id,
+              "success",
+              content=parsed_doc.dict()
+          )
+
+          return {"status": "success", "document_id": document_id}
+
+      except Exception as e:
+          # 失败：更新Java服务状态=failed
+          await update_java_status(document_id, "failed", error=str(e))
+
+          # 重试
+          if self.request.retries < self.max_retries:
+              raise self.retry(exc=e, countdown=60 * (self.request.retries + 1))
+
+          raise
+  ```
+
+- [ ] 实现与Java服务通信
+  ```python
+  # apps/backend-python/app/services/java_api_client.py
+  import httpx
+  from typing import Dict, Any
+
+  class JavaAPIClient:
+      """Java服务API客户端"""
+
+      def __init__(self):
+          self.base_url = "http://backend-java:8080"
+          self.client = httpx.AsyncClient()
+
+      async def update_document_status(
+          self,
+          document_id: str,
+          status: str,
+          content: Dict[str, Any] = None,
+          error: str = None
+      ):
+          """
+          更新Java服务中的文档解析状态
+          需求编号: REQ-AI-001
+          """
+          response = await self.client.put(
+              f"{self.base_url}/api/v1/bidding-documents/{document_id}/parse-status",
+              json={
+                  "status": status,
+                  "content": content,
+                  "error": error
+              }
+          )
+          response.raise_for_status()
+          return response.json()
+  ```
+
+**验收标准**:
+- [ ] POST /api/v1/ai/parse-document 接口正常
+- [ ] PDF解析提取文本正确
+- [ ] PDF解析提取表格正确
+- [ ] Celery异步任务执行成功
+- [ ] 解析结果正确写回Java服务
+
+---
+
+#### 1.1.5 部署配置
+
+**待完成任务**:
+- [ ] 更新 Python 服务 Dockerfile
+  ```dockerfile
+  # apps/backend-python/Dockerfile
+  FROM python:3.11-slim
+
+  # 安装系统依赖（PDF解析需要）
+  RUN apt-get update && apt-get install -y \
+      libpoppler-cpp-dev \
+      poppler-utils \
+      tesseract-ocr \
+      tesseract-ocr-chi-sim \
+      && rm -rf /var/lib/apt/lists/*
+
+  WORKDIR /app
+
+  # 复制依赖文件
+  COPY pyproject.toml ./
+  RUN pip install --no-cache-dir -e .
+
+  # 复制应用代码
+  COPY app /app/app
+
+  EXPOSE 8001
+
+  CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+  ```
+
+- [ ] 添加环境变量
+  ```bash
+  # .env
+  # Python AI服务配置
+  PYTHON_AI_SERVICE_URL=http://backend-python:8001
+  MAX_UPLOAD_SIZE=52428800  # 50MB
+
+  # Celery配置
+  CELERY_BROKER_URL=amqp://rabbitmq:rabbitmq@rabbitmq:5672/
+  CELERY_RESULT_BACKEND=redis://:redis-password@redis:6379/1
+
+  # Java服务连接
+  JAVA_SERVICE_URL=http://backend-java:8080
+  JAVA_SERVICE_API_KEY=secret_key_here
+  ```
+
+- [ ] 配置 docker-compose.yml
+  ```yaml
+  # docker-compose.yml
+  services:
+    backend-python:
+      build:
+        context: ./apps/backend-python
+        dockerfile: Dockerfile
+      ports:
+        - "8001:8001"
+      environment:
+        - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+        - JAVA_SERVICE_URL=${JAVA_SERVICE_URL}
+      depends_on:
+        - rabbitmq
+        - redis
+        - backend-java
+      volumes:
+        - ./apps/backend-python/app:/app/app  # 开发模式热重载
+
+    ai-worker:
+      build:
+        context: ./apps/backend-python
+        dockerfile: Dockerfile
+      command: celery -A app.tasks.celery_app worker --loglevel=info -Q pdf_parsing
+      depends_on:
+        - rabbitmq
+        - redis
+  ```
+
+- [ ] 配置健康检查
+  ```python
+  # apps/backend-python/app/main.py
+  @app.get("/health")
+  async def health_check():
+      """健康检查端点"""
+      return {
+          "status": "healthy",
+          "service": "python-ai-service",
+          "version": "1.0.0"
+      }
+  ```
+
+**验收标准**:
+- [ ] Docker镜像构建成功
+- [ ] 服务启动正常
+- [ ] 健康检查端点返回200
+- [ ] Celery Worker连接成功
+
+---
+
+### 二级任务 1.2: Word文档解析引擎
+
+**预计工作量**: 2 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 1.2.1 数据定义
+
+**待完成任务**:
+- [ ] 扩展 `ParsedDocument` 支持Word格式
+- [ ] 定义 `WordSection` 数据结构
+  ```python
+  class WordSection(BaseModel):
+      """Word文档章节"""
+      level: int  # 标题级别 1-9
+      title: str
+      content: str
+      style: str  # 样式名称
+  ```
+
+#### 1.2.2 前端实现
+
+**待完成任务**:
+- [ ] 文件上传组件支持 .docx 格式
+- [ ] 解析结果展示支持Word文档结构
+- [ ] 支持章节树形导航
+
+#### 1.2.3 Java后端实现
+
+**待完成任务**:
+- [ ] 验证 BiddingDocument 实体支持Word文档
+- [ ] 添加Word文档特定字段（如章节数量）
+
+#### 1.2.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现 Word 解析服务
+  ```python
+  # apps/backend-python/app/services/ai/word_parser.py
+  from docx import Document
+
+  class WordParserService:
+      async def parse_word(self, file_path: str) -> ParsedDocument:
+          """
+          解析Word文档
+          需求编号: REQ-AI-001
+          """
+          doc = Document(file_path)
+
+          sections = []
+          for para in doc.paragraphs:
+              if para.style.name.startswith('Heading'):
+                  level = int(para.style.name.split()[-1])
+                  sections.append({
+                      "level": level,
+                      "title": para.text,
+                      "style": para.style.name
+                  })
+              else:
+                  # 普通段落内容
+                  pass
+
+          return ParsedDocument(...)
+  ```
+
+- [ ] 创建 Celery 任务
+  ```python
+  @celery_app.task
+  def parse_word_task(document_id: str, file_path: str):
+      parser = WordParserService()
+      result = await parser.parse_word(file_path)
+      # ...
+  ```
+
+#### 1.2.5 部署配置
+
+**待完成任务**:
+- [ ] 确保 python-docx 已安装（已在 pyproject.toml）
+- [ ] 无需额外系统依赖
+
+---
+
+### 二级任务 1.3: Excel表格解析引擎
+
+**预计工作量**: 2 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 1.3.1 数据定义
+
+**待完成任务**:
+- [ ] 定义 `ExcelSheet` 数据结构
+  ```python
+  class ExcelSheet(BaseModel):
+      """Excel工作表"""
+      sheet_name: str
+      rows: List[List[Any]]  # 二维数组
+      header: List[str]
+      total_rows: int
+      total_columns: int
+  ```
+
+#### 1.3.2 前端实现
+
+**待完成任务**:
+- [ ] 文件上传组件支持 .xlsx 格式
+- [ ] Excel表格预览组件（ProTable）
+- [ ] 多工作表切换展示
+
+#### 1.3.3 Java后端实现
+
+**待完成任务**:
+- [ ] BiddingDocument 实体支持Excel文档
+
+#### 1.3.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现 Excel 解析服务
+  ```python
+  # apps/backend-python/app/services/ai/excel_parser.py
+  import openpyxl
+
+  class ExcelParserService:
+      async def parse_excel(self, file_path: str) -> ParsedDocument:
+          """
+          解析Excel文档
+          需求编号: REQ-AI-001
+          """
+          wb = openpyxl.load_workbook(file_path)
+
+          sheets = []
+          for sheet in wb.worksheets:
+              rows = []
+              for row in sheet.iter_rows(values_only=True):
+                  rows.append(list(row))
+
+              sheets.append({
+                  "sheet_name": sheet.title,
+                  "rows": rows,
+                  "total_rows": sheet.max_row,
+                  "total_columns": sheet.max_column
+              })
+
+          return ParsedDocument(...)
+  ```
+
+#### 1.3.5 部署配置
+
+**待完成任务**:
+- [ ] 确保 openpyxl 已安装（已在 pyproject.toml）
+
+---
+
+### 二级任务 1.4: 基于LlamaIndex的关键信息提取
+
+**预计工作量**: 5 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 1.4.1 数据定义
+
+**待完成任务**:
+- [ ] 定义 `ExtractedInfo` 数据结构
+  ```python
+  class ProjectBasicInfo(BaseModel):
+      """项目基本信息"""
+      project_name: str
+      client_name: str
+      budget: Optional[float]
+      deadline: Optional[datetime]
+      location: Optional[str]
+
+  class TechnicalRequirement(BaseModel):
+      """技术要求"""
+      requirement_id: str
+      category: str  # 'technical'|'business'|'compliance'
+      title: str
+      description: str
+      is_mandatory: bool
+      priority: str  # 'high'|'medium'|'low'
+
+  class ExtractedInfo(BaseModel):
+      """提取的关键信息"""
+      basic_info: ProjectBasicInfo
+      technical_requirements: List[TechnicalRequirement]
+      business_terms: List[Dict[str, Any]]
+      scoring_criteria: List[Dict[str, Any]]
+  ```
+
+- [ ] 设计 `project_requirements` 表（Java服务负责）
+  ```sql
+  CREATE TABLE project_requirements (
+      id UUID PRIMARY KEY,
+      project_id UUID NOT NULL,
+      requirement_type VARCHAR(50),  -- 'technical'|'business'|'compliance'
+      category VARCHAR(100),
+      title VARCHAR(200) NOT NULL,
+      description TEXT,
+      priority VARCHAR(20),
+      is_mandatory BOOLEAN DEFAULT TRUE,
+      match_status VARCHAR(20),  -- 'pending'|'matched'|'unmatched'
+      match_score DECIMAL(5, 2),
+      FOREIGN KEY (project_id) REFERENCES projects(id)
+  );
+  ```
+
+#### 1.4.2 前端实现
+
+**待完成任务**:
+- [ ] 创建信息提取结果展示页面
+  ```typescript
+  // apps/frontend/src/pages/documents/ExtractedInfo.tsx
+  import { ProDescriptions } from '@ant-design/pro-descriptions';
+  import { ProList } from '@ant-design/pro-list';
+
+  export default function ExtractedInfo({ documentId }: Props) {
+      // 展示项目基本信息（ProDescriptions）
+      // 展示技术要求列表（ProList）
+      // 展示商务条款列表
+      // 展示评分标准
+  }
+  ```
+
+- [ ] 创建需求匹配状态展示
+  ```typescript
+  // 显示每个需求的匹配状态（matched/unmatched）
+  // 显示匹配分数
+  // 支持手动调整匹配结果
+  ```
+
+#### 1.4.3 Java后端实现
+
+**待完成任务**:
+- [ ] 创建 `ProjectRequirement` 实体
+  ```java
+  @Data
+  @TableName("project_requirements")
+  public class ProjectRequirement extends BaseEntity {
+      @TableField("project_id")
+      private String projectId;
+
+      @TableField("requirement_type")
+      private String requirementType;
+
+      @TableField("title")
+      private String title;
+
+      @TableField("description")
+      private String description;
+
+      @TableField("is_mandatory")
+      private Boolean isMandatory;
+
+      @TableField("priority")
+      private String priority;
+
+      @TableField("match_status")
+      private String matchStatus;
+
+      @TableField("match_score")
+      private BigDecimal matchScore;
+  }
+  ```
+
+- [ ] 创建 `ProjectRequirementService`
+  ```java
+  @Service
+  public class ProjectRequirementService {
+
+      /**
+       * 批量保存提取的需求（Python服务回调）
+       * 需求编号: REQ-AI-001
+       */
+      @Transactional
+      public void batchSave(String projectId, List<RequirementDTO> requirements) {
+          for (RequirementDTO req : requirements) {
+              ProjectRequirement entity = new ProjectRequirement();
+              entity.setProjectId(projectId);
+              entity.setRequirementType(req.getCategory());
+              entity.setTitle(req.getTitle());
+              entity.setDescription(req.getDescription());
+              entity.setIsMandatory(req.getIsMandatory());
+              entity.setPriority(req.getPriority());
+              entity.setMatchStatus("pending");
+
+              projectRequirementMapper.insert(entity);
+          }
+      }
+  }
+  ```
+
+- [ ] 创建 REST API
+  ```java
+  @RestController
+  @RequestMapping("/api/v1/requirements")
+  public class RequirementController {
+
+      @GetMapping
+      public Result<Page<ProjectRequirement>> list(@RequestParam String projectId) {
+          // 查询项目需求列表
+      }
+
+      @PostMapping("/batch")
+      public Result<Void> batchCreate(@RequestBody BatchRequirementRequest request) {
+          // Python服务回调：批量创建需求
+          requirementService.batchSave(request.getProjectId(), request.getRequirements());
+          return Result.success();
+      }
+  }
+  ```
+
+#### 1.4.4 Python后端实现
+
+**待完成任务**:
+- [ ] 集成 LlamaIndex 0.14.8
+  ```python
+  # apps/backend-python/app/services/ai/llama_index_service.py
+  from llama_index import VectorStoreIndex, ServiceContext, Document
+  from llama_index.llms import OpenAI
+  from llama_index.embeddings import OpenAIEmbedding
+
+  class LlamaIndexService:
+      """LlamaIndex RAG服务"""
+
+      def __init__(self):
+          self.llm = OpenAI(model="gpt-4-turbo-preview", api_key=settings.OPENAI_API_KEY)
+          self.embed_model = OpenAIEmbedding(api_key=settings.OPENAI_API_KEY)
+
+      async def extract_info(self, document_text: str) -> ExtractedInfo:
+          """
+          使用LlamaIndex提取关键信息
+          需求编号: REQ-AI-001
+          """
+          # 1. 创建文档索引
+          documents = [Document(text=document_text)]
+          service_context = ServiceContext.from_defaults(
+              llm=self.llm,
+              embed_model=self.embed_model
+          )
+          index = VectorStoreIndex.from_documents(
+              documents,
+              service_context=service_context
+          )
+
+          # 2. 查询项目基本信息
+          query_engine = index.as_query_engine()
+          basic_info_response = await query_engine.aquery(
+              "请提取以下信息：项目名称、招标单位、项目预算、提交截止时间、项目地点"
+          )
+
+          # 3. 查询技术要求
+          tech_req_response = await query_engine.aquery(
+              "请提取所有技术要求，包括：要求标题、详细描述、是否强制、优先级"
+          )
+
+          # 4. 解析LLM响应，构建结构化数据
+          # TODO: 使用GPT-4输出JSON格式，直接解析
+
+          return ExtractedInfo(
+              basic_info=ProjectBasicInfo(...),
+              technical_requirements=[...],
+              business_terms=[...],
+              scoring_criteria=[...]
+          )
+  ```
+
+- [ ] 创建信息提取API
+  ```python
+  # apps/backend-python/app/api/v1/information_extraction.py
+  @router.post("/extract-requirements")
+  async def extract_requirements(document_id: str):
+      """
+      提取招标文件的关键信息
+      需求编号: REQ-AI-001
+      """
+      # 1. 从Java服务获取文档内容
+      doc = await java_client.get_document(document_id)
+
+      # 2. 使用LlamaIndex提取信息
+      llama_service = LlamaIndexService()
+      extracted = await llama_service.extract_info(doc['plain_text'])
+
+      # 3. 回调Java服务，保存提取结果
+      await java_client.save_requirements(
+          doc['project_id'],
+          extracted.technical_requirements
+      )
+
+      return extracted
+  ```
+
+- [ ] 实现Celery异步任务
+  ```python
+  @celery_app.task
+  def extract_info_task(document_id: str):
+      """异步提取信息任务"""
+      # 调用extract_requirements逻辑
+      pass
+  ```
+
+#### 1.4.5 部署配置
+
+**待完成任务**:
+- [ ] 确保 LlamaIndex 0.14.8 已安装 ✅
+- [ ] 配置 OPENAI_API_KEY 环境变量
+- [ ] 配置 Celery 队列：`ai_extraction`
+
+---
+
+### 二级任务 1.5: 向量化和Elasticsearch存储
+
+**预计工作量**: 4 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 1.5.1 数据定义
+
+**待完成任务**:
+- [ ] 设计 Elasticsearch 索引结构
+  ```json
+  {
+    "mappings": {
+      "properties": {
+        "document_id": { "type": "keyword" },
+        "project_id": { "type": "keyword" },
+        "content": { "type": "text", "analyzer": "ik_max_word" },
+        "embedding": {
+          "type": "dense_vector",
+          "dims": 1536,
+          "index": true,
+          "similarity": "cosine"
+        },
+        "metadata": { "type": "object" },
+        "created_at": { "type": "date" }
+      }
+    }
+  }
+  ```
+
+#### 1.5.2 前端实现
+
+**待完成任务**:
+- [ ] 创建语义搜索界面
+  ```typescript
+  // apps/frontend/src/components/search/SemanticSearch.tsx
+  import { ProFormText } from '@ant-design/pro-form';
+
+  export function SemanticSearch() {
+      const [results, setResults] = useState([]);
+
+      const handleSearch = async (query: string) => {
+          const response = await fetch('http://localhost:8001/api/v1/ai/semantic-search', {
+              method: 'POST',
+              body: JSON.stringify({ query, top_k: 10 })
+          });
+          setResults(await response.json());
+      };
+
+      return (
+          <div>
+              <ProFormText
+                  name="query"
+                  placeholder="输入搜索关键词..."
+                  fieldProps={{
+                      onPressEnter: (e) => handleSearch(e.target.value)
+                  }}
+              />
+              <SearchResults results={results} />
+          </div>
+      );
+  }
+  ```
+
+#### 1.5.3 Java后端实现
+
+**待完成任务**:
+- [ ] 无需Java后端支持（纯Python实现）
+
+#### 1.5.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现 Elasticsearch 向量存储服务
+  ```python
+  # apps/backend-python/app/services/ai/elasticsearch_store.py
+  from elasticsearch import AsyncElasticsearch
+  from llama_index.vector_stores import ElasticsearchStore
+  from app.services.ai.embedding_service import EmbeddingService
+
+  class ElasticsearchVectorStore:
+      """Elasticsearch向量存储（主力方案）"""
+
+      def __init__(self):
+          self.es_client = AsyncElasticsearch(
+              hosts=[settings.ELASTICSEARCH_URL],
+              basic_auth=(settings.ELASTICSEARCH_USER, settings.ELASTICSEARCH_PASSWORD)
+          )
+          self.index_name = "aibidcomposer-vectors"
+
+      async def initialize_index(self):
+          """初始化索引"""
+          if not await self.es_client.indices.exists(index=self.index_name):
+              await self.es_client.indices.create(
+                  index=self.index_name,
+                  body={
+                      "mappings": {
+                          "properties": {
+                              "content": {"type": "text"},
+                              "embedding": {
+                                  "type": "dense_vector",
+                                  "dims": 1536,
+                                  "index": True,
+                                  "similarity": "cosine"
+                              },
+                              "document_id": {"type": "keyword"},
+                              "project_id": {"type": "keyword"},
+                              "created_at": {"type": "date"}
+                          }
+                      }
+                  }
+              )
+
+      async def add_documents(
+          self,
+          documents: List[Dict[str, Any]],
+          embeddings: List[List[float]]
+      ):
+          """添加文档到向量库"""
+          from elasticsearch.helpers import async_bulk
+
+          actions = []
+          for i, (doc, embedding) in enumerate(zip(documents, embeddings)):
+              actions.append({
+                  "_index": self.index_name,
+                  "_id": doc.get("id", f"doc_{i}"),
+                  "_source": {
+                      "content": doc.get("text", ""),
+                      "embedding": embedding,
+                      "document_id": doc.get("document_id", ""),
+                      "project_id": doc.get("project_id", ""),
+                      "created_at": doc.get("created_at", "")
+                  }
+              })
+
+          await async_bulk(self.es_client, actions)
+
+      async def semantic_search(
+          self,
+          query_text: str,
+          top_k: int = 10
+      ) -> List[Dict[str, Any]]:
+          """语义搜索"""
+          # 1. 获取查询向量
+          embedding_service = EmbeddingService()
+          query_embedding = await embedding_service.embed_text(query_text)
+
+          # 2. 执行kNN搜索
+          response = await self.es_client.search(
+              index=self.index_name,
+              body={
+                  "knn": {
+                      "field": "embedding",
+                      "query_vector": query_embedding,
+                      "k": top_k,
+                      "num_candidates": top_k * 10
+                  }
+              },
+              size=top_k
+          )
+
+          return [
+              {
+                  "id": hit["_id"],
+                  "score": hit["_score"],
+                  "content": hit["_source"]["content"],
+                  "metadata": {
+                      "document_id": hit["_source"]["document_id"],
+                      "project_id": hit["_source"]["project_id"]
+                  }
+              }
+              for hit in response["hits"]["hits"]
+          ]
+  ```
+
+- [ ] 实现向量化服务
+  ```python
+  # apps/backend-python/app/services/ai/embedding_service.py
+  from openai import AsyncOpenAI
+
+  class EmbeddingService:
+      """向量嵌入服务"""
+
+      def __init__(self):
+          self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+
+      async def embed_text(self, text: str) -> List[float]:
+          """文本转向量"""
+          response = await self.client.embeddings.create(
+              model="text-embedding-ada-002",
+              input=text
+          )
+          return response.data[0].embedding
+
+      async def embed_documents(self, documents: List[str]) -> List[List[float]]:
+          """批量嵌入"""
+          response = await self.client.embeddings.create(
+              model="text-embedding-ada-002",
+              input=documents
+          )
+          return [item.embedding for item in response.data]
+  ```
+
+- [ ] 创建API端点
+  ```python
+  @router.post("/vectorize-document")
+  async def vectorize_document(document_id: str):
+      """文档向量化"""
+      # 1. 获取文档内容
+      doc = await java_client.get_document(document_id)
+
+      # 2. 文本嵌入
+      embedding_service = EmbeddingService()
+      embedding = await embedding_service.embed_text(doc['plain_text'])
+
+      # 3. 存储到Elasticsearch
+      es_store = ElasticsearchVectorStore()
+      await es_store.add_documents(
+          documents=[{"id": document_id, "text": doc['plain_text']}],
+          embeddings=[embedding]
+      )
+
+      return {"status": "success"}
+
+  @router.post("/semantic-search")
+  async def semantic_search(query: str, top_k: int = 10):
+      """语义搜索"""
+      es_store = ElasticsearchVectorStore()
+      results = await es_store.semantic_search(query, top_k)
+      return results
+  ```
+
+#### 1.5.5 部署配置
+
+**待完成任务**:
+- [ ] 确保 Elasticsearch 9.2.1 已部署 ✅
+- [ ] 初始化向量索引（启动时自动执行）
+- [ ] 配置 Elasticsearch 环境变量
+
+---
+
+### 二级任务 1.6: API接口整合和测试
+
+**预计工作量**: 2 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 1.6.1 数据定义
+
+**待完成任务**:
+- [ ] 定义API请求/响应模型（已在各子任务完成）
+
+#### 1.6.2 前端实现
+
+**待完成任务**:
+- [ ] 集成所有API到前端服务层
+  ```typescript
+  // apps/frontend/src/services/ai.service.ts
+  export const aiService = {
+      parseDocument: (file: File, projectId: string) => { ... },
+      extractRequirements: (documentId: string) => { ... },
+      semanticSearch: (query: string) => { ... },
+  };
+  ```
+
+#### 1.6.3 Java后端实现
+
+**待完成任务**:
+- [ ] 创建统一的AI服务代理（可选）
+  ```java
+  @Service
+  public class AIServiceProxy {
+      @Value("${ai.service.url}")
+      private String aiServiceUrl;
+
+      public <T> T callAIService(String endpoint, Object request, Class<T> responseType) {
+          // 统一调用Python AI服务
+      }
+  }
+  ```
+
+#### 1.6.4 Python后端实现
+
+**待完成任务**:
+- [ ] 整合所有API到主路由
+  ```python
+  # apps/backend-python/app/api/v1/__init__.py
+  from fastapi import APIRouter
+  from app.api.v1 import (
+      document_parser,
+      information_extraction,
+      semantic_search
+  )
+
+  api_router = APIRouter()
+  api_router.include_router(document_parser.router)
+  api_router.include_router(information_extraction.router)
+  api_router.include_router(semantic_search.router)
+  ```
+
+- [ ] 添加API文档
+  ```python
+  # apps/backend-python/app/main.py
+  app = FastAPI(
+      title="AI标书智能创作平台 - AI服务",
+      description="提供文档解析、信息提取、语义搜索等AI能力",
+      version="1.0.0",
+      docs_url="/docs",
+      redoc_url="/redoc"
+  )
+  ```
+
+#### 1.6.5 部署配置
+
+**待完成任务**:
+- [ ] 编写集成测试脚本
+  ```bash
+  # scripts/test-ai-integration.sh
+  #!/bin/bash
+
+  echo "测试文档上传..."
+  curl -X POST http://localhost:8001/api/v1/ai/parse-document \
+    -F "file=@test.pdf" \
+    -F "project_id=test-project-id"
+
+  echo "测试信息提取..."
+  curl -X POST http://localhost:8001/api/v1/ai/extract-requirements \
+    -H "Content-Type: application/json" \
+    -d '{"document_id": "test-doc-id"}'
+
+  echo "测试语义搜索..."
+  curl -X POST http://localhost:8001/api/v1/ai/semantic-search \
+    -H "Content-Type: application/json" \
+    -d '{"query": "技术要求", "top_k": 10}'
+  ```
+
+---
+
+## 总结和下一步
+
+### AI-001 总体进度
+
+- **总计二级任务**: 6个
+- **已完成**: 0个（0%）
+- **待开始**: 6个
+- **预计总工作量**: 18 人天
+
+### 细化效果
+
+✅ **细化前**: 6个粗粒度子任务（如"文档解析引擎"）
+✅ **细化后**: 每个子任务拆分为5类别（数据/前端/Java/Python/部署），共 30+ 具体任务项
+
+### 下一步行动
+
+1. **立即开始**: 二级任务 1.1（PDF文档解析引擎）
+   - 从数据定义开始
+   - 然后前端组件
+   - 再Python后端实现
+   - 最后部署配置
+
+2. **并行开发**（如果团队充足）:
+   - 前端团队：1.1.2（前端实现）
+   - Python团队：1.1.4（Python后端）
+   - Java团队：1.1.3（Java后端）
+   - DevOps团队：1.1.5（部署配置）
+
+3. **依赖关系**:
+   - 1.1.1（数据定义）必须优先完成
+   - 1.1.2-1.1.4 可以并行开发
+   - 1.1.5（部署）在开发完成后进行
+
+---
+
+## AI-002: 智能内容生成引擎
+
+**需求编号**: REQ-AI-002
+**负责人**: Python AI 开发
+**优先级**: P1 - 高优先级
+**开始时间**: YYYY-MM-DD
+**预计完成**: YYYY-MM-DD
+**实际完成**: -
+**当前状态**: ⏸️ 待开始
+**完成进度**: 0% (0/5 子任务)
+
+### 模块概述
+
+智能内容生成引擎是平台的核心AI能力，负责：
+- 基于RAG技术生成高质量标书内容
+- 多领域AI助手矩阵提供专业建议
+- 内容优化和质量保证
+
+**技术栈**: Python 3.11 + FastAPI + LlamaIndex (主力) + GPT-4 + Elasticsearch
+**预计总工作量**: 22 人天
+
+---
+
+### 二级任务 2.1: RAG系统构建
+
+**预计工作量**: 5 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 2.1.1 数据定义
+
+**待完成任务**:
+- [ ] 定义知识库文档数据模型
+  ```python
+  # apps/backend-python/app/models/knowledge_base.py
+  from pydantic import BaseModel
+  from typing import List, Dict, Any, Optional
+  from datetime import datetime
+
+  class KnowledgeDocument(BaseModel):
+      """知识库文档"""
+      doc_id: str
+      doc_type: str  # 'product'|'case'|'personnel'|'certification'
+      title: str
+      content: str
+      metadata: Dict[str, Any]
+      embedding: Optional[List[float]]  # 向量表示
+      created_at: datetime
+
+  class RAGContext(BaseModel):
+      """RAG上下文"""
+      query: str
+      retrieved_docs: List[KnowledgeDocument]
+      relevance_scores: List[float]
+      total_retrieved: int
+  ```
+
+- [ ] 设计PostgreSQL知识库表（Java服务负责）
+  ```sql
+  -- Java服务管理的企业能力表
+  CREATE TABLE company_capabilities (
+      id UUID PRIMARY KEY,
+      organization_id UUID NOT NULL,
+      capability_type VARCHAR(50),  -- 'product'|'service'|'case'|'certificate'
+      title VARCHAR(200) NOT NULL,
+      description TEXT,
+      content TEXT,  -- 详细内容
+      tags TEXT[],
+      embedding_status VARCHAR(20),  -- 'pending'|'completed'
+      created_at TIMESTAMP WITH TIME ZONE,
+      FOREIGN KEY (organization_id) REFERENCES organizations(id)
+  );
+  ```
+
+#### 2.1.2 前端实现
+
+**待完成任务**:
+- [ ] 创建知识库管理页面
+  ```typescript
+  // apps/frontend/src/pages/knowledge/KnowledgeBase.tsx
+  import { ProTable } from '@ant-design/pro-table';
+  import { Button, Tag } from 'antd';
+
+  export default function KnowledgeBase() {
+      const columns = [
+          { title: 'ID', dataIndex: 'id', width: 100 },
+          { title: '类型', dataIndex: 'capability_type', render: (type) => (
+              <Tag color={type === 'product' ? 'blue' : 'green'}>{type}</Tag>
+          )},
+          { title: '标题', dataIndex: 'title' },
+          { title: '向量化状态', dataIndex: 'embedding_status', render: (status) => (
+              <Tag color={status === 'completed' ? 'success' : 'processing'}>{status}</Tag>
+          )},
+          { title: '创建时间', dataIndex: 'created_at', valueType: 'dateTime' },
+          {
+              title: '操作',
+              render: (_, record) => (
+                  <>
+                      <Button onClick={() => handleVectorize(record.id)}>向量化</Button>
+                      <Button onClick={() => handleEdit(record)}>编辑</Button>
+                  </>
+              )
+          }
+      ];
+
+      const handleVectorize = async (id: string) => {
+          // 调用Python服务向量化API
+          await fetch(`http://localhost:8001/api/v1/ai/vectorize-capability/${id}`, {
+              method: 'POST'
+          });
+          message.success('向量化任务已提交');
+      };
+
+      return (
+          <ProTable
+              columns={columns}
+              request={async (params) => {
+                  // 从Java服务获取知识库列表
+                  const response = await fetch('http://localhost:8080/api/v1/capabilities');
+                  return response.json();
+              }}
+              rowKey="id"
+              search={false}
+          />
+      );
+  }
+  ```
+
+- [ ] 创建RAG检索测试页面
+  ```typescript
+  // apps/frontend/src/pages/knowledge/RAGTest.tsx
+  import { ProForm, ProFormText, ProFormDigit } from '@ant-design/pro-form';
+
+  export function RAGTest() {
+      const [retrievedDocs, setRetrievedDocs] = useState([]);
+
+      const testRetrieval = async (values: any) => {
+          const response = await fetch('http://localhost:8001/api/v1/ai/rag-retrieve', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  query: values.query,
+                  top_k: values.top_k || 5
+              })
+          });
+
+          const result = await response.json();
+          setRetrievedDocs(result.retrieved_docs);
+      };
+
+      return (
+          <div>
+              <ProForm onFinish={testRetrieval}>
+                  <ProFormText name="query" label="查询" placeholder="输入查询内容..." />
+                  <ProFormDigit name="top_k" label="返回数量" initialValue={5} />
+              </ProForm>
+
+              <div>
+                  <h3>检索结果:</h3>
+                  {retrievedDocs.map((doc, idx) => (
+                      <Card key={idx} style={{ marginBottom: 16 }}>
+                          <p><strong>标题:</strong> {doc.title}</p>
+                          <p><strong>相关度:</strong> {doc.relevance_score.toFixed(2)}</p>
+                          <p>{doc.content.substring(0, 200)}...</p>
+                      </Card>
+                  ))}
+              </div>
+          </div>
+      );
+  }
+  ```
+
+#### 2.1.3 Java后端实现
+
+**待完成任务**:
+- [ ] 创建 `CompanyCapability` 实体
+  ```java
+  // apps/backend-java/src/main/java/com/aibidcomposer/entity/CompanyCapability.java
+  @Data
+  @TableName("company_capabilities")
+  public class CompanyCapability extends BaseEntity {
+      @TableField("organization_id")
+      private String organizationId;
+
+      @TableField("capability_type")
+      private String capabilityType;  // 'product'|'service'|'case'|'certificate'
+
+      @TableField("title")
+      private String title;
+
+      @TableField("description")
+      private String description;
+
+      @TableField("content")
+      private String content;  // 详细内容（供RAG使用）
+
+      @TableField("tags")
+      private String tags;  // JSON数组
+
+      @TableField("embedding_status")
+      private String embeddingStatus;  // 'pending'|'processing'|'completed'
+  }
+  ```
+
+- [ ] 创建 `CapabilityService`
+  ```java
+  // apps/backend-java/src/main/java/com/aibidcomposer/service/CapabilityService.java
+  @Service
+  @RequiredArgsConstructor
+  public class CapabilityService {
+
+      private final CapabilityMapper capabilityMapper;
+      private final RabbitTemplate rabbitTemplate;
+
+      /**
+       * 创建企业能力记录
+       * 需求编号: REQ-AI-002
+       */
+      public CompanyCapability create(CreateCapabilityRequest request) {
+          CompanyCapability capability = new CompanyCapability();
+          capability.setOrganizationId(request.getOrganizationId());
+          capability.setCapabilityType(request.getCapabilityType());
+          capability.setTitle(request.getTitle());
+          capability.setContent(request.getContent());
+          capability.setEmbeddingStatus("pending");
+
+          capabilityMapper.insert(capability);
+
+          // 发送RabbitMQ消息通知Python服务进行向量化
+          rabbitTemplate.convertAndSend("ai.vectorize.queue", capability.getId());
+
+          return capability;
+      }
+
+      /**
+       * 更新向量化状态（Python服务回调）
+       */
+      public void updateEmbeddingStatus(String capabilityId, String status) {
+          CompanyCapability capability = capabilityMapper.selectById(capabilityId);
+          capability.setEmbeddingStatus(status);
+          capabilityMapper.updateById(capability);
+      }
+
+      /**
+       * 查询所有待向量化的能力
+       */
+      public List<CompanyCapability> getPendingEmbedding(String organizationId) {
+          LambdaQueryWrapper<CompanyCapability> wrapper = new LambdaQueryWrapper<>();
+          wrapper.eq(CompanyCapability::getOrganizationId, organizationId)
+                 .eq(CompanyCapability::getEmbeddingStatus, "pending");
+          return capabilityMapper.selectList(wrapper);
+      }
+  }
+  ```
+
+- [ ] 创建REST API
+  ```java
+  @RestController
+  @RequestMapping("/api/v1/capabilities")
+  @RequiredArgsConstructor
+  public class CapabilityController {
+
+      private final CapabilityService capabilityService;
+
+      @PostMapping
+      public Result<CompanyCapability> create(@RequestBody CreateCapabilityRequest request) {
+          CompanyCapability capability = capabilityService.create(request);
+          return Result.success(capability);
+      }
+
+      @GetMapping
+      public Result<Page<CompanyCapability>> list(
+          @RequestParam String organizationId,
+          @RequestParam(defaultValue = "1") int page,
+          @RequestParam(defaultValue = "20") int pageSize
+      ) {
+          // 分页查询
+          Page<CompanyCapability> result = capabilityService.list(organizationId, page, pageSize);
+          return Result.success(result);
+      }
+
+      @PutMapping("/{id}/embedding-status")
+      public Result<Void> updateEmbeddingStatus(
+          @PathVariable String id,
+          @RequestParam String status
+      ) {
+          // Python服务回调更新向量化状态
+          capabilityService.updateEmbeddingStatus(id, status);
+          return Result.success();
+      }
+  }
+  ```
+
+#### 2.1.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现 LlamaIndex RAG 服务
+  ```python
+  # apps/backend-python/app/services/ai/rag_service.py
+  from llama_index import VectorStoreIndex, ServiceContext, Document
+  from llama_index.vector_stores import ElasticsearchStore
+  from llama_index.llms import OpenAI
+  from llama_index.embeddings import OpenAIEmbedding
+  from typing import List, Dict, Any
+  from app.services.ai.elasticsearch_store import ElasticsearchVectorStore
+
+  class RAGService:
+      """RAG检索增强生成服务（基于LlamaIndex）"""
+
+      def __init__(self):
+          # 初始化LLM
+          self.llm = OpenAI(
+              model="gpt-4-turbo-preview",
+              api_key=settings.OPENAI_API_KEY,
+              temperature=0.7
+          )
+
+          # 初始化嵌入模型
+          self.embed_model = OpenAIEmbedding(api_key=settings.OPENAI_API_KEY)
+
+          # 初始化Elasticsearch向量存储
+          self.es_store = ElasticsearchVectorStore()
+
+          # 创建服务上下文
+          self.service_context = ServiceContext.from_defaults(
+              llm=self.llm,
+              embed_model=self.embed_model
+          )
+
+      async def build_index(self, documents: List[Dict[str, Any]]) -> VectorStoreIndex:
+          """
+          构建向量索引
+          需求编号: REQ-AI-002
+          """
+          # 1. 转换为LlamaIndex Document对象
+          llama_docs = []
+          for doc in documents:
+              llama_docs.append(Document(
+                  text=doc['content'],
+                  metadata={
+                      'doc_id': doc['id'],
+                      'title': doc['title'],
+                      'doc_type': doc['type']
+                  }
+              ))
+
+          # 2. 使用Elasticsearch作为向量存储构建索引
+          index = VectorStoreIndex.from_documents(
+              llama_docs,
+              service_context=self.service_context,
+              vector_store=self.es_store.vector_store  # 使用Elasticsearch
+          )
+
+          return index
+
+      async def retrieve(
+          self,
+          query: str,
+          top_k: int = 5,
+          organization_id: Optional[str] = None
+      ) -> RAGContext:
+          """
+          RAG检索
+          需求编号: REQ-AI-002
+          """
+          # 1. 从Java服务获取组织的所有能力数据
+          capabilities = await self.java_client.get_capabilities(organization_id)
+
+          # 2. 构建索引
+          index = await self.build_index(capabilities)
+
+          # 3. 创建查询引擎
+          query_engine = index.as_query_engine(
+              similarity_top_k=top_k,
+              response_mode="compact"  # 紧凑模式，只返回相关内容
+          )
+
+          # 4. 执行检索
+          response = await query_engine.aquery(query)
+
+          # 5. 提取检索到的文档
+          retrieved_docs = []
+          for node in response.source_nodes:
+              retrieved_docs.append({
+                  'doc_id': node.metadata.get('doc_id'),
+                  'title': node.metadata.get('title'),
+                  'content': node.text,
+                  'relevance_score': node.score
+              })
+
+          return RAGContext(
+              query=query,
+              retrieved_docs=retrieved_docs,
+              relevance_scores=[node.score for node in response.source_nodes],
+              total_retrieved=len(retrieved_docs)
+          )
+
+      async def generate_with_rag(
+          self,
+          query: str,
+          context: RAGContext,
+          generation_prompt: str
+      ) -> str:
+          """
+          基于RAG上下文生成内容
+          需求编号: REQ-AI-002
+          """
+          # 1. 构建增强Prompt
+          context_text = "\n\n".join([
+              f"[{doc['title']}]\n{doc['content']}"
+              for doc in context.retrieved_docs
+          ])
+
+          full_prompt = f"""
+{generation_prompt}
+
+参考上下文：
+{context_text}
+
+用户需求：
+{query}
+
+请基于以上参考上下文生成内容。
+"""
+
+          # 2. 调用LLM生成
+          response = await self.llm.acomplete(full_prompt)
+
+          return response.text
+  ```
+
+- [ ] 创建向量化Celery任务
+  ```python
+  # apps/backend-python/app/tasks/vectorization.py
+  from app.tasks.celery_app import celery_app
+  from app.services.ai.rag_service import RAGService
+  from app.clients.java_api_client import JavaAPIClient
+
+  @celery_app.task(bind=True, max_retries=3)
+  def vectorize_capability_task(self: Task, capability_id: str):
+      """
+      向量化企业能力任务
+      需求编号: REQ-AI-002
+      """
+      try:
+          java_client = JavaAPIClient()
+
+          # 1. 更新Java服务：状态=processing
+          await java_client.update_embedding_status(capability_id, "processing")
+
+          # 2. 获取能力数据
+          capability = await java_client.get_capability(capability_id)
+
+          # 3. 向量化并存储到Elasticsearch
+          rag_service = RAGService()
+          await rag_service.build_index([{
+              'id': capability['id'],
+              'title': capability['title'],
+              'content': capability['content'],
+              'type': capability['capability_type']
+          }])
+
+          # 4. 更新Java服务：状态=completed
+          await java_client.update_embedding_status(capability_id, "completed")
+
+          return {"status": "success", "capability_id": capability_id}
+
+      except Exception as e:
+          await java_client.update_embedding_status(capability_id, "failed")
+          if self.request.retries < self.max_retries:
+              raise self.retry(exc=e, countdown=60)
+          raise
+  ```
+
+- [ ] 创建RAG API端点
+  ```python
+  # apps/backend-python/app/api/v1/rag.py
+  from fastapi import APIRouter, HTTPException
+  from pydantic import BaseModel
+
+  router = APIRouter(prefix="/api/v1/ai", tags=["RAG"])
+
+  class RAGRetrieveRequest(BaseModel):
+      query: str
+      top_k: int = 5
+      organization_id: Optional[str] = None
+
+  @router.post("/rag-retrieve")
+  async def rag_retrieve(request: RAGRetrieveRequest):
+      """
+      RAG检索
+      需求编号: REQ-AI-002
+      """
+      rag_service = RAGService()
+      context = await rag_service.retrieve(
+          query=request.query,
+          top_k=request.top_k,
+          organization_id=request.organization_id
+      )
+
+      return {
+          "query": context.query,
+          "retrieved_docs": context.retrieved_docs,
+          "total_retrieved": context.total_retrieved
+      }
+
+  @router.post("/vectorize-capability/{capability_id}")
+  async def vectorize_capability(capability_id: str):
+      """
+      触发能力向量化
+      需求编号: REQ-AI-002
+      """
+      from app.tasks.vectorization import vectorize_capability_task
+
+      task = vectorize_capability_task.delay(capability_id)
+
+      return {
+          "task_id": task.id,
+          "status": "processing",
+          "message": "向量化任务已提交"
+      }
+  ```
+
+#### 2.1.5 部署配置
+
+**待完成任务**:
+- [ ] 确保 LlamaIndex 0.14.8 已安装 ✅
+- [ ] 配置 Elasticsearch 向量索引
+  ```yaml
+  # docker-compose.yml
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.2.1
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+  ```
+
+- [ ] 配置 Celery 向量化队列
+  ```python
+  # apps/backend-python/app/tasks/celery_app.py
+  celery_app = Celery(
+      'aibidcomposer',
+      broker=settings.RABBITMQ_URL,
+      backend=settings.REDIS_URL
+  )
+
+  celery_app.conf.task_routes = {
+      'app.tasks.vectorization.vectorize_capability_task': {'queue': 'vectorization'},
+  }
+  ```
+
+**验收标准**:
+- [ ] RAG检索能够返回相关文档
+- [ ] 相关性评分准确
+- [ ] 向量化任务成功执行
+- [ ] Elasticsearch索引正常工作
+
+---
+
+### 二级任务 2.2: 智能生成引擎
+
+**预计工作量**: 6 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 2.2.1 数据定义
+
+**待完成任务**:
+- [ ] 定义内容生成请求/响应模型
+  ```python
+  # apps/backend-python/app/models/generation.py
+  from pydantic import BaseModel
+  from typing import List, Dict, Any, Optional
+  from enum import Enum
+
+  class GenerationType(str, Enum):
+      """生成类型"""
+      TECHNICAL_SOLUTION = "technical_solution"  # 技术方案
+      IMPLEMENTATION_PLAN = "implementation_plan"  # 实施方案
+      TEAM_INTRODUCTION = "team_introduction"  # 团队介绍
+      CASE_REFERENCE = "case_reference"  # 案例引用
+
+  class GenerationRequest(BaseModel):
+      """内容生成请求"""
+      generation_type: GenerationType
+      project_id: str
+      document_id: str
+      section_id: Optional[str]
+      requirements: List[Dict[str, Any]]  # 招标需求
+      context: Dict[str, Any]  # 额外上下文
+      word_count: Optional[int] = 500  # 目标字数
+
+  class GenerationResponse(BaseModel):
+      """内容生成响应"""
+      task_id: str
+      generated_content: str
+      tokens_used: int
+      generation_time: float  # 秒
+      quality_score: float  # 0-100
+      suggestions: List[str]  # 改进建议
+  ```
+
+- [ ] PostgreSQL生成历史表（Java服务管理）
+  ```sql
+  CREATE TABLE ai_generation_history (
+      id UUID PRIMARY KEY,
+      project_id UUID NOT NULL,
+      document_id UUID NOT NULL,
+      generation_type VARCHAR(50),
+      prompt_used TEXT,
+      generated_content TEXT,
+      tokens_used INT,
+      generation_time FLOAT,
+      created_by UUID,
+      created_at TIMESTAMP WITH TIME ZONE,
+      FOREIGN KEY (project_id) REFERENCES projects(id),
+      FOREIGN KEY (document_id) REFERENCES bid_documents(id)
+  );
+  ```
+
+#### 2.2.2 前端实现
+
+**待完成任务**:
+- [ ] 创建AI生成触发按钮组件
+  ```typescript
+  // apps/frontend/src/components/ai/GenerateButton.tsx
+  import { Button, Modal, Spin } from 'antd';
+  import { RobotOutlined } from '@ant-design/icons';
+
+  interface Props {
+      generationType: string;
+      projectId: string;
+      documentId: string;
+      onSuccess: (content: string) => void;
+  }
+
+  export function GenerateButton({ generationType, projectId, documentId, onSuccess }: Props) {
+      const [generating, setGenerating] = useState(false);
+      const [modalVisible, setModalVisible] = useState(false);
+
+      const handleGenerate = async () => {
+          setGenerating(true);
+          setModalVisible(true);
+
+          try {
+              const response = await fetch('http://localhost:8001/api/v1/ai/generate-content', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      generation_type: generationType,
+                      project_id: projectId,
+                      document_id: documentId,
+                      word_count: 800
+                  })
+              });
+
+              const result = await response.json();
+
+              // 轮询任务状态
+              const taskId = result.task_id;
+              const pollResult = await pollTaskStatus(taskId);
+
+              if (pollResult.status === 'success') {
+                  onSuccess(pollResult.generated_content);
+                  message.success('内容生成成功！');
+              } else {
+                  message.error('生成失败: ' + pollResult.error);
+              }
+          } catch (error) {
+              message.error('生成失败');
+          } finally {
+              setGenerating(false);
+              setModalVisible(false);
+          }
+      };
+
+      const pollTaskStatus = async (taskId: string): Promise<any> => {
+          // 轮询任务状态直到完成
+          while (true) {
+              const response = await fetch(`http://localhost:8001/api/v1/ai/tasks/${taskId}`);
+              const result = await response.json();
+
+              if (result.status === 'success' || result.status === 'failed') {
+                  return result;
+              }
+
+              await new Promise(resolve => setTimeout(resolve, 2000));  // 等待2秒
+          }
+      };
+
+      return (
+          <>
+              <Button
+                  type="primary"
+                  icon={<RobotOutlined />}
+                  onClick={handleGenerate}
+                  loading={generating}
+              >
+                  AI生成
+              </Button>
+
+              <Modal
+                  title="AI正在生成内容..."
+                  visible={modalVisible}
+                  footer={null}
+                  closable={false}
+              >
+                  <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                      <Spin size="large" />
+                      <p style={{ marginTop: 20 }}>请稍候，AI正在分析需求并生成内容...</p>
+                  </div>
+              </Modal>
+          </>
+      );
+  }
+  ```
+
+- [ ] 创建生成结果预览和编辑界面
+  ```typescript
+  // apps/frontend/src/components/ai/GeneratedContentPreview.tsx
+  import { Card, Button, Rate } from 'antd';
+  import { CheckOutlined, EditOutlined } from '@ant-design/icons';
+
+  interface Props {
+      content: string;
+      qualityScore: number;
+      suggestions: string[];
+      onAccept: () => void;
+      onEdit: () => void;
+  }
+
+  export function GeneratedContentPreview({ content, qualityScore, suggestions, onAccept, onEdit }: Props) {
+      return (
+          <Card
+              title="AI生成内容预览"
+              extra={
+                  <div>
+                      <Button icon={<EditOutlined />} onClick={onEdit} style={{ marginRight: 8 }}>
+                          编辑
+                      </Button>
+                      <Button type="primary" icon={<CheckOutlined />} onClick={onAccept}>
+                          接受并插入
+                      </Button>
+                  </div>
+              }
+          >
+              <div>
+                  <p><strong>质量评分:</strong> <Rate disabled value={qualityScore / 20} /></p>
+                  <div style={{ marginTop: 16, padding: 16, background: '#f5f5f5', borderRadius: 4 }}>
+                      {content}
+                  </div>
+                  {suggestions.length > 0 && (
+                      <div style={{ marginTop: 16 }}>
+                          <strong>改进建议:</strong>
+                          <ul>
+                              {suggestions.map((suggestion, idx) => (
+                                  <li key={idx}>{suggestion}</li>
+                              ))}
+                          </ul>
+                      </div>
+                  )}
+              </div>
+          </Card>
+      );
+  }
+  ```
+
+#### 2.2.3 Java后端实现
+
+**待完成任务**:
+- [ ] 创建 `AIGenerationHistory` 实体
+  ```java
+  @Data
+  @TableName("ai_generation_history")
+  public class AIGenerationHistory extends BaseEntity {
+      @TableField("project_id")
+      private String projectId;
+
+      @TableField("document_id")
+      private String documentId;
+
+      @TableField("generation_type")
+      private String generationType;
+
+      @TableField("prompt_used")
+      private String promptUsed;
+
+      @TableField("generated_content")
+      private String generatedContent;
+
+      @TableField("tokens_used")
+      private Integer tokensUsed;
+
+      @TableField("generation_time")
+      private Double generationTime;
+  }
+  ```
+
+- [ ] 创建REST API保存生成历史
+  ```java
+  @RestController
+  @RequestMapping("/api/v1/ai-generation-history")
+  public class GenerationHistoryController {
+
+      @PostMapping
+      public Result<Void> save(@RequestBody SaveHistoryRequest request) {
+          // Python服务回调：保存生成历史
+          AIGenerationHistory history = new AIGenerationHistory();
+          history.setProjectId(request.getProjectId());
+          history.setDocumentId(request.getDocumentId());
+          history.setGenerationType(request.getGenerationType());
+          history.setGeneratedContent(request.getGeneratedContent());
+          history.setTokensUsed(request.getTokensUsed());
+
+          historyMapper.insert(history);
+          return Result.success();
+      }
+
+      @GetMapping
+      public Result<List<AIGenerationHistory>> list(@RequestParam String documentId) {
+          // 查询文档的生成历史
+          return Result.success(historyService.listByDocumentId(documentId));
+      }
+  }
+  ```
+
+#### 2.2.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现智能生成服务
+  ```python
+  # apps/backend-python/app/services/ai/generation_service.py
+  from app.services.ai.rag_service import RAGService
+  from llama_index.llms import OpenAI
+  import time
+
+  class GenerationService:
+      """智能内容生成服务"""
+
+      def __init__(self):
+          self.rag_service = RAGService()
+          self.llm = OpenAI(model="gpt-4-turbo-preview", api_key=settings.OPENAI_API_KEY)
+
+      async def generate_technical_solution(
+          self,
+          requirements: List[Dict[str, Any]],
+          organization_id: str,
+          word_count: int = 800
+      ) -> GenerationResponse:
+          """
+          生成技术方案
+          需求编号: REQ-AI-002
+          """
+          start_time = time.time()
+
+          # 1. 提取需求关键词
+          requirements_text = "\n".join([
+              f"- {req['title']}: {req['description']}"
+              for req in requirements
+          ])
+
+          # 2. RAG检索相关能力和案例
+          context = await self.rag_service.retrieve(
+              query=requirements_text,
+              top_k=10,
+              organization_id=organization_id
+          )
+
+          # 3. 构建生成Prompt
+          prompt = f"""
+你是一位专业的标书技术方案撰写专家。
+
+招标技术要求：
+{requirements_text}
+
+企业相关能力和案例（供参考）：
+{self._format_context(context)}
+
+请基于以上招标要求和企业能力，撰写一份专业的技术方案。
+
+要求：
+1. 字数约{word_count}字
+2. 紧密贴合招标需求
+3. 突出企业技术优势
+4. 结构清晰，逻辑严密
+5. 使用专业术语
+6. 引用具体案例增强说服力
+
+请直接输出技术方案内容：
+"""
+
+          # 4. 调用GPT-4生成
+          response = await self.llm.acomplete(prompt)
+          generated_content = response.text
+
+          # 5. 质量评估
+          quality_score = await self._evaluate_quality(generated_content, requirements)
+
+          # 6. 生成改进建议
+          suggestions = await self._generate_suggestions(generated_content, requirements)
+
+          generation_time = time.time() - start_time
+
+          return GenerationResponse(
+              task_id="",  # 由Celery任务ID填充
+              generated_content=generated_content,
+              tokens_used=response.additional_kwargs.get('usage', {}).get('total_tokens', 0),
+              generation_time=generation_time,
+              quality_score=quality_score,
+              suggestions=suggestions
+          )
+
+      def _format_context(self, context: RAGContext) -> str:
+          """格式化RAG上下文"""
+          formatted = []
+          for doc in context.retrieved_docs:
+              formatted.append(f"[{doc['title']}]\n{doc['content']}\n")
+          return "\n".join(formatted)
+
+      async def _evaluate_quality(
+          self,
+          content: str,
+          requirements: List[Dict[str, Any]]
+      ) -> float:
+          """评估生成内容质量（0-100）"""
+          # 使用LLM评估质量
+          eval_prompt = f"""
+请评估以下技术方案的质量（0-100分）：
+
+技术方案：
+{content}
+
+原始需求：
+{requirements}
+
+评估维度：
+1. 与需求的匹配度（40分）
+2. 内容的专业性（30分）
+3. 逻辑的严密性（20分）
+4. 语言的流畅性（10分）
+
+请只返回一个0-100的分数。
+"""
+
+          response = await self.llm.acomplete(eval_prompt)
+          try:
+              score = float(response.text.strip())
+              return min(max(score, 0), 100)
+          except:
+              return 75.0  # 默认分数
+
+      async def _generate_suggestions(
+          self,
+          content: str,
+          requirements: List[Dict[str, Any]]
+      ) -> List[str]:
+          """生成改进建议"""
+          suggestions_prompt = f"""
+请为以下技术方案提供3-5条改进建议：
+
+技术方案：
+{content}
+
+请列出具体的改进建议（每条不超过30字）：
+"""
+
+          response = await self.llm.acomplete(suggestions_prompt)
+          suggestions = [
+              line.strip().lstrip('123456789.- ')
+              for line in response.text.strip().split('\n')
+              if line.strip()
+          ]
+          return suggestions[:5]
+  ```
+
+- [ ] 创建Celery生成任务
+  ```python
+  # apps/backend-python/app/tasks/generation.py
+  @celery_app.task(bind=True)
+  def generate_content_task(
+      self: Task,
+      generation_type: str,
+      project_id: str,
+      document_id: str,
+      requirements: List[Dict],
+      word_count: int = 800
+  ):
+      """
+      内容生成任务
+      需求编号: REQ-AI-002
+      """
+      try:
+          generation_service = GenerationService()
+          java_client = JavaAPIClient()
+
+          # 1. 获取组织ID
+          project = await java_client.get_project(project_id)
+          organization_id = project['organization_id']
+
+          # 2. 执行生成
+          if generation_type == 'technical_solution':
+              result = await generation_service.generate_technical_solution(
+                  requirements=requirements,
+                  organization_id=organization_id,
+                  word_count=word_count
+              )
+          # elif ...其他生成类型
+
+          # 3. 保存到Java服务
+          await java_client.save_generation_history({
+              'project_id': project_id,
+              'document_id': document_id,
+              'generation_type': generation_type,
+              'generated_content': result.generated_content,
+              'tokens_used': result.tokens_used
+          })
+
+          return {
+              'status': 'success',
+              'generated_content': result.generated_content,
+              'quality_score': result.quality_score,
+              'suggestions': result.suggestions
+          }
+
+      except Exception as e:
+          return {'status': 'failed', 'error': str(e)}
+  ```
+
+- [ ] 创建API端点
+  ```python
+  # apps/backend-python/app/api/v1/generation.py
+  @router.post("/generate-content")
+  async def generate_content(request: GenerationRequest):
+      """
+      触发内容生成
+      需求编号: REQ-AI-002
+      """
+      from app.tasks.generation import generate_content_task
+
+      # 异步生成任务
+      task = generate_content_task.delay(
+          generation_type=request.generation_type,
+          project_id=request.project_id,
+          document_id=request.document_id,
+          requirements=request.requirements,
+          word_count=request.word_count
+      )
+
+      return {
+          "task_id": task.id,
+          "status": "processing",
+          "message": "内容生成任务已提交"
+      }
+
+  @router.get("/tasks/{task_id}")
+  async def get_task_status(task_id: str):
+      """获取任务状态"""
+      from app.tasks.celery_app import celery_app
+
+      task = celery_app.AsyncResult(task_id)
+
+      if task.ready():
+          return {
+              "status": "success" if task.successful() else "failed",
+              **task.result
+          }
+      else:
+          return {
+              "status": "processing",
+              "progress": 50  # 可以更精细地跟踪进度
+          }
+  ```
+
+#### 2.2.5 部署配置
+
+**待完成任务**:
+- [ ] 配置Celery生成队列
+  ```python
+  celery_app.conf.task_routes = {
+      'app.tasks.generation.generate_content_task': {'queue': 'generation'},
+  }
+  ```
+
+- [ ] 启动生成Worker
+  ```bash
+  # docker-compose.yml
+  generation-worker:
+    build:
+      context: ./apps/backend-python
+    command: celery -A app.tasks.celery_app worker --loglevel=info -Q generation -c 2
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - rabbitmq
+      - redis
+  ```
+
+**验收标准**:
+- [ ] 技术方案生成成功
+- [ ] 生成内容质量评分准确
+- [ ] 改进建议合理
+- [ ] 生成任务可追踪
+
+---
+
+### 二级任务 2.3: AI助手矩阵
+
+**预计工作量**: 4 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 2.3.1 数据定义
+
+**待完成任务**:
+- [ ] 定义AI助手类型枚举
+  ```python
+  # apps/backend-python/app/models/assistant.py
+  from enum import Enum
+
+  class AssistantType(str, Enum):
+      """AI助手类型"""
+      TECHNICAL_EXPERT = "technical_expert"  # 技术专家
+      BUSINESS_EXPERT = "business_expert"    # 商务专家
+      COMPLIANCE_EXPERT = "compliance_expert"  # 合规专家
+      QUALITY_ASSURER = "quality_assurer"    # 质量审查
+
+  class AssistantConfig(BaseModel):
+      """助手配置"""
+      assistant_type: AssistantType
+      model: str = "gpt-4-turbo-preview"
+      temperature: float = 0.7
+      system_prompt: str
+      max_tokens: int = 2000
+
+  class AssistantMessage(BaseModel):
+      """助手消息"""
+      role: str  # 'user'|'assistant'
+      content: str
+      timestamp: datetime
+  ```
+
+#### 2.3.2 前端实现
+
+**待完成任务**:
+- [ ] 创建AI助手对话界面
+  ```typescript
+  // apps/frontend/src/components/ai/AssistantChat.tsx
+  import { Card, Input, Button, Avatar, List } from 'antd';
+  import { RobotOutlined, UserOutlined, SendOutlined } from '@ant-design/icons';
+
+  interface Message {
+      role: 'user' | 'assistant';
+      content: string;
+      timestamp: string;
+  }
+
+  interface Props {
+      assistantType: string;  // 'technical_expert' | 'business_expert' ...
+  }
+
+  export function AssistantChat({ assistantType }: Props) {
+      const [messages, setMessages] = useState<Message[]>([]);
+      const [inputValue, setInputValue] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const assistantNames = {
+          technical_expert: '技术专家助手',
+          business_expert: '商务专家助手',
+          compliance_expert: '合规专家助手',
+          quality_assurer: '质量审查助手',
+      };
+
+      const handleSend = async () => {
+          if (!inputValue.trim()) return;
+
+          const userMessage: Message = {
+              role: 'user',
+              content: inputValue,
+              timestamp: new Date().toISOString()
+          };
+
+          setMessages([...messages, userMessage]);
+          setInputValue('');
+          setLoading(true);
+
+          try {
+              const response = await fetch('http://localhost:8001/api/v1/ai/assistant-chat', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      assistant_type: assistantType,
+                      message: inputValue,
+                      conversation_history: messages
+                  })
+              });
+
+              const result = await response.json();
+
+              const assistantMessage: Message = {
+                  role: 'assistant',
+                  content: result.response,
+                  timestamp: new Date().toISOString()
+              };
+
+              setMessages([...messages, userMessage, assistantMessage]);
+          } catch (error) {
+              message.error('助手响应失败');
+          } finally {
+              setLoading(false);
+          }
+      };
+
+      return (
+          <Card title={assistantNames[assistantType]} style={{ height: '600px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16 }}>
+                  <List
+                      dataSource={messages}
+                      renderItem={(msg) => (
+                          <List.Item style={{ border: 'none' }}>
+                              <List.Item.Meta
+                                  avatar={
+                                      msg.role === 'user' ?
+                                          <Avatar icon={<UserOutlined />} /> :
+                                          <Avatar icon={<RobotOutlined />} style={{ backgroundColor: '#1890ff' }} />
+                                  }
+                                  description={
+                                      <div style={{ whiteSpace: 'pre-wrap' }}>
+                                          {msg.content}
+                                      </div>
+                                  }
+                              />
+                          </List.Item>
+                      )}
+                  />
+              </div>
+
+              <div style={{ display: 'flex', gap: 8 }}>
+                  <Input.TextArea
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onPressEnter={(e) => {
+                          if (!e.shiftKey) {
+                              e.preventDefault();
+                              handleSend();
+                          }
+                      }}
+                      placeholder="输入您的问题... (Enter发送, Shift+Enter换行)"
+                      autoSize={{ minRows: 1, maxRows: 4 }}
+                  />
+                  <Button
+                      type="primary"
+                      icon={<SendOutlined />}
+                      onClick={handleSend}
+                      loading={loading}
+                  >
+                      发送
+                  </Button>
+              </div>
+          </Card>
+      );
+  }
+  ```
+
+- [ ] 创建助手选择面板
+  ```typescript
+  // apps/frontend/src/pages/ai/AssistantPanel.tsx
+  import { Tabs } from 'antd';
+
+  export default function AssistantPanel() {
+      return (
+          <Tabs defaultActiveKey="technical_expert">
+              <Tabs.TabPane tab="技术专家" key="technical_expert">
+                  <AssistantChat assistantType="technical_expert" />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="商务专家" key="business_expert">
+                  <AssistantChat assistantType="business_expert" />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="合规专家" key="compliance_expert">
+                  <AssistantChat assistantType="compliance_expert" />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab="质量审查" key="quality_assurer">
+                  <AssistantChat assistantType="quality_assurer" />
+              </Tabs.TabPane>
+          </Tabs>
+      );
+  }
+  ```
+
+#### 2.3.3 Java后端实现
+
+**待完成任务**:
+- [ ] 无需Java后端支持（纯Python实现）
+
+#### 2.3.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现AI助手矩阵服务
+  ```python
+  # apps/backend-python/app/services/ai/assistant_matrix.py
+  from llama_index.llms import OpenAI
+  from typing import List, Dict
+
+  class AIAssistantMatrix:
+      """AI助手矩阵"""
+
+      def __init__(self):
+          self.assistants = {
+              AssistantType.TECHNICAL_EXPERT: AssistantConfig(
+                  assistant_type=AssistantType.TECHNICAL_EXPERT,
+                  model="gpt-4-turbo-preview",
+                  temperature=0.2,
+                  system_prompt="""你是一位资深的技术专家，擅长：
+- 分析技术需求和技术难点
+- 设计技术方案和架构
+- 评估技术可行性
+- 识别技术风险
+
+请以专业、严谨的态度回答用户的技术问题。"""
+              ),
+              AssistantType.BUSINESS_EXPERT: AssistantConfig(
+                  assistant_type=AssistantType.BUSINESS_EXPERT,
+                  model="gpt-3.5-turbo",
+                  temperature=0.5,
+                  system_prompt="""你是一位资深的商务专家，擅长：
+- 商务条款分析
+- 报价策略制定
+- 商务风险评估
+- 合同谈判建议
+
+请以专业、务实的态度回答用户的商务问题。"""
+              ),
+              AssistantType.COMPLIANCE_EXPERT: AssistantConfig(
+                  assistant_type=AssistantType.COMPLIANCE_EXPERT,
+                  model="gpt-4-turbo-preview",
+                  temperature=0.1,
+                  system_prompt="""你是一位资深的合规专家，擅长：
+- 标书合规性审查
+- 法律法规解读
+- 资质要求核查
+- 合规风险识别
+
+请以严谨、细致的态度审查合规问题。"""
+              ),
+              AssistantType.QUALITY_ASSURER: AssistantConfig(
+                  assistant_type=AssistantType.QUALITY_ASSURER,
+                  model="gpt-4-turbo-preview",
+                  temperature=0.3,
+                  system_prompt="""你是一位资深的质量保证专家，擅长：
+- 内容质量评估
+- 完整性检查
+- 格式规范审查
+- 改进建议提供
+
+请以专业、客观的态度评估内容质量。"""
+              ),
+          }
+
+      async def chat(
+          self,
+          assistant_type: AssistantType,
+          message: str,
+          conversation_history: List[Dict[str, str]] = None
+      ) -> str:
+          """
+          与AI助手对话
+          需求编号: REQ-AI-002
+          """
+          config = self.assistants[assistant_type]
+
+          # 初始化LLM
+          llm = OpenAI(
+              model=config.model,
+              api_key=settings.OPENAI_API_KEY,
+              temperature=config.temperature
+          )
+
+          # 构建消息历史
+          messages = [{"role": "system", "content": config.system_prompt}]
+
+          if conversation_history:
+              messages.extend(conversation_history)
+
+          messages.append({"role": "user", "content": message})
+
+          # 调用LLM
+          response = await llm.achat(messages)
+
+          return response.message.content
+  ```
+
+- [ ] 创建API端点
+  ```python
+  # apps/backend-python/app/api/v1/assistant.py
+  @router.post("/assistant-chat")
+  async def assistant_chat(
+      assistant_type: AssistantType,
+      message: str,
+      conversation_history: List[Dict[str, str]] = None
+  ):
+      """
+      AI助手对话
+      需求编号: REQ-AI-002
+      """
+      assistant_matrix = AIAssistantMatrix()
+
+      response = await assistant_matrix.chat(
+          assistant_type=assistant_type,
+          message=message,
+          conversation_history=conversation_history or []
+      )
+
+      return {
+          "assistant_type": assistant_type,
+          "response": response,
+          "timestamp": datetime.now().isoformat()
+      }
+  ```
+
+#### 2.3.5 部署配置
+
+**待完成任务**:
+- [ ] 配置OPENAI_API_KEY环境变量 ✅
+- [ ] 无需额外部署配置
+
+**验收标准**:
+- [ ] 4种助手都能正常响应
+- [ ] 助手回答符合角色定位
+- [ ] 对话历史保持连贯
+
+---
+
+### 二级任务 2.4: 内容优化
+
+**预计工作量**: 3 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 2.4.1 数据定义
+
+**待完成任务**:
+- [ ] 定义优化请求模型
+  ```python
+  # apps/backend-python/app/models/optimization.py
+  class OptimizationType(str, Enum):
+      POLISH = "polish"  # 润色
+      SIMPLIFY = "simplify"  # 简化
+      EXPAND = "expand"  # 扩展
+      FORMALIZE = "formalize"  # 正式化
+      TERMINOLOGY_CHECK = "terminology_check"  # 术语检查
+
+  class OptimizationRequest(BaseModel):
+      content: str
+      optimization_type: OptimizationType
+      context: Optional[Dict[str, Any]]
+
+  class OptimizationResponse(BaseModel):
+      original_content: str
+      optimized_content: str
+      changes: List[Dict[str, Any]]  # 修改说明
+      suggestions: List[str]
+  ```
+
+#### 2.4.2 前端实现
+
+**待完成任务**:
+- [ ] 创建内容优化按钮组
+  ```typescript
+  // apps/frontend/src/components/ai/OptimizationTools.tsx
+  import { Button, Dropdown, Menu, message } from 'antd';
+  import { ThunderboltOutlined } from '@ant-design/icons';
+
+  interface Props {
+      selectedText: string;
+      onOptimized: (optimizedText: string) => void;
+  }
+
+  export function OptimizationTools({ selectedText, onOptimized }: Props) {
+      const handleOptimize = async (type: string) => {
+          if (!selectedText) {
+              message.warning('请先选中要优化的文本');
+              return;
+          }
+
+          try {
+              const response = await fetch('http://localhost:8001/api/v1/ai/optimize-content', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                      content: selectedText,
+                      optimization_type: type
+                  })
+              });
+
+              const result = await response.json();
+              onOptimized(result.optimized_content);
+              message.success('优化完成');
+          } catch (error) {
+              message.error('优化失败');
+          }
+      };
+
+      const menu = (
+          <Menu onClick={({ key }) => handleOptimize(key)}>
+              <Menu.Item key="polish">润色</Menu.Item>
+              <Menu.Item key="simplify">简化</Menu.Item>
+              <Menu.Item key="expand">扩展</Menu.Item>
+              <Menu.Item key="formalize">正式化</Menu.Item>
+              <Menu.Item key="terminology_check">术语检查</Menu.Item>
+          </Menu>
+      );
+
+      return (
+          <Dropdown overlay={menu}>
+              <Button icon={<ThunderboltOutlined />}>
+                  AI优化
+              </Button>
+          </Dropdown>
+      );
+  }
+  ```
+
+#### 2.4.3 Java后端实现
+
+**待完成任务**:
+- [ ] 无需Java后端支持（纯Python实现）
+
+#### 2.4.4 Python后端实现
+
+**待完成任务**:
+- [ ] 实现内容优化服务
+  ```python
+  # apps/backend-python/app/services/ai/optimization_service.py
+  class OptimizationService:
+      """内容优化服务"""
+
+      def __init__(self):
+          self.llm = OpenAI(model="gpt-4-turbo-preview", api_key=settings.OPENAI_API_KEY)
+
+      async def optimize(
+          self,
+          content: str,
+          optimization_type: OptimizationType
+      ) -> OptimizationResponse:
+          """
+          优化内容
+          需求编号: REQ-AI-002
+          """
+          prompts = {
+              OptimizationType.POLISH: f"""
+请对以下内容进行润色，提升文字的流畅性和专业性，保持原意不变：
+
+{content}
+
+请直接输出润色后的内容：
+""",
+              OptimizationType.SIMPLIFY: f"""
+请将以下内容简化，使其更简洁明了，去除冗余表述：
+
+{content}
+
+请直接输出简化后的内容：
+""",
+              OptimizationType.EXPAND: f"""
+请对以下内容进行扩展，增加细节和说明，使其更加充实：
+
+{content}
+
+请直接输出扩展后的内容：
+""",
+              OptimizationType.FORMALIZE: f"""
+请将以下内容正式化，使用更正式的表述和专业术语：
+
+{content}
+
+请直接输出正式化后的内容：
+""",
+              OptimizationType.TERMINOLOGY_CHECK: f"""
+请检查以下内容中的专业术语使用是否准确，如有错误请指出并修正：
+
+{content}
+
+请列出发现的术语问题和修正建议：
+"""
+          }
+
+          prompt = prompts[optimization_type]
+
+          # 调用LLM优化
+          response = await self.llm.acomplete(prompt)
+          optimized_content = response.text.strip()
+
+          # 分析修改
+          changes = await self._analyze_changes(content, optimized_content)
+
+          return OptimizationResponse(
+              original_content=content,
+              optimized_content=optimized_content,
+              changes=changes,
+              suggestions=[]
+          )
+
+      async def _analyze_changes(
+          self,
+          original: str,
+          optimized: str
+      ) -> List[Dict[str, Any]]:
+          """分析修改点"""
+          # 简单的差异分析（可以用difflib更精细）
+          import difflib
+
+          changes = []
+          diff = difflib.unified_diff(
+              original.splitlines(),
+              optimized.splitlines(),
+              lineterm=''
+          )
+
+          for line in diff:
+              if line.startswith('+'):
+                  changes.append({
+                      'type': 'add',
+                      'content': line[1:]
+                  })
+              elif line.startswith('-'):
+                  changes.append({
+                      'type': 'remove',
+                      'content': line[1:]
+                  })
+
+          return changes
+  ```
+
+- [ ] 创建API端点
+  ```python
+  @router.post("/optimize-content")
+  async def optimize_content(request: OptimizationRequest):
+      """
+      优化内容
+      需求编号: REQ-AI-002
+      """
+      optimization_service = OptimizationService()
+
+      result = await optimization_service.optimize(
+          content=request.content,
+          optimization_type=request.optimization_type
+      )
+
+      return result
+  ```
+
+#### 2.4.5 部署配置
+
+**待完成任务**:
+- [ ] 无需额外部署配置
+
+**验收标准**:
+- [ ] 各类优化功能正常
+- [ ] 优化结果质量高
+- [ ] 修改分析准确
+
+---
+
+### 二级任务 2.5: API接口整合和测试
+
+**预计工作量**: 4 人天
+**完成进度**: 0% (0/5 类别)
+
+#### 2.5.1 数据定义
+
+**待完成任务**:
+- [ ] 定义统一的AI服务响应格式（已完成）
+
+#### 2.5.2 前端实现
+
+**待完成任务**:
+- [ ] 整合所有AI服务API
+  ```typescript
+  // apps/frontend/src/services/ai.service.ts
+  export const aiService = {
+      // RAG相关
+      ragRetrieve: (query: string, topK: number = 5) => { ... },
+
+      // 生成相关
+      generateContent: (type: string, projectId: string, documentId: string) => { ... },
+
+      // 助手相关
+      chatWithAssistant: (assistantType: string, message: string) => { ... },
+
+      // 优化相关
+      optimizeContent: (content: string, type: string) => { ... },
+
+      // 任务状态查询
+      getTaskStatus: (taskId: string) => { ... },
+  };
+  ```
+
+#### 2.5.3 Java后端实现
+
+**待完成任务**:
+- [ ] 创建AI服务统一代理（可选）
+
+#### 2.5.4 Python后端实现
+
+**待完成任务**:
+- [ ] 整合所有API路由
+  ```python
+  # apps/backend-python/app/api/v1/__init__.py
+  from fastapi import APIRouter
+  from app.api.v1 import (
+      document_parser,
+      information_extraction,
+      rag,
+      generation,
+      assistant,
+      optimization
+  )
+
+  api_router = APIRouter()
+  api_router.include_router(document_parser.router)
+  api_router.include_router(information_extraction.router)
+  api_router.include_router(rag.router)
+  api_router.include_router(generation.router)
+  api_router.include_router(assistant.router)
+  api_router.include_router(optimization.router)
+  ```
+
+- [ ] 完善API文档
+  ```python
+  # apps/backend-python/app/main.py
+  app = FastAPI(
+      title="AI标书智能创作平台 - AI服务",
+      description="""
+## 智能内容生成引擎 API
+
+提供以下AI能力：
+
+### 1. RAG检索增强生成
+- 企业知识库管理
+- 语义检索
+- 上下文增强生成
+
+### 2. 智能内容生成
+- 技术方案生成
+- 实施方案生成
+- 团队介绍生成
+- 案例引用生成
+
+### 3. AI助手矩阵
+- 技术专家助手
+- 商务专家助手
+- 合规专家助手
+- 质量审查助手
+
+### 4. 内容优化
+- 内容润色
+- 简化/扩展
+- 正式化
+- 术语检查
+      """,
+      version="1.0.0",
+      docs_url="/docs",
+      redoc_url="/redoc"
+  )
+  ```
+
+#### 2.5.5 部署配置
+
+**待完成任务**:
+- [ ] 编写集成测试脚本
+  ```bash
+  # scripts/test-ai-002-integration.sh
+  #!/bin/bash
+
+  echo "===== 测试AI-002: 智能内容生成引擎 ====="
+
+  echo "1. 测试RAG检索..."
+  curl -X POST http://localhost:8001/api/v1/ai/rag-retrieve \
+    -H "Content-Type: application/json" \
+    -d '{"query": "云计算技术", "top_k": 5}'
+
+  echo "\n2. 测试内容生成..."
+  curl -X POST http://localhost:8001/api/v1/ai/generate-content \
+    -H "Content-Type: application/json" \
+    -d '{
+      "generation_type": "technical_solution",
+      "project_id": "test-project-id",
+      "document_id": "test-doc-id",
+      "requirements": [{"title": "云平台搭建", "description": "需要搭建私有云平台"}],
+      "word_count": 500
+    }'
+
+  echo "\n3. 测试AI助手..."
+  curl -X POST http://localhost:8001/api/v1/ai/assistant-chat \
+    -H "Content-Type: application/json" \
+    -d '{
+      "assistant_type": "technical_expert",
+      "message": "如何设计一个高可用的云平台架构？"
+    }'
+
+  echo "\n4. 测试内容优化..."
+  curl -X POST http://localhost:8001/api/v1/ai/optimize-content \
+    -H "Content-Type: application/json" \
+    -d '{
+      "content": "我们公司有很多年的经验。",
+      "optimization_type": "formalize"
+    }'
+  ```
+
+**验收标准**:
+- [ ] 所有API端点正常响应
+- [ ] API文档完整准确
+- [ ] 集成测试全部通过
+- [ ] 错误处理正确
+
+---
+
+## AI-002 总结
+
+### 总体进度
+
+- **总计二级任务**: 5个
+- **已完成**: 0个（0%）
+- **待开始**: 5个
+- **预计总工作量**: 22 人天
+
+### 细化效果
+
+✅ **细化前**: 5个粗粒度子任务
+✅ **细化后**: 每个子任务拆分为5类别，共 25+ 具体任务项
+
+### 关键依赖
+
+1. **AI-001 → AI-002**: AI-002依赖AI-001的向量化功能
+2. **RAG系统 → 生成引擎**: 生成引擎依赖RAG检索
+3. **知识库数据**: 需要Java服务提供企业能力数据
+
+### 下一步行动
+
+1. **优先开始**: 二级任务 2.1（RAG系统构建）
+   - 依赖AI-001的Elasticsearch向量存储
+   - 是后续生成引擎的基础
+
+2. **并行开发**:
+   - RAG系统（2.1）和AI助手矩阵（2.3）可以并行
+   - 生成引擎（2.2）需要等待RAG系统完成
+
+---
+
+## AI-003: 企业能力库向量化
+
+**需求编号**: REQ-AI-003
+**负责人**: Python AI 开发
+**优先级**: P2 - 中优先级
+**开始时间**: YYYY-MM-DD
+**预计完成**: YYYY-MM-DD
+**实际完成**: -
+**当前状态**: ⏸️ 待开始
+**完成进度**: 0% (0/4 二级任务)
+
+### 模块概述
+
+企业能力库向量化是AI标书生成的核心基础设施，负责将企业的各类能力数据转换为向量形式，存储到Elasticsearch向量数据库中，为后续的智能匹配和内容生成提供检索支持。
+
+**核心价值**:
+- 实现企业能力的语义化存储和检索
+- 支持基于相似度的智能推荐
+- 为RAG系统提供高质量的知识源
+- 提升内容生成的准确性和相关性
+
+**技术架构**:
+```
+Java服务 → RabbitMQ → Python AI Service
+             ↓
+         向量化处理
+             ↓
+      Elasticsearch向量库
+             ↓
+     语义检索 + 混合检索
+```
+
+---
+
+### 二级任务 3.1: 产品服务向量化
+
+**工作量估算**: 4 人天
+**优先级**: P2 - 高优先级（能力库基础）
+**技术难点**:
+- 产品/服务信息的结构化提取
+- 多模态信息（文本+图片）的向量化
+- 增量更新机制
+
+#### 1) 数据定义
+
+##### Pydantic模型（Python AI服务）
+```python
+# app/models/capability.py
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+from enum import Enum
+
+class CapabilityType(str, Enum):
+    """能力类型"""
+    PRODUCT = "product"       # 产品
+    SERVICE = "service"       # 服务
+    SOLUTION = "solution"     # 解决方案
+
+class ProductCapability(BaseModel):
+    """产品能力模型"""
+    id: str = Field(..., description="产品ID（来自Java服务）")
+    organization_id: str = Field(..., description="组织ID")
+    capability_type: CapabilityType = Field(..., description="能力类型")
+
+    # 基本信息
+    name: str = Field(..., description="产品/服务名称")
+    category: Optional[str] = Field(None, description="分类")
+    description: str = Field(..., description="描述")
+
+    # 详细信息
+    features: List[str] = Field(default_factory=list, description="功能特性")
+    specifications: Dict[str, Any] = Field(default_factory=dict, description="技术规格")
+    advantages: List[str] = Field(default_factory=list, description="优势")
+    application_scenarios: List[str] = Field(default_factory=list, description="应用场景")
+    technology_stack: List[str] = Field(default_factory=list, description="技术栈")
+
+    # 向量化相关
+    embedding: Optional[List[float]] = Field(None, description="向量（1536维）")
+    embedding_model: str = Field("text-embedding-ada-002", description="嵌入模型")
+    vectorized_at: Optional[datetime] = Field(None, description="向量化时间")
+
+    # 元数据
+    tags: List[str] = Field(default_factory=list, description="标签")
+    is_active: bool = Field(True, description="是否有效")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class VectorizationTask(BaseModel):
+    """向量化任务"""
+    task_id: str = Field(..., description="任务ID")
+    capability_id: str = Field(..., description="能力ID")
+    capability_type: CapabilityType = Field(..., description="能力类型")
+    status: str = Field("pending", description="pending|processing|completed|failed")
+    error_message: Optional[str] = Field(None, description="错误信息")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    completed_at: Optional[datetime] = Field(None)
+```
+
+##### Java实体（Java服务）
+```java
+// CompanyCapability.java - Java服务管理的能力实体
+@Data
+@TableName("company_capabilities")
+public class CompanyCapability {
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
+
+    private String organizationId;
+
+    @TableField("capability_type")
+    private String capabilityType;  // product|service|solution
+
+    private String name;
+    private String category;
+    private String description;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> features;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private Map<String, Object> specifications;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> advantages;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> applicationScenarios;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> technologyStack;
+
+    // 向量化状态
+    private String embeddingStatus;  // pending|completed|failed
+    private LocalDateTime vectorizedAt;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> tags;
+
+    private Boolean isActive;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updatedAt;
+}
+```
+
+##### 数据库表设计（PostgreSQL）
+```sql
+-- Java服务管理的企业能力表
+CREATE TABLE company_capabilities (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    organization_id UUID NOT NULL,
+    capability_type VARCHAR(50) NOT NULL,  -- 'product'|'service'|'solution'
+
+    -- 基本信息
+    name VARCHAR(200) NOT NULL,
+    category VARCHAR(100),
+    description TEXT NOT NULL,
+
+    -- 详细信息（JSONB存储）
+    features JSONB DEFAULT '[]'::jsonb,
+    specifications JSONB DEFAULT '{}'::jsonb,
+    advantages JSONB DEFAULT '[]'::jsonb,
+    application_scenarios JSONB DEFAULT '[]'::jsonb,
+    technology_stack JSONB DEFAULT '[]'::jsonb,
+
+    -- 向量化状态
+    embedding_status VARCHAR(20) DEFAULT 'pending',  -- pending|completed|failed
+    vectorized_at TIMESTAMP WITH TIME ZONE,
+
+    -- 元数据
+    tags TEXT[],
+    is_active BOOLEAN DEFAULT TRUE,
+
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+);
+
+-- 索引
+CREATE INDEX idx_capabilities_org ON company_capabilities(organization_id) WHERE is_active = TRUE;
+CREATE INDEX idx_capabilities_type ON company_capabilities(capability_type);
+CREATE INDEX idx_capabilities_status ON company_capabilities(embedding_status);
+CREATE INDEX idx_capabilities_tags ON company_capabilities USING gin(tags);
+
+-- 全文搜索索引
+CREATE INDEX idx_capabilities_fts ON company_capabilities
+    USING gin(to_tsvector('chinese', name || ' ' || description));
+```
+
+##### Elasticsearch索引定义
+```json
+{
+  "mappings": {
+    "properties": {
+      "capability_id": { "type": "keyword" },
+      "organization_id": { "type": "keyword" },
+      "capability_type": { "type": "keyword" },
+      "name": { "type": "text", "analyzer": "ik_max_word" },
+      "description": { "type": "text", "analyzer": "ik_max_word" },
+      "features": { "type": "text", "analyzer": "ik_max_word" },
+      "advantages": { "type": "text", "analyzer": "ik_max_word" },
+      "technology_stack": { "type": "keyword" },
+      "tags": { "type": "keyword" },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 1536,
+        "index": true,
+        "similarity": "cosine"
+      },
+      "vectorized_at": { "type": "date" },
+      "is_active": { "type": "boolean" }
+    }
+  },
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1
+  }
+}
+```
+
+**验证标准**:
+- [ ] Pydantic模型能正确序列化/反序列化
+- [ ] PostgreSQL表结构创建成功
+- [ ] Elasticsearch索引创建成功，支持kNN检索
+- [ ] JSONB字段能正确存储和查询
+
+#### 2) 前端
+
+##### 能力管理页面
+```typescript
+// src/pages/Capability/ProductList.tsx
+import { ProTable, ProColumns } from '@ant-design/pro-table';
+import { Button, Tag, Space, Modal, message } from 'antd';
+import { PlusOutlined, SyncOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+
+interface ProductCapability {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  features: string[];
+  technologyStack: string[];
+  embeddingStatus: 'pending' | 'completed' | 'failed';
+  vectorizedAt?: string;
+  tags: string[];
+  isActive: boolean;
+}
+
+export default function ProductList() {
+  const [selectedRows, setSelectedRows] = useState<ProductCapability[]>([]);
+
+  const columns: ProColumns<ProductCapability>[] = [
+    {
+      title: '产品名称',
+      dataIndex: 'name',
+      width: 200,
+      fixed: 'left',
+      render: (text, record) => (
+        <a onClick={() => handleView(record)}>{text}</a>
+      ),
+    },
+    {
+      title: '分类',
+      dataIndex: 'category',
+      width: 120,
+      valueType: 'select',
+      valueEnum: {
+        software: { text: '软件产品' },
+        hardware: { text: '硬件产品' },
+        service: { text: '服务' },
+        solution: { text: '解决方案' },
+      },
+    },
+    {
+      title: '描述',
+      dataIndex: 'description',
+      width: 300,
+      ellipsis: true,
+      search: false,
+    },
+    {
+      title: '技术栈',
+      dataIndex: 'technologyStack',
+      width: 200,
+      search: false,
+      render: (_, record) => (
+        <>
+          {record.technologyStack.slice(0, 3).map(tech => (
+            <Tag key={tech}>{tech}</Tag>
+          ))}
+          {record.technologyStack.length > 3 && (
+            <Tag>+{record.technologyStack.length - 3}</Tag>
+          )}
+        </>
+      ),
+    },
+    {
+      title: '向量化状态',
+      dataIndex: 'embeddingStatus',
+      width: 120,
+      valueType: 'select',
+      valueEnum: {
+        pending: { text: '待处理', status: 'Default' },
+        completed: { text: '已完成', status: 'Success' },
+        failed: { text: '失败', status: 'Error' },
+      },
+    },
+    {
+      title: '向量化时间',
+      dataIndex: 'vectorizedAt',
+      width: 160,
+      valueType: 'dateTime',
+      search: false,
+    },
+    {
+      title: '标签',
+      dataIndex: 'tags',
+      width: 150,
+      search: false,
+      render: (_, record) => (
+        <>
+          {record.tags.map(tag => (
+            <Tag key={tag} color="blue">{tag}</Tag>
+          ))}
+        </>
+      ),
+    },
+    {
+      title: '状态',
+      dataIndex: 'isActive',
+      width: 80,
+      valueType: 'select',
+      valueEnum: {
+        true: { text: '启用', status: 'Success' },
+        false: { text: '禁用', status: 'Default' },
+      },
+    },
+    {
+      title: '操作',
+      width: 180,
+      fixed: 'right',
+      search: false,
+      render: (_, record) => (
+        <Space>
+          <a onClick={() => handleEdit(record)}>编辑</a>
+          <a onClick={() => handleVectorize(record)}>重新向量化</a>
+          <a style={{ color: 'red' }} onClick={() => handleDelete(record)}>删除</a>
+        </Space>
+      ),
+    },
+  ];
+
+  // 批量向量化
+  const handleBatchVectorize = async () => {
+    if (selectedRows.length === 0) {
+      message.warning('请选择要向量化的产品');
+      return;
+    }
+
+    Modal.confirm({
+      title: '批量向量化确认',
+      content: `确定要对选中的 ${selectedRows.length} 个产品进行向量化吗？`,
+      onOk: async () => {
+        try {
+          const response = await fetch('http://localhost:8001/api/v1/ai/vectorize/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              capability_ids: selectedRows.map(r => r.id),
+              capability_type: 'product'
+            })
+          });
+
+          const result = await response.json();
+          message.success(`已提交 ${result.task_count} 个向量化任务`);
+          setSelectedRows([]);
+          // 刷新表格
+        } catch (error) {
+          message.error('批量向量化失败');
+        }
+      }
+    });
+  };
+
+  return (
+    <ProTable<ProductCapability>
+      headerTitle="产品能力库"
+      rowKey="id"
+      columns={columns}
+      request={async (params, sort, filter) => {
+        // 调用Java服务API获取数据
+        const response = await fetch(`http://localhost:8080/api/v1/capabilities/products?page=${params.current}&pageSize=${params.pageSize}`);
+        const result = await response.json();
+        return {
+          data: result.data.items,
+          total: result.data.total,
+          success: true,
+        };
+      }}
+      rowSelection={{
+        selectedRowKeys: selectedRows.map(r => r.id),
+        onChange: (_, selectedRows) => setSelectedRows(selectedRows),
+      }}
+      toolBarRender={() => [
+        <Button key="add" type="primary" icon={<PlusOutlined />}>
+          新建产品
+        </Button>,
+        <Button
+          key="vectorize"
+          icon={<SyncOutlined />}
+          onClick={handleBatchVectorize}
+          disabled={selectedRows.length === 0}
+        >
+          批量向量化 ({selectedRows.length})
+        </Button>,
+      ]}
+      pagination={{
+        pageSize: 20,
+        showSizeChanger: true,
+        showQuickJumper: true,
+      }}
+      scroll={{ x: 1500 }}
+    />
+  );
+}
+```
+
+**验证标准**:
+- [ ] ProTable能正常展示产品列表
+- [ ] 搜索、分页、排序功能正常
+- [ ] 批量选择和批量向量化功能正常
+- [ ] 向量化状态实时更新
+
+#### 3) Java后端
+
+##### Service层
+```java
+// CapabilityService.java
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class CapabilityService {
+
+    private final CapabilityMapper capabilityMapper;
+    private final RabbitTemplate rabbitTemplate;
+
+    /**
+     * 创建产品能力
+     * 需求编号: REQ-AI-003
+     */
+    public CompanyCapability createProduct(CreateProductRequest request) {
+        log.info("Creating product capability: {}", request.getName());
+
+        CompanyCapability capability = new CompanyCapability();
+        capability.setOrganizationId(request.getOrganizationId());
+        capability.setCapabilityType("product");
+        capability.setName(request.getName());
+        capability.setCategory(request.getCategory());
+        capability.setDescription(request.getDescription());
+        capability.setFeatures(request.getFeatures());
+        capability.setSpecifications(request.getSpecifications());
+        capability.setAdvantages(request.getAdvantages());
+        capability.setApplicationScenarios(request.getApplicationScenarios());
+        capability.setTechnologyStack(request.getTechnologyStack());
+        capability.setTags(request.getTags());
+        capability.setEmbeddingStatus("pending");
+        capability.setIsActive(true);
+
+        capabilityMapper.insert(capability);
+
+        // 发送RabbitMQ消息到Python AI服务进行向量化
+        VectorizeMessage message = VectorizeMessage.builder()
+            .capabilityId(capability.getId())
+            .capabilityType("product")
+            .organizationId(capability.getOrganizationId())
+            .build();
+
+        rabbitTemplate.convertAndSend(
+            "ai.vectorize.exchange",
+            "vectorize.product",
+            message
+        );
+
+        log.info("Vectorization task sent for capability: {}", capability.getId());
+
+        return capability;
+    }
+
+    /**
+     * 批量向量化
+     * 需求编号: REQ-AI-003
+     */
+    public BatchVectorizeResponse batchVectorize(List<String> capabilityIds) {
+        log.info("Batch vectorizing {} capabilities", capabilityIds.size());
+
+        List<CompanyCapability> capabilities = capabilityMapper.selectBatchIds(capabilityIds);
+
+        int successCount = 0;
+        List<String> failedIds = new ArrayList<>();
+
+        for (CompanyCapability capability : capabilities) {
+            try {
+                VectorizeMessage message = VectorizeMessage.builder()
+                    .capabilityId(capability.getId())
+                    .capabilityType(capability.getCapabilityType())
+                    .organizationId(capability.getOrganizationId())
+                    .build();
+
+                rabbitTemplate.convertAndSend(
+                    "ai.vectorize.exchange",
+                    "vectorize." + capability.getCapabilityType(),
+                    message
+                );
+
+                // 更新状态为pending
+                capability.setEmbeddingStatus("pending");
+                capabilityMapper.updateById(capability);
+
+                successCount++;
+            } catch (Exception e) {
+                log.error("Failed to send vectorize message for capability: {}", capability.getId(), e);
+                failedIds.add(capability.getId());
+            }
+        }
+
+        return BatchVectorizeResponse.builder()
+            .totalCount(capabilityIds.size())
+            .successCount(successCount)
+            .failedCount(failedIds.size())
+            .failedIds(failedIds)
+            .build();
+    }
+
+    /**
+     * 向量化完成回调（由Python服务调用）
+     * 需求编号: REQ-AI-003
+     */
+    public void onVectorizeComplete(VectorizeCallbackRequest request) {
+        log.info("Vectorization completed for capability: {}, status: {}",
+            request.getCapabilityId(), request.getStatus());
+
+        CompanyCapability capability = capabilityMapper.selectById(request.getCapabilityId());
+        if (capability == null) {
+            log.warn("Capability not found: {}", request.getCapabilityId());
+            return;
+        }
+
+        capability.setEmbeddingStatus(request.getStatus());
+        capability.setVectorizedAt(LocalDateTime.now());
+
+        capabilityMapper.updateById(capability);
+    }
+}
+```
+
+##### Controller层
+```java
+// CapabilityController.java
+@RestController
+@RequestMapping("/api/v1/capabilities")
+@RequiredArgsConstructor
+@Slf4j
+public class CapabilityController {
+
+    private final CapabilityService capabilityService;
+
+    /**
+     * 创建产品能力
+     * 需求编号: REQ-AI-003
+     */
+    @PostMapping("/products")
+    public ResponseEntity<ApiResponse<CompanyCapability>> createProduct(
+        @RequestBody @Valid CreateProductRequest request
+    ) {
+        CompanyCapability capability = capabilityService.createProduct(request);
+        return ResponseEntity.ok(ApiResponse.success(capability, "产品创建成功"));
+    }
+
+    /**
+     * 批量向量化
+     * 需求编号: REQ-AI-003
+     */
+    @PostMapping("/vectorize/batch")
+    public ResponseEntity<ApiResponse<BatchVectorizeResponse>> batchVectorize(
+        @RequestBody @Valid BatchVectorizeRequest request
+    ) {
+        BatchVectorizeResponse response = capabilityService.batchVectorize(request.getCapabilityIds());
+        return ResponseEntity.ok(ApiResponse.success(response, "批量向量化任务已提交"));
+    }
+
+    /**
+     * 向量化完成回调
+     * 需求编号: REQ-AI-003
+     * 由Python AI服务调用
+     */
+    @PostMapping("/vectorize/callback")
+    public ResponseEntity<ApiResponse<Void>> vectorizeCallback(
+        @RequestBody @Valid VectorizeCallbackRequest request
+    ) {
+        capabilityService.onVectorizeComplete(request);
+        return ResponseEntity.ok(ApiResponse.success(null, "回调处理成功"));
+    }
+}
+```
+
+**验证标准**:
+- [ ] 创建产品能力后能成功发送RabbitMQ消息
+- [ ] 批量向量化能正确处理多个能力
+- [ ] 回调接口能正确更新向量化状态
+- [ ] 单元测试覆盖率>80%
+
+#### 4) Python后端
+
+##### 向量化服务
+```python
+# app/services/ai/vectorization_service.py
+from typing import List, Dict, Any, Optional
+from llama_index.embeddings import OpenAIEmbedding
+from app.services.ai.elasticsearch_store import ElasticsearchVectorStore
+from app.core.config import settings
+import httpx
+import logging
+
+logger = logging.getLogger(__name__)
+
+class VectorizationService:
+    """向量化服务
+    需求编号: REQ-AI-003
+    """
+
+    def __init__(self):
+        self.embedding_model = OpenAIEmbedding(
+            api_key=settings.OPENAI_API_KEY,
+            model="text-embedding-ada-002"
+        )
+        self.es_store = ElasticsearchVectorStore()
+        self.java_client = httpx.AsyncClient(base_url="http://backend-java:8080")
+
+    async def vectorize_product(
+        self,
+        capability_id: str,
+        organization_id: str
+    ) -> Dict[str, Any]:
+        """
+        向量化产品能力
+
+        Args:
+            capability_id: 能力ID
+            organization_id: 组织ID
+
+        Returns:
+            向量化结果
+        """
+        try:
+            # 1. 从Java服务获取能力详情
+            logger.info(f"Fetching capability {capability_id} from Java service")
+            response = await self.java_client.get(f"/api/v1/capabilities/{capability_id}")
+            response.raise_for_status()
+            capability = response.json()['data']
+
+            # 2. 构建向量化文本
+            vectorize_text = self._build_vectorize_text(capability)
+
+            # 3. 生成向量
+            logger.info(f"Generating embedding for capability {capability_id}")
+            embedding = await self.embedding_model.aget_text_embedding(vectorize_text)
+
+            # 4. 存储到Elasticsearch
+            logger.info(f"Storing embedding to Elasticsearch for {capability_id}")
+            await self.es_store.add_document(
+                doc_id=capability_id,
+                embedding=embedding,
+                metadata={
+                    'capability_id': capability_id,
+                    'organization_id': organization_id,
+                    'capability_type': 'product',
+                    'name': capability['name'],
+                    'description': capability['description'],
+                    'features': capability.get('features', []),
+                    'advantages': capability.get('advantages', []),
+                    'technology_stack': capability.get('technologyStack', []),
+                    'tags': capability.get('tags', []),
+                    'is_active': capability.get('isActive', True),
+                    'vectorized_at': datetime.utcnow().isoformat()
+                },
+                index_name="capabilities"
+            )
+
+            # 5. 回调Java服务更新状态
+            await self._callback_java_service(capability_id, "completed")
+
+            logger.info(f"Vectorization completed for capability {capability_id}")
+
+            return {
+                'capability_id': capability_id,
+                'status': 'completed',
+                'embedding_dim': len(embedding),
+                'vectorized_at': datetime.utcnow().isoformat()
+            }
+
+        except Exception as e:
+            logger.error(f"Vectorization failed for capability {capability_id}: {str(e)}")
+
+            # 回调失败状态
+            await self._callback_java_service(capability_id, "failed", str(e))
+
+            raise
+
+    def _build_vectorize_text(self, capability: Dict[str, Any]) -> str:
+        """
+        构建向量化文本
+
+        将产品的多个字段合并成一段完整的描述文本，用于生成向量
+        """
+        parts = []
+
+        # 1. 名称和分类
+        parts.append(f"产品名称：{capability['name']}")
+        if capability.get('category'):
+            parts.append(f"分类：{capability['category']}")
+
+        # 2. 描述
+        parts.append(f"描述：{capability['description']}")
+
+        # 3. 功能特性
+        if capability.get('features'):
+            features_text = "、".join(capability['features'])
+            parts.append(f"功能特性：{features_text}")
+
+        # 4. 优势
+        if capability.get('advantages'):
+            advantages_text = "、".join(capability['advantages'])
+            parts.append(f"优势：{advantages_text}")
+
+        # 5. 应用场景
+        if capability.get('applicationScenarios'):
+            scenarios_text = "、".join(capability['applicationScenarios'])
+            parts.append(f"应用场景：{scenarios_text}")
+
+        # 6. 技术栈
+        if capability.get('technologyStack'):
+            tech_text = "、".join(capability['technologyStack'])
+            parts.append(f"技术栈：{tech_text}")
+
+        # 合并所有部分
+        return "\n".join(parts)
+
+    async def _callback_java_service(
+        self,
+        capability_id: str,
+        status: str,
+        error_message: Optional[str] = None
+    ):
+        """回调Java服务更新向量化状态"""
+        try:
+            await self.java_client.post(
+                "/api/v1/capabilities/vectorize/callback",
+                json={
+                    'capability_id': capability_id,
+                    'status': status,
+                    'error_message': error_message,
+                    'vectorized_at': datetime.utcnow().isoformat()
+                }
+            )
+        except Exception as e:
+            logger.error(f"Callback to Java service failed: {str(e)}")
+
+    async def close(self):
+        """关闭资源"""
+        await self.java_client.aclose()
+        await self.es_store.close()
+```
+
+##### Celery异步任务
+```python
+# app/tasks/vectorization_tasks.py
+from celery import Task
+from app.tasks.celery_app import celery_app
+from app.services.ai.vectorization_service import VectorizationService
+import logging
+
+logger = logging.getLogger(__name__)
+
+@celery_app.task(bind=True, max_retries=3)
+def vectorize_product_task(self: Task, capability_id: str, organization_id: str):
+    """
+    产品向量化异步任务
+    需求编号: REQ-AI-003
+    """
+    logger.info(f"Starting vectorization task for capability {capability_id}")
+
+    try:
+        service = VectorizationService()
+        result = await service.vectorize_product(capability_id, organization_id)
+
+        logger.info(f"Vectorization task completed: {result}")
+        return result
+
+    except Exception as e:
+        logger.error(f"Vectorization task failed: {str(e)}")
+
+        # 重试机制
+        raise self.retry(exc=e, countdown=60 * (self.request.retries + 1))
+```
+
+##### RabbitMQ消费者
+```python
+# app/consumers/vectorization_consumer.py
+import pika
+import json
+from app.tasks.vectorization_tasks import vectorize_product_task
+from app.core.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+class VectorizationConsumer:
+    """
+    向量化消息消费者
+    需求编号: REQ-AI-003
+    """
+
+    def __init__(self):
+        # RabbitMQ连接
+        credentials = pika.PlainCredentials(
+            settings.RABBITMQ_USER,
+            settings.RABBITMQ_PASSWORD
+        )
+        self.connection = pika.BlockingConnection(
+            pika.ConnectionParameters(
+                host=settings.RABBITMQ_HOST,
+                port=settings.RABBITMQ_PORT,
+                credentials=credentials
+            )
+        )
+        self.channel = self.connection.channel()
+
+        # 声明交换机
+        self.channel.exchange_declare(
+            exchange='ai.vectorize.exchange',
+            exchange_type='topic',
+            durable=True
+        )
+
+        # 声明队列
+        self.channel.queue_declare(
+            queue='ai.vectorize.product.queue',
+            durable=True
+        )
+
+        # 绑定队列到交换机
+        self.channel.queue_bind(
+            exchange='ai.vectorize.exchange',
+            queue='ai.vectorize.product.queue',
+            routing_key='vectorize.product'
+        )
+
+    def callback(self, ch, method, properties, body):
+        """处理消息"""
+        try:
+            message = json.loads(body.decode('utf-8'))
+            logger.info(f"Received vectorization message: {message}")
+
+            capability_id = message['capability_id']
+            organization_id = message['organization_id']
+
+            # 提交Celery任务
+            vectorize_product_task.delay(capability_id, organization_id)
+
+            # 确认消息
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+        except Exception as e:
+            logger.error(f"Message processing failed: {str(e)}")
+            # 拒绝消息并重新入队
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+
+    def start(self):
+        """开始消费"""
+        logger.info("Starting vectorization consumer...")
+        self.channel.basic_qos(prefetch_count=1)
+        self.channel.basic_consume(
+            queue='ai.vectorize.product.queue',
+            on_message_callback=self.callback
+        )
+        self.channel.start_consuming()
+
+    def stop(self):
+        """停止消费"""
+        self.channel.stop_consuming()
+        self.connection.close()
+```
+
+##### API接口
+```python
+# app/api/v1/vectorization.py
+from fastapi import APIRouter, HTTPException, BackgroundTasks
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from app.services.ai.vectorization_service import VectorizationService
+from app.tasks.vectorization_tasks import vectorize_product_task
+
+router = APIRouter(prefix="/vectorize", tags=["向量化"])
+
+class BatchVectorizeRequest(BaseModel):
+    """批量向量化请求"""
+    capability_ids: List[str] = Field(..., description="能力ID列表")
+    capability_type: str = Field(..., description="能力类型：product|service|case")
+
+class BatchVectorizeResponse(BaseModel):
+    """批量向量化响应"""
+    task_count: int = Field(..., description="提交的任务数量")
+    task_ids: List[str] = Field(..., description="任务ID列表")
+
+@router.post("/batch", response_model=BatchVectorizeResponse)
+async def batch_vectorize(
+    request: BatchVectorizeRequest,
+    background_tasks: BackgroundTasks
+):
+    """
+    批量向量化
+    需求编号: REQ-AI-003
+    """
+    task_ids = []
+
+    for capability_id in request.capability_ids:
+        # 提交Celery任务
+        task = vectorize_product_task.delay(
+            capability_id=capability_id,
+            organization_id="auto"  # 从上下文获取
+        )
+        task_ids.append(task.id)
+
+    return BatchVectorizeResponse(
+        task_count=len(task_ids),
+        task_ids=task_ids
+    )
+```
+
+**验证标准**:
+- [ ] RabbitMQ消息能正确消费
+- [ ] Celery任务能正确执行
+- [ ] 向量生成成功并存储到Elasticsearch
+- [ ] 回调Java服务状态更新成功
+- [ ] 异常情况能正确重试
+
+#### 5) 部署
+
+##### Docker配置
+```dockerfile
+# Dockerfile中添加向量化相关依赖
+RUN pip install \
+    pika==1.3.2 \
+    celery==5.3.4 \
+    redis==5.0.1
+```
+
+##### docker-compose.yml
+```yaml
+services:
+  # Python AI服务
+  backend-python:
+    build: ./backend-python
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=rabbitmq
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JAVA_SERVICE_URL=http://backend-java:8080
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    networks:
+      - app-network
+
+  # Celery Worker（向量化任务）
+  ai-worker:
+    build: ./backend-python
+    command: celery -A app.tasks.celery_app worker --loglevel=info -Q vectorization
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JAVA_SERVICE_URL=http://backend-java:8080
+    depends_on:
+      - rabbitmq
+      - elasticsearch
+    networks:
+      - app-network
+
+  # RabbitMQ消费者（独立进程）
+  vectorization-consumer:
+    build: ./backend-python
+    command: python -m app.consumers.vectorization_consumer
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=rabbitmq
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+##### 环境变量配置
+```bash
+# .env
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=rabbitmq
+RABBITMQ_PASSWORD=your_password
+
+ELASTICSEARCH_URL=http://elasticsearch:9200
+ELASTICSEARCH_USER=elastic
+ELASTICSEARCH_PASSWORD=your_password
+
+OPENAI_API_KEY=sk-your-openai-api-key
+JAVA_SERVICE_URL=http://backend-java:8080
+```
+
+**验证标准**:
+- [ ] 所有容器能正常启动
+- [ ] RabbitMQ连接成功
+- [ ] Elasticsearch连接成功
+- [ ] Celery Worker能接收并处理任务
+- [ ] 容器间网络通信正常
+
+---
+
+### 二级任务 3.2: 项目经验向量化
+
+**工作量估算**: 4 人天
+**优先级**: P2 - 高优先级
+**技术难点**:
+- 项目案例的多维度信息提取
+- 成果量化数据的处理
+- 客户评价的情感分析
+
+#### 1) 数据定义
+
+##### Pydantic模型
+```python
+# app/models/project_case.py
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from datetime import date, datetime
+from decimal import Decimal
+
+class ProjectCase(BaseModel):
+    """项目案例模型"""
+    id: str = Field(..., description="案例ID")
+    organization_id: str = Field(..., description="组织ID")
+
+    # 项目基本信息
+    project_name: str = Field(..., description="项目名称")
+    client_name: str = Field(..., description="客户名称")
+    client_industry: Optional[str] = Field(None, description="客户行业")
+    project_category: Optional[str] = Field(None, description="项目类别")
+    project_type: Optional[str] = Field(None, description="项目类型")
+
+    # 项目规模
+    contract_amount: Optional[Decimal] = Field(None, description="合同金额")
+    start_date: Optional[date] = Field(None, description="开始日期")
+    end_date: Optional[date] = Field(None, description="结束日期")
+    duration_months: Optional[int] = Field(None, description="持续月数")
+    team_size: Optional[int] = Field(None, description="团队规模")
+
+    # 项目描述
+    project_description: str = Field(..., description="项目描述")
+    challenges: Optional[str] = Field(None, description="面临的挑战")
+    solutions: Optional[str] = Field(None, description="解决方案")
+
+    # 项目成果
+    achievements: List[str] = Field(default_factory=list, description="成果亮点")
+    customer_satisfaction: Optional[Decimal] = Field(None, description="客户满意度")
+    customer_feedback: Optional[str] = Field(None, description="客户评价")
+
+    # 技术相关
+    technologies_used: List[str] = Field(default_factory=list, description="使用的技术")
+    project_role: Optional[str] = Field(None, description="项目角色")
+
+    # 向量化相关
+    embedding: Optional[List[float]] = Field(None, description="向量")
+    embedding_model: str = Field("text-embedding-ada-002")
+    vectorized_at: Optional[datetime] = Field(None)
+
+    # 元数据
+    tags: List[str] = Field(default_factory=list)
+    is_reference: bool = Field(True, description="是否可作为参考案例")
+    is_public: bool = Field(False, description="是否公开")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+##### Java实体
+```java
+@Data
+@TableName("project_cases")
+public class ProjectCase {
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
+
+    private String organizationId;
+    private String projectName;
+    private String clientName;
+    private String clientIndustry;
+    private String projectCategory;
+
+    private BigDecimal contractAmount;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private Integer durationMonths;
+    private Integer teamSize;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private String projectDescription;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> achievements;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> technologiesUsed;
+
+    private String embeddingStatus;
+    private LocalDateTime vectorizedAt;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> tags;
+
+    private Boolean isReference;
+    private Boolean isPublic;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createdAt;
+}
+```
+
+**验证标准**:
+- [ ] Pydantic模型验证通过
+- [ ] 数据库表创建成功
+- [ ] 客户满意度等数值字段精度正确
+
+#### 2) 前端
+
+```typescript
+// src/pages/Capability/CaseList.tsx
+export default function CaseList() {
+  const columns: ProColumns<ProjectCase>[] = [
+    {
+      title: '项目名称',
+      dataIndex: 'projectName',
+      width: 200,
+      render: (text, record) => (
+        <a onClick={() => handleViewCase(record)}>{text}</a>
+      ),
+    },
+    {
+      title: '客户',
+      dataIndex: 'clientName',
+      width: 150,
+    },
+    {
+      title: '行业',
+      dataIndex: 'clientIndustry',
+      width: 120,
+      valueType: 'select',
+      valueEnum: {
+        finance: '金融',
+        government: '政府',
+        education: '教育',
+        healthcare: '医疗',
+      },
+    },
+    {
+      title: '合同金额',
+      dataIndex: 'contractAmount',
+      width: 120,
+      valueType: 'money',
+      search: false,
+    },
+    {
+      title: '项目周期',
+      dataIndex: 'durationMonths',
+      width: 100,
+      search: false,
+      render: (_, record) => `${record.durationMonths}个月`,
+    },
+    {
+      title: '客户满意度',
+      dataIndex: 'customerSatisfaction',
+      width: 120,
+      search: false,
+      render: (_, record) => (
+        <Rate disabled value={record.customerSatisfaction} />
+      ),
+    },
+    {
+      title: '技术栈',
+      dataIndex: 'technologiesUsed',
+      width: 200,
+      search: false,
+      render: (_, record) => (
+        <>
+          {record.technologiesUsed.slice(0, 3).map(tech => (
+            <Tag key={tech} color="blue">{tech}</Tag>
+          ))}
+        </>
+      ),
+    },
+    {
+      title: '向量化状态',
+      dataIndex: 'embeddingStatus',
+      width: 120,
+      valueEnum: {
+        pending: { text: '待处理', status: 'Default' },
+        completed: { text: '已完成', status: 'Success' },
+        failed: { text: '失败', status: 'Error' },
+      },
+    },
+  ];
+
+  return (
+    <ProTable<ProjectCase>
+      headerTitle="项目案例库"
+      columns={columns}
+      request={async (params) => {
+        const response = await fetch(`http://localhost:8080/api/v1/capabilities/cases?page=${params.current}`);
+        const result = await response.json();
+        return {
+          data: result.data.items,
+          total: result.data.total,
+          success: true,
+        };
+      }}
+    />
+  );
+}
+```
+
+**验证标准**:
+- [ ] 案例列表正常展示
+- [ ] 客户满意度星级展示正确
+- [ ] 技术栈标签展示完整
+
+#### 3) Java后端
+
+```java
+@Service
+public class ProjectCaseService {
+
+    /**
+     * 创建项目案例
+     * 需求编号: REQ-AI-003
+     */
+    public ProjectCase createCase(CreateProjectCaseRequest request) {
+        ProjectCase projectCase = new ProjectCase();
+        // 设置基本信息
+        projectCase.setOrganizationId(request.getOrganizationId());
+        projectCase.setProjectName(request.getProjectName());
+        projectCase.setClientName(request.getClientName());
+        projectCase.setClientIndustry(request.getClientIndustry());
+
+        // 设置项目规模
+        projectCase.setContractAmount(request.getContractAmount());
+        projectCase.setStartDate(request.getStartDate());
+        projectCase.setEndDate(request.getEndDate());
+        projectCase.setDurationMonths(request.getDurationMonths());
+
+        // 设置成果和技术
+        projectCase.setAchievements(request.getAchievements());
+        projectCase.setTechnologiesUsed(request.getTechnologiesUsed());
+
+        projectCase.setEmbeddingStatus("pending");
+        projectCaseMapper.insert(projectCase);
+
+        // 发送向量化消息
+        VectorizeMessage message = VectorizeMessage.builder()
+            .capabilityId(projectCase.getId())
+            .capabilityType("case")
+            .organizationId(projectCase.getOrganizationId())
+            .build();
+
+        rabbitTemplate.convertAndSend(
+            "ai.vectorize.exchange",
+            "vectorize.case",
+            message
+        );
+
+        return projectCase;
+    }
+}
+```
+
+**验证标准**:
+- [ ] 案例创建成功
+- [ ] 向量化消息发送成功
+- [ ] 金额、日期字段存储正确
+
+#### 4) Python后端
+
+```python
+# app/services/ai/case_vectorization_service.py
+class CaseVectorizationService:
+    """项目案例向量化服务"""
+
+    async def vectorize_case(
+        self,
+        case_id: str,
+        organization_id: str
+    ) -> Dict[str, Any]:
+        """向量化项目案例"""
+
+        # 1. 获取案例详情
+        response = await self.java_client.get(f"/api/v1/capabilities/cases/{case_id}")
+        case_data = response.json()['data']
+
+        # 2. 构建向量化文本（包含多维度信息）
+        vectorize_text = self._build_case_text(case_data)
+
+        # 3. 生成向量
+        embedding = await self.embedding_model.aget_text_embedding(vectorize_text)
+
+        # 4. 存储到Elasticsearch
+        await self.es_store.add_document(
+            doc_id=case_id,
+            embedding=embedding,
+            metadata={
+                'capability_id': case_id,
+                'organization_id': organization_id,
+                'capability_type': 'case',
+                'project_name': case_data['projectName'],
+                'client_name': case_data['clientName'],
+                'client_industry': case_data['clientIndustry'],
+                'contract_amount': case_data.get('contractAmount'),
+                'achievements': case_data.get('achievements', []),
+                'technologies_used': case_data.get('technologiesUsed', []),
+                'customer_satisfaction': case_data.get('customerSatisfaction'),
+                'tags': case_data.get('tags', []),
+                'vectorized_at': datetime.utcnow().isoformat()
+            },
+            index_name="capabilities"
+        )
+
+        # 5. 回调Java服务
+        await self._callback_java_service(case_id, "completed")
+
+        return {
+            'case_id': case_id,
+            'status': 'completed',
+            'embedding_dim': len(embedding)
+        }
+
+    def _build_case_text(self, case_data: Dict[str, Any]) -> str:
+        """构建案例向量化文本"""
+        parts = []
+
+        # 项目基本信息
+        parts.append(f"项目名称：{case_data['projectName']}")
+        parts.append(f"客户：{case_data['clientName']}")
+        if case_data.get('clientIndustry'):
+            parts.append(f"行业：{case_data['clientIndustry']}")
+
+        # 项目描述
+        parts.append(f"项目描述：{case_data['projectDescription']}")
+
+        # 挑战和解决方案
+        if case_data.get('challenges'):
+            parts.append(f"面临挑战：{case_data['challenges']}")
+        if case_data.get('solutions'):
+            parts.append(f"解决方案：{case_data['solutions']}")
+
+        # 成果
+        if case_data.get('achievements'):
+            achievements_text = "、".join(case_data['achievements'])
+            parts.append(f"项目成果：{achievements_text}")
+
+        # 技术栈
+        if case_data.get('technologiesUsed'):
+            tech_text = "、".join(case_data['technologiesUsed'])
+            parts.append(f"技术栈：{tech_text}")
+
+        # 客户评价
+        if case_data.get('customerFeedback'):
+            parts.append(f"客户评价：{case_data['customerFeedback']}")
+
+        return "\n".join(parts)
+```
+
+**验证标准**:
+- [ ] 案例文本构建包含所有关键信息
+- [ ] 向量生成成功
+- [ ] Elasticsearch存储成功
+- [ ] 回调Java服务成功
+
+#### 5) 部署
+
+```yaml
+# docker-compose.yml 中添加案例向量化worker
+services:
+  case-vectorization-worker:
+    build: ./backend-python
+    command: celery -A app.tasks.celery_app worker --loglevel=info -Q case_vectorization
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JAVA_SERVICE_URL=http://backend-java:8080
+```
+
+**验证标准**:
+- [ ] Worker正常启动
+- [ ] 能接收并处理案例向量化任务
+
+---
+
+### 二级任务 3.3: 资质证书向量化
+
+**工作量估算**: 3 人天
+**优先级**: P2 - 中优先级
+**技术难点**:
+- 证书信息的标准化提取
+- 有效期管理
+- 证书图片的OCR识别（可选）
+
+#### 1) 数据定义
+
+##### Pydantic模型
+```python
+# app/models/certification.py
+class Certification(BaseModel):
+    """资质证书模型"""
+    id: str
+    organization_id: str
+
+    # 证书信息
+    certification_name: str = Field(..., description="证书名称")
+    certification_type: str = Field(..., description="证书类型")
+    issuing_authority: str = Field(..., description="颁发机构")
+    certificate_number: Optional[str] = Field(None, description="证书编号")
+
+    # 有效期
+    issue_date: Optional[date] = Field(None, description="颁发日期")
+    expiry_date: Optional[date] = Field(None, description="到期日期")
+    is_valid: bool = Field(True, description="是否有效")
+
+    # 详细信息
+    scope: Optional[str] = Field(None, description="认证范围")
+    level: Optional[str] = Field(None, description="等级")
+    certificate_url: Optional[str] = Field(None, description="证书文件URL")
+
+    # 向量化
+    embedding: Optional[List[float]] = None
+    vectorized_at: Optional[datetime] = None
+
+    tags: List[str] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+##### 数据库表
+```sql
+CREATE TABLE certifications (
+    id UUID PRIMARY KEY,
+    organization_id UUID NOT NULL,
+    certification_name VARCHAR(200) NOT NULL,
+    certification_type VARCHAR(100),
+    issuing_authority VARCHAR(200),
+    certificate_number VARCHAR(100),
+    issue_date DATE,
+    expiry_date DATE,
+    is_valid BOOLEAN DEFAULT TRUE,
+    scope TEXT,
+    level VARCHAR(50),
+    certificate_url TEXT,
+    embedding_status VARCHAR(20) DEFAULT 'pending',
+    vectorized_at TIMESTAMP WITH TIME ZONE,
+    tags TEXT[],
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id)
+);
+
+-- 索引
+CREATE INDEX idx_certifications_org ON certifications(organization_id);
+CREATE INDEX idx_certifications_type ON certifications(certification_type);
+CREATE INDEX idx_certifications_valid ON certifications(is_valid, expiry_date);
+```
+
+**验证标准**:
+- [ ] 模型验证通过
+- [ ] 表创建成功
+- [ ] 有效期字段类型正确
+
+#### 2) 前端
+
+```typescript
+// src/pages/Capability/CertificationList.tsx
+export default function CertificationList() {
+  const columns: ProColumns<Certification>[] = [
+    {
+      title: '证书名称',
+      dataIndex: 'certificationName',
+      width: 200,
+    },
+    {
+      title: '类型',
+      dataIndex: 'certificationType',
+      width: 150,
+      valueType: 'select',
+      valueEnum: {
+        iso: 'ISO认证',
+        qualification: '企业资质',
+        patent: '专利证书',
+        software: '软件著作权',
+      },
+    },
+    {
+      title: '颁发机构',
+      dataIndex: 'issuingAuthority',
+      width: 200,
+    },
+    {
+      title: '证书编号',
+      dataIndex: 'certificateNumber',
+      width: 150,
+    },
+    {
+      title: '颁发日期',
+      dataIndex: 'issueDate',
+      width: 120,
+      valueType: 'date',
+    },
+    {
+      title: '到期日期',
+      dataIndex: 'expiryDate',
+      width: 120,
+      valueType: 'date',
+      render: (_, record) => {
+        const isExpiringSoon = record.expiryDate &&
+          new Date(record.expiryDate) < new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+        return (
+          <span style={{ color: isExpiringSoon ? 'red' : 'inherit' }}>
+            {record.expiryDate}
+            {isExpiringSoon && <Tag color="orange">即将到期</Tag>}
+          </span>
+        );
+      },
+    },
+    {
+      title: '状态',
+      dataIndex: 'isValid',
+      width: 100,
+      valueType: 'select',
+      valueEnum: {
+        true: { text: '有效', status: 'Success' },
+        false: { text: '已过期', status: 'Error' },
+      },
+    },
+    {
+      title: '向量化状态',
+      dataIndex: 'embeddingStatus',
+      width: 120,
+      valueEnum: {
+        pending: { text: '待处理', status: 'Default' },
+        completed: { text: '已完成', status: 'Success' },
+      },
+    },
+    {
+      title: '操作',
+      width: 180,
+      render: (_, record) => (
+        <Space>
+          <a onClick={() => handleView(record.certificateUrl)}>查看证书</a>
+          <a onClick={() => handleEdit(record)}>编辑</a>
+          <a onClick={() => handleVectorize(record)}>向量化</a>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <ProTable<Certification>
+      headerTitle="资质证书库"
+      columns={columns}
+      toolBarRender={() => [
+        <Button key="add" type="primary" icon={<PlusOutlined />}>
+          新增证书
+        </Button>,
+        <Button key="check" onClick={handleCheckExpiry}>
+          检查到期证书
+        </Button>,
+      ]}
+    />
+  );
+}
+```
+
+**验证标准**:
+- [ ] 即将到期证书高亮显示
+- [ ] 证书文件能正常查看
+- [ ] 批量向量化功能正常
+
+#### 3) Java后端
+
+```java
+@Service
+public class CertificationService {
+
+    /**
+     * 创建资质证书
+     * 需求编号: REQ-AI-003
+     */
+    public Certification createCertification(CreateCertificationRequest request) {
+        Certification cert = new Certification();
+        cert.setOrganizationId(request.getOrganizationId());
+        cert.setCertificationName(request.getCertificationName());
+        cert.setCertificationType(request.getCertificationType());
+        cert.setIssuingAuthority(request.getIssuingAuthority());
+        cert.setCertificateNumber(request.getCertificateNumber());
+        cert.setIssueDate(request.getIssueDate());
+        cert.setExpiryDate(request.getExpiryDate());
+
+        // 检查有效性
+        cert.setIsValid(checkValidity(request.getExpiryDate()));
+
+        cert.setEmbeddingStatus("pending");
+        certificationMapper.insert(cert);
+
+        // 发送向量化消息
+        VectorizeMessage message = VectorizeMessage.builder()
+            .capabilityId(cert.getId())
+            .capabilityType("certification")
+            .organizationId(cert.getOrganizationId())
+            .build();
+
+        rabbitTemplate.convertAndSend(
+            "ai.vectorize.exchange",
+            "vectorize.certification",
+            message
+        );
+
+        return cert;
+    }
+
+    /**
+     * 检查即将到期的证书
+     */
+    public List<Certification> checkExpiringCertifications(int daysBeforeExpiry) {
+        LocalDate expiryThreshold = LocalDate.now().plusDays(daysBeforeExpiry);
+
+        return certificationMapper.selectList(
+            new QueryWrapper<Certification>()
+                .le("expiry_date", expiryThreshold)
+                .ge("expiry_date", LocalDate.now())
+                .eq("is_valid", true)
+        );
+    }
+
+    private boolean checkValidity(LocalDate expiryDate) {
+        if (expiryDate == null) {
+            return true;  // 长期有效
+        }
+        return expiryDate.isAfter(LocalDate.now());
+    }
+}
+```
+
+**验证标准**:
+- [ ] 证书有效性自动判断
+- [ ] 即将到期证书能正确查询
+- [ ] 向量化消息发送成功
+
+#### 4) Python后端
+
+```python
+# app/services/ai/certification_vectorization_service.py
+class CertificationVectorizationService:
+    """资质证书向量化服务"""
+
+    async def vectorize_certification(
+        self,
+        certification_id: str,
+        organization_id: str
+    ) -> Dict[str, Any]:
+        """向量化资质证书"""
+
+        # 1. 获取证书详情
+        response = await self.java_client.get(
+            f"/api/v1/capabilities/certifications/{certification_id}"
+        )
+        cert_data = response.json()['data']
+
+        # 2. 构建向量化文本
+        vectorize_text = self._build_certification_text(cert_data)
+
+        # 3. 生成向量
+        embedding = await self.embedding_model.aget_text_embedding(vectorize_text)
+
+        # 4. 存储到Elasticsearch
+        await self.es_store.add_document(
+            doc_id=certification_id,
+            embedding=embedding,
+            metadata={
+                'capability_id': certification_id,
+                'organization_id': organization_id,
+                'capability_type': 'certification',
+                'certification_name': cert_data['certificationName'],
+                'certification_type': cert_data['certificationType'],
+                'issuing_authority': cert_data['issuingAuthority'],
+                'issue_date': cert_data.get('issueDate'),
+                'expiry_date': cert_data.get('expiryDate'),
+                'is_valid': cert_data.get('isValid', True),
+                'scope': cert_data.get('scope'),
+                'level': cert_data.get('level'),
+                'tags': cert_data.get('tags', []),
+                'vectorized_at': datetime.utcnow().isoformat()
+            },
+            index_name="capabilities"
+        )
+
+        # 5. 回调Java服务
+        await self._callback_java_service(certification_id, "completed")
+
+        return {
+            'certification_id': certification_id,
+            'status': 'completed'
+        }
+
+    def _build_certification_text(self, cert_data: Dict[str, Any]) -> str:
+        """构建证书向量化文本"""
+        parts = []
+
+        parts.append(f"证书名称：{cert_data['certificationName']}")
+        parts.append(f"证书类型：{cert_data.get('certificationType', '未分类')}")
+        parts.append(f"颁发机构：{cert_data['issuingAuthority']}")
+
+        if cert_data.get('scope'):
+            parts.append(f"认证范围：{cert_data['scope']}")
+
+        if cert_data.get('level'):
+            parts.append(f"等级：{cert_data['level']}")
+
+        if cert_data.get('certificateNumber'):
+            parts.append(f"证书编号：{cert_data['certificateNumber']}")
+
+        return "\n".join(parts)
+```
+
+**验证标准**:
+- [ ] 证书文本构建完整
+- [ ] 有效期信息正确存储
+- [ ] 向量生成成功
+
+#### 5) 部署
+
+```yaml
+# RabbitMQ队列配置
+services:
+  vectorization-consumer:
+    environment:
+      - CERT_QUEUE_NAME=ai.vectorize.certification.queue
+```
+
+**验证标准**:
+- [ ] 证书向量化队列正常工作
+- [ ] Worker能处理证书向量化任务
+
+---
+
+### 二级任务 3.4: 向量检索优化
+
+**工作量估算**: 3 人天
+**优先级**: P2 - 高优先级（检索性能优化）
+**技术难点**:
+- 混合检索算法实现
+- 检索结果重排序
+- 查询性能优化
+
+#### 1) 数据定义
+
+##### 检索参数模型
+```python
+# app/models/search.py
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from enum import Enum
+
+class SearchMode(str, Enum):
+    """检索模式"""
+    VECTOR_ONLY = "vector_only"          # 仅向量检索
+    KEYWORD_ONLY = "keyword_only"        # 仅关键词检索
+    HYBRID = "hybrid"                    # 混合检索
+
+class RerankStrategy(str, Enum):
+    """重排序策略"""
+    RRF = "rrf"                          # Reciprocal Rank Fusion
+    LINEAR_COMBINATION = "linear"         # 线性组合
+    LLM_RERANK = "llm_rerank"            # LLM重排序
+
+class SearchRequest(BaseModel):
+    """检索请求"""
+    query: str = Field(..., description="查询文本")
+    organization_id: str = Field(..., description="组织ID")
+    capability_types: Optional[List[str]] = Field(None, description="能力类型过滤")
+    top_k: int = Field(10, ge=1, le=100, description="返回结果数量")
+
+    # 检索模式
+    search_mode: SearchMode = Field(SearchMode.HYBRID, description="检索模式")
+    vector_weight: float = Field(0.7, ge=0.0, le=1.0, description="向量检索权重")
+    keyword_weight: float = Field(0.3, ge=0.0, le=1.0, description="关键词检索权重")
+
+    # 重排序
+    enable_rerank: bool = Field(True, description="是否启用重排序")
+    rerank_strategy: RerankStrategy = Field(RerankStrategy.RRF, description="重排序策略")
+    rerank_top_k: int = Field(50, description="重排序候选数量")
+
+    # 过滤条件
+    filters: Optional[Dict[str, Any]] = Field(None, description="额外过滤条件")
+
+class SearchResult(BaseModel):
+    """检索结果"""
+    capability_id: str
+    capability_type: str
+    name: str
+    description: str
+    relevance_score: float = Field(..., description="相关性分数")
+    vector_score: Optional[float] = Field(None, description="向量相似度分数")
+    keyword_score: Optional[float] = Field(None, description="关键词匹配分数")
+    rerank_score: Optional[float] = Field(None, description="重排序分数")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+class SearchResponse(BaseModel):
+    """检索响应"""
+    query: str
+    results: List[SearchResult]
+    total_results: int
+    search_time_ms: float
+    search_mode: SearchMode
+    rerank_applied: bool
+```
+
+**验证标准**:
+- [ ] 检索参数验证通过
+- [ ] 权重和参数范围校验正确
+
+#### 2) 前端
+
+```typescript
+// src/components/CapabilitySearch/index.tsx
+import { Input, Select, Slider, Switch, Space, Card } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+
+interface SearchPanelProps {
+  onSearch: (params: SearchParams) => void;
+}
+
+export default function CapabilitySearchPanel({ onSearch }: SearchPanelProps) {
+  const [query, setQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<'hybrid' | 'vector_only' | 'keyword_only'>('hybrid');
+  const [vectorWeight, setVectorWeight] = useState(0.7);
+  const [enableRerank, setEnableRerank] = useState(true);
+  const [rerankStrategy, setRerankStrategy] = useState<'rrf' | 'linear' | 'llm_rerank'>('rrf');
+
+  const handleSearch = () => {
+    onSearch({
+      query,
+      search_mode: searchMode,
+      vector_weight: vectorWeight,
+      keyword_weight: 1 - vectorWeight,
+      enable_rerank: enableRerank,
+      rerank_strategy: rerankStrategy,
+      top_k: 10,
+    });
+  };
+
+  return (
+    <Card title="能力检索配置">
+      <Space direction="vertical" style={{ width: '100%' }} size="large">
+        {/* 查询输入 */}
+        <Input.Search
+          placeholder="输入查询需求..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onSearch={handleSearch}
+          enterButton={<SearchOutlined />}
+          size="large"
+        />
+
+        {/* 检索模式 */}
+        <div>
+          <label>检索模式：</label>
+          <Select
+            value={searchMode}
+            onChange={setSearchMode}
+            style={{ width: 200 }}
+            options={[
+              { label: '混合检索（推荐）', value: 'hybrid' },
+              { label: '仅向量检索', value: 'vector_only' },
+              { label: '仅关键词检索', value: 'keyword_only' },
+            ]}
+          />
+        </div>
+
+        {/* 权重调整（仅混合模式） */}
+        {searchMode === 'hybrid' && (
+          <div>
+            <label>向量检索权重：{vectorWeight.toFixed(1)}</label>
+            <Slider
+              min={0}
+              max={1}
+              step={0.1}
+              value={vectorWeight}
+              onChange={setVectorWeight}
+              marks={{
+                0: '关键词',
+                0.5: '平衡',
+                1: '向量',
+              }}
+            />
+          </div>
+        )}
+
+        {/* 重排序配置 */}
+        <div>
+          <Space>
+            <label>启用重排序：</label>
+            <Switch checked={enableRerank} onChange={setEnableRerank} />
+          </Space>
+        </div>
+
+        {enableRerank && (
+          <div>
+            <label>重排序策略：</label>
+            <Select
+              value={rerankStrategy}
+              onChange={setRerankStrategy}
+              style={{ width: 200 }}
+              options={[
+                { label: 'RRF（倒数排名融合）', value: 'rrf' },
+                { label: '线性组合', value: 'linear' },
+                { label: 'LLM重排序', value: 'llm_rerank' },
+              ]}
+            />
+          </div>
+        )}
+      </Space>
+    </Card>
+  );
+}
+
+// 搜索结果展示组件
+function SearchResults({ results }: { results: SearchResult[] }) {
+  return (
+    <List
+      dataSource={results}
+      renderItem={(item) => (
+        <List.Item>
+          <Card hoverable>
+            <Card.Meta
+              title={
+                <Space>
+                  <Tag color="blue">{item.capabilityType}</Tag>
+                  <span>{item.name}</span>
+                  <Tag color="green">匹配度: {(item.relevanceScore * 100).toFixed(1)}%</Tag>
+                </Space>
+              }
+              description={item.description}
+            />
+            <div style={{ marginTop: 16 }}>
+              <Space>
+                {item.vectorScore && (
+                  <Tag>向量分: {item.vectorScore.toFixed(3)}</Tag>
+                )}
+                {item.keywordScore && (
+                  <Tag>关键词分: {item.keywordScore.toFixed(3)}</Tag>
+                )}
+                {item.rerankScore && (
+                  <Tag color="orange">重排序分: {item.rerankScore.toFixed(3)}</Tag>
+                )}
+              </Space>
+            </div>
+          </Card>
+        </List.Item>
+      )}
+    />
+  );
+}
+```
+
+**验证标准**:
+- [ ] 检索配置面板交互正常
+- [ ] 权重滑块实时更新
+- [ ] 搜索结果正确展示各项分数
+
+#### 3) Java后端
+
+```java
+// 检索配置管理
+@Service
+public class SearchConfigService {
+
+    /**
+     * 保存用户的检索偏好
+     */
+    public void saveSearchPreference(String userId, SearchPreference preference) {
+        // 保存到Redis
+        String key = "search:preference:" + userId;
+        redisTemplate.opsForValue().set(key, preference, 7, TimeUnit.DAYS);
+    }
+
+    /**
+     * 获取用户的检索偏好
+     */
+    public SearchPreference getSearchPreference(String userId) {
+        String key = "search:preference:" + userId;
+        SearchPreference preference = redisTemplate.opsForValue().get(key);
+
+        if (preference == null) {
+            // 返回默认配置
+            preference = SearchPreference.builder()
+                .searchMode("hybrid")
+                .vectorWeight(0.7)
+                .keywordWeight(0.3)
+                .enableRerank(true)
+                .rerankStrategy("rrf")
+                .build();
+        }
+
+        return preference;
+    }
+}
+```
+
+**验证标准**:
+- [ ] 用户偏好能正确保存和读取
+- [ ] Redis缓存正常工作
+
+#### 4) Python后端
+
+##### 混合检索服务
+```python
+# app/services/ai/hybrid_search_service.py
+from typing import List, Dict, Any
+from app.models.search import SearchRequest, SearchResponse, SearchResult, SearchMode, RerankStrategy
+from app.services.ai.elasticsearch_store import ElasticsearchVectorStore
+from app.services.ai.embedding_service import EmbeddingService
+import time
+import logging
+
+logger = logging.getLogger(__name__)
+
+class HybridSearchService:
+    """混合检索服务
+    需求编号: REQ-AI-003
+    实现向量检索+关键词检索+结果重排序
+    """
+
+    def __init__(self):
+        self.embedding_service = EmbeddingService()
+        self.es_store = ElasticsearchVectorStore()
+
+    async def search(self, request: SearchRequest) -> SearchResponse:
+        """
+        执行混合检索
+
+        Args:
+            request: 检索请求
+
+        Returns:
+            检索结果
+        """
+        start_time = time.time()
+
+        logger.info(f"Hybrid search: query='{request.query}', mode={request.search_mode}")
+
+        # 1. 根据检索模式执行不同的检索策略
+        if request.search_mode == SearchMode.VECTOR_ONLY:
+            results = await self._vector_search(request)
+        elif request.search_mode == SearchMode.KEYWORD_ONLY:
+            results = await self._keyword_search(request)
+        else:  # HYBRID
+            results = await self._hybrid_search(request)
+
+        # 2. 重排序（如果启用）
+        if request.enable_rerank and len(results) > 0:
+            results = await self._rerank_results(
+                query=request.query,
+                results=results,
+                strategy=request.rerank_strategy,
+                top_k=request.top_k
+            )
+
+        # 3. 取Top-K
+        results = results[:request.top_k]
+
+        search_time_ms = (time.time() - start_time) * 1000
+
+        logger.info(f"Search completed: {len(results)} results in {search_time_ms:.2f}ms")
+
+        return SearchResponse(
+            query=request.query,
+            results=results,
+            total_results=len(results),
+            search_time_ms=search_time_ms,
+            search_mode=request.search_mode,
+            rerank_applied=request.enable_rerank
+        )
+
+    async def _vector_search(self, request: SearchRequest) -> List[SearchResult]:
+        """纯向量检索"""
+        # 1. 生成查询向量
+        query_embedding = await self.embedding_service.embed_text(request.query)
+
+        # 2. Elasticsearch kNN检索
+        es_results = await self.es_store.search(
+            query_embedding=query_embedding,
+            top_k=request.rerank_top_k if request.enable_rerank else request.top_k,
+            filter_dict={
+                'organization_id': request.organization_id,
+                'is_active': True,
+                **(request.filters or {})
+            }
+        )
+
+        # 3. 转换为SearchResult
+        results = []
+        for es_result in es_results:
+            results.append(SearchResult(
+                capability_id=es_result['id'],
+                capability_type=es_result['metadata'].get('capability_type', 'unknown'),
+                name=es_result['metadata'].get('name', ''),
+                description=es_result['content'],
+                relevance_score=es_result['score'],
+                vector_score=es_result['score'],
+                metadata=es_result['metadata']
+            ))
+
+        return results
+
+    async def _keyword_search(self, request: SearchRequest) -> List[SearchResult]:
+        """纯关键词检索"""
+        # 使用Elasticsearch的全文搜索
+        query_body = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": request.query,
+                                "fields": ["name^3", "description^2", "features", "advantages"],
+                                "type": "best_fields",
+                                "operator": "or"
+                            }
+                        }
+                    ],
+                    "filter": [
+                        {"term": {"organization_id": request.organization_id}},
+                        {"term": {"is_active": True}}
+                    ]
+                }
+            },
+            "size": request.rerank_top_k if request.enable_rerank else request.top_k
+        }
+
+        # 添加额外过滤条件
+        if request.filters:
+            for key, value in request.filters.items():
+                query_body["query"]["bool"]["filter"].append({"term": {key: value}})
+
+        # 执行搜索
+        response = await self.es_store.es_client.search(
+            index="capabilities",
+            body=query_body
+        )
+
+        # 转换结果
+        results = []
+        max_score = response['hits']['max_score'] if response['hits']['max_score'] else 1.0
+
+        for hit in response['hits']['hits']:
+            results.append(SearchResult(
+                capability_id=hit['_source']['capability_id'],
+                capability_type=hit['_source']['capability_type'],
+                name=hit['_source']['name'],
+                description=hit['_source']['description'],
+                relevance_score=hit['_score'] / max_score,  # 归一化
+                keyword_score=hit['_score'] / max_score,
+                metadata=hit['_source']
+            ))
+
+        return results
+
+    async def _hybrid_search(self, request: SearchRequest) -> List[SearchResult]:
+        """
+        混合检索：向量检索 + 关键词检索 + 分数融合
+        """
+        # 1. 并行执行向量检索和关键词检索
+        vector_results = await self._vector_search(request)
+        keyword_results = await self._keyword_search(request)
+
+        # 2. 结果融合
+        # 创建ID到结果的映射
+        combined_results = {}
+
+        # 添加向量检索结果
+        for result in vector_results:
+            combined_results[result.capability_id] = result
+
+        # 合并关键词检索结果
+        for keyword_result in keyword_results:
+            cap_id = keyword_result.capability_id
+
+            if cap_id in combined_results:
+                # 已存在，合并分数
+                vector_result = combined_results[cap_id]
+
+                # 加权组合
+                combined_score = (
+                    vector_result.vector_score * request.vector_weight +
+                    keyword_result.keyword_score * request.keyword_weight
+                )
+
+                vector_result.relevance_score = combined_score
+                vector_result.keyword_score = keyword_result.keyword_score
+            else:
+                # 新结果，只有关键词分数
+                keyword_result.relevance_score = keyword_result.keyword_score * request.keyword_weight
+                combined_results[cap_id] = keyword_result
+
+        # 3. 按综合分数排序
+        sorted_results = sorted(
+            combined_results.values(),
+            key=lambda x: x.relevance_score,
+            reverse=True
+        )
+
+        return sorted_results
+
+    async def _rerank_results(
+        self,
+        query: str,
+        results: List[SearchResult],
+        strategy: RerankStrategy,
+        top_k: int
+    ) -> List[SearchResult]:
+        """
+        重排序
+
+        Args:
+            query: 查询文本
+            results: 初步检索结果
+            strategy: 重排序策略
+            top_k: 最终返回数量
+
+        Returns:
+            重排序后的结果
+        """
+        logger.info(f"Reranking {len(results)} results with strategy: {strategy}")
+
+        if strategy == RerankStrategy.RRF:
+            # Reciprocal Rank Fusion
+            return self._rrf_rerank(results, top_k)
+        elif strategy == RerankStrategy.LINEAR_COMBINATION:
+            # 线性组合（已在hybrid_search中实现）
+            return results[:top_k]
+        elif strategy == RerankStrategy.LLM_RERANK:
+            # LLM重排序
+            return await self._llm_rerank(query, results, top_k)
+        else:
+            return results[:top_k]
+
+    def _rrf_rerank(
+        self,
+        results: List[SearchResult],
+        top_k: int,
+        k: int = 60
+    ) -> List[SearchResult]:
+        """
+        RRF重排序（Reciprocal Rank Fusion）
+
+        公式: RRF(d) = Σ 1 / (k + rank_i(d))
+        其中 rank_i(d) 是文档d在第i个排序列表中的排名
+
+        Args:
+            results: 检索结果
+            top_k: 返回数量
+            k: RRF参数，通常取60
+
+        Returns:
+            重排序后的结果
+        """
+        # 分别获取向量排序和关键词排序
+        vector_ranked = sorted(
+            [r for r in results if r.vector_score is not None],
+            key=lambda x: x.vector_score,
+            reverse=True
+        )
+        keyword_ranked = sorted(
+            [r for r in results if r.keyword_score is not None],
+            key=lambda x: x.keyword_score,
+            reverse=True
+        )
+
+        # 计算RRF分数
+        rrf_scores = {}
+
+        for rank, result in enumerate(vector_ranked):
+            cap_id = result.capability_id
+            rrf_scores[cap_id] = rrf_scores.get(cap_id, 0) + 1 / (k + rank + 1)
+
+        for rank, result in enumerate(keyword_ranked):
+            cap_id = result.capability_id
+            rrf_scores[cap_id] = rrf_scores.get(cap_id, 0) + 1 / (k + rank + 1)
+
+        # 更新分数并排序
+        for result in results:
+            if result.capability_id in rrf_scores:
+                result.rerank_score = rrf_scores[result.capability_id]
+                result.relevance_score = result.rerank_score  # 使用RRF分数作为最终相关性分数
+
+        # 按RRF分数排序
+        reranked = sorted(
+            results,
+            key=lambda x: x.rerank_score if x.rerank_score else 0,
+            reverse=True
+        )
+
+        return reranked[:top_k]
+
+    async def _llm_rerank(
+        self,
+        query: str,
+        results: List[SearchResult],
+        top_k: int
+    ) -> List[SearchResult]:
+        """
+        LLM重排序
+        使用GPT模型评估每个结果与查询的相关性
+        """
+        # TODO: 实现LLM重排序
+        # 使用GPT-4评估相关性
+        logger.warning("LLM rerank not implemented yet, falling back to RRF")
+        return self._rrf_rerank(results, top_k)
+```
+
+##### API接口
+```python
+# app/api/v1/search.py
+from fastapi import APIRouter, HTTPException
+from app.models.search import SearchRequest, SearchResponse
+from app.services.ai.hybrid_search_service import HybridSearchService
+
+router = APIRouter(prefix="/search", tags=["检索"])
+
+search_service = HybridSearchService()
+
+@router.post("/capabilities", response_model=SearchResponse)
+async def search_capabilities(request: SearchRequest):
+    """
+    能力检索
+    需求编号: REQ-AI-003
+
+    支持三种检索模式:
+    - vector_only: 仅向量检索（语义搜索）
+    - keyword_only: 仅关键词检索（全文搜索）
+    - hybrid: 混合检索（推荐）
+
+    支持三种重排序策略:
+    - rrf: Reciprocal Rank Fusion（倒数排名融合）
+    - linear: 线性组合
+    - llm_rerank: LLM重排序（使用GPT评估相关性）
+    """
+    try:
+        response = await search_service.search(request)
+        return response
+    except Exception as e:
+        logger.error(f"Search failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+**验证标准**:
+- [ ] 三种检索模式都能正常工作
+- [ ] RRF重排序算法正确实现
+- [ ] 分数归一化和融合正确
+- [ ] 检索性能满足要求（<500ms）
+
+#### 5) 部署
+
+##### Elasticsearch索引优化
+```json
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 2,
+    "index": {
+      "similarity": {
+        "custom_bm25": {
+          "type": "BM25",
+          "b": 0.75,
+          "k1": 1.2
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart",
+        "similarity": "custom_bm25"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 1536,
+        "index": true,
+        "similarity": "cosine",
+        "index_options": {
+          "type": "hnsw",
+          "m": 16,
+          "ef_construction": 100
+        }
+      }
+    }
+  }
+}
+```
+
+##### 性能监控
+```python
+# app/middleware/search_metrics.py
+from prometheus_client import Counter, Histogram
+import time
+
+# 指标定义
+search_requests = Counter('search_requests_total', 'Total search requests', ['search_mode'])
+search_latency = Histogram('search_latency_seconds', 'Search latency', ['search_mode'])
+search_result_count = Histogram('search_result_count', 'Number of search results')
+
+async def track_search_metrics(request: SearchRequest, response: SearchResponse):
+    """记录检索指标"""
+    search_requests.labels(search_mode=request.search_mode).inc()
+    search_latency.labels(search_mode=request.search_mode).observe(
+        response.search_time_ms / 1000
+    )
+    search_result_count.observe(len(response.results))
+```
+
+**验证标准**:
+- [ ] Elasticsearch索引优化配置生效
+- [ ] 监控指标正常采集
+- [ ] Grafana仪表板能展示检索性能
+
+---
+
+### 模块总结
+
+#### 完成进度统计
+
+**二级任务完成情况**:
+- 3.1 产品服务向量化: ✅ 详细规划完成（4人天）
+- 3.2 项目经验向量化: ✅ 详细规划完成（4人天）
+- 3.3 资质证书向量化: ✅ 详细规划完成（3人天）
+- 3.4 向量检索优化: ✅ 详细规划完成（3人天）
+
+**预计总工作量**: 14 人天
+
+### 细化效果
+
+✅ **细化前**: 4个粗粒度子任务
+✅ **细化后**: 每个子任务拆分为5类别，共 20+ 具体任务项
+
+### 关键依赖
+
+1. **AI-001 → AI-003**: AI-003依赖AI-001的Elasticsearch向量存储基础设施
+2. **向量化 → 检索**: 检索优化需要先完成向量化
+3. **Java服务 → Python服务**: Python服务依赖Java服务提供能力数据
+
+### 下一步行动
+
+1. **优先开始**: 二级任务 3.1（产品服务向量化）
+   - 建立向量化基础流程
+   - 完成RabbitMQ消息队列集成
+   - 实现首个向量化Pipeline
+
+2. **并行开发**:
+   - 产品/案例/证书向量化可以并行（3.1-3.3）
+   - 检索优化（3.4）需要等待向量数据积累
+
+---
+
+## AI-004: 智能匹配分析
+
+**需求编号**: REQ-AI-004
+**负责人**: Python AI 开发
+**优先级**: P2 - 中优先级
+**开始时间**: YYYY-MM-DD
+**预计完成**: YYYY-MM-DD
+**实际完成**: -
+**当前状态**: ⏸️ 待开始
+**完成进度**: 0% (0/3 二级任务)
+
+### 模块概述
+
+智能匹配分析是AI标书生成的核心智能模块，负责将招标需求与企业能力进行语义匹配、评分和可视化展示，为标书撰写提供精准的能力引用建议。
+
+**核心价值**:
+- 实现招标需求与企业能力的智能匹配
+- 识别企业竞争优势和能力差距
+- 提供智能推荐（案例、模板、团队）
+- 辅助投标决策（中标概率评估）
+
+**技术架构**:
+```
+招标需求分析 → 向量检索 + 关键词匹配 → 综合评分
+        ↓
+    能力匹配矩阵
+        ↓
+竞争优势识别 → 差距分析 → 改进建议
+        ↓
+    智能推荐引擎
+```
+
+---
+
+### 二级任务 4.1: 需求匹配分析
+
+**工作量估算**: 5 人天
+**优先级**: P1 - 高优先级（核心功能）
+**技术难点**:
+- 多维度匹配算法设计
+- 匹配度评分准确性
+- 可视化矩阵展示
+
+#### 1) 数据定义
+
+##### Pydantic模型
+```python
+# app/models/matching.py
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+from decimal import Decimal
+
+class RequirementMatch(BaseModel):
+    """需求匹配模型"""
+    requirement_id: str = Field(..., description="需求ID")
+    requirement_title: str = Field(..., description="需求标题")
+    requirement_type: str = Field(..., description="技术/商务/合规")
+    is_mandatory: bool = Field(..., description="是否强制要求")
+    score_weight: Decimal = Field(..., description="评分权重")
+
+    # 匹配的能力
+    matched_capabilities: List[Dict[str, Any]] = Field(default_factory=list, description="匹配的能力列表")
+
+    # 匹配度评分
+    match_score: Decimal = Field(..., ge=0, le=100, description="匹配度分数 (0-100)")
+    match_status: str = Field(..., description="matched|partial|unmatched")
+
+    # 匹配详情
+    match_method: str = Field(..., description="vector|keyword|hybrid")
+    vector_similarity: Optional[Decimal] = Field(None, description="向量相似度")
+    keyword_coverage: Optional[Decimal] = Field(None, description="关键词覆盖率")
+
+    # 建议
+    suggestions: List[str] = Field(default_factory=list, description="改进建议")
+    gap_analysis: Optional[str] = Field(None, description="差距分析")
+
+class MatchingMatrix(BaseModel):
+    """匹配矩阵"""
+    project_id: str = Field(..., description="项目ID")
+    organization_id: str = Field(..., description="组织ID")
+
+    # 需求列表
+    requirements: List[RequirementMatch] = Field(default_factory=list)
+
+    # 整体匹配度
+    overall_match_score: Decimal = Field(..., description="整体匹配度")
+    mandatory_match_rate: Decimal = Field(..., description="强制需求匹配率")
+    optional_match_rate: Decimal = Field(..., description="可选需求匹配率")
+
+    # 统计信息
+    total_requirements: int = Field(..., description="总需求数")
+    matched_count: int = Field(..., description="完全匹配数")
+    partial_count: int = Field(..., description="部分匹配数")
+    unmatched_count: int = Field(..., description="未匹配数")
+
+    # 生成时间
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class MatchingRequest(BaseModel):
+    """匹配分析请求"""
+    project_id: str = Field(..., description="项目ID")
+    organization_id: str = Field(..., description="组织ID")
+    match_threshold: Decimal = Field(0.6, ge=0, le=1, description="匹配阈值")
+    include_partial: bool = Field(True, description="是否包含部分匹配")
+```
+
+##### Java实体
+```java
+// MatchingResult.java
+@Data
+@TableName("matching_results")
+public class MatchingResult {
+    @TableId(type = IdType.ASSIGN_UUID)
+    private String id;
+
+    private String projectId;
+    private String organizationId;
+
+    // 匹配度统计
+    private BigDecimal overallMatchScore;
+    private BigDecimal mandatoryMatchRate;
+    private BigDecimal optionalMatchRate;
+
+    // 需求统计
+    private Integer totalRequirements;
+    private Integer matchedCount;
+    private Integer partialCount;
+    private Integer unmatchedCount;
+
+    // 匹配详情（JSONB）
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<RequirementMatchDetail> matchDetails;
+
+    // 建议（JSONB）
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    private List<String> recommendations;
+
+    private LocalDateTime generatedAt;
+    private LocalDateTime createdAt;
+}
+```
+
+##### 数据库表
+```sql
+CREATE TABLE matching_results (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL,
+    organization_id UUID NOT NULL,
+
+    -- 匹配度统计
+    overall_match_score DECIMAL(5,2) NOT NULL,  -- 0-100
+    mandatory_match_rate DECIMAL(5,2),
+    optional_match_rate DECIMAL(5,2),
+
+    -- 需求统计
+    total_requirements INTEGER NOT NULL,
+    matched_count INTEGER DEFAULT 0,
+    partial_count INTEGER DEFAULT 0,
+    unmatched_count INTEGER DEFAULT 0,
+
+    -- 匹配详情和建议（JSONB）
+    match_details JSONB,
+    recommendations JSONB,
+
+    generated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_matching_results_project ON matching_results(project_id);
+CREATE INDEX idx_matching_results_score ON matching_results(overall_match_score DESC);
+```
+
+**验证标准**:
+- [ ] Pydantic模型验证通过
+- [ ] 评分范围校验正确 (0-100)
+- [ ] 数据库表创建成功
+
+#### 2) 前端
+
+```typescript
+// src/components/Matching/MatchingMatrix.tsx
+import { Card, Progress, Tag, Descriptions, Table, Space } from 'antd';
+import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+
+interface MatchingMatrixProps {
+  projectId: string;
+}
+
+export default function MatchingMatrix({ projectId }: MatchingMatrixProps) {
+  const [matchingData, setMatchingData] = useState<MatchingMatrix | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMatchingData();
+  }, [projectId]);
+
+  const fetchMatchingData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8001/api/v1/ai/match/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id: projectId })
+      });
+      const result = await response.json();
+      setMatchingData(result.data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const columns = [
+    {
+      title: '需求',
+      dataIndex: 'requirementTitle',
+      width: 250,
+      render: (text: string, record: RequirementMatch) => (
+        <Space>
+          {record.isMandatory && <Tag color="red">强制</Tag>}
+          <span>{text}</span>
+        </Space>
+      ),
+    },
+    {
+      title: '类型',
+      dataIndex: 'requirementType',
+      width: 100,
+      render: (type: string) => {
+        const colorMap: Record<string, string> = {
+          technical: 'blue',
+          business: 'green',
+          compliance: 'orange',
+        };
+        return <Tag color={colorMap[type]}>{type}</Tag>;
+      },
+    },
+    {
+      title: '匹配度',
+      dataIndex: 'matchScore',
+      width: 150,
+      render: (score: number, record: RequirementMatch) => {
+        let status: 'success' | 'exception' | 'normal' = 'normal';
+        let color = 'blue';
+
+        if (score >= 80) {
+          status = 'success';
+          color = 'green';
+        } else if (score < 60) {
+          status = 'exception';
+          color = 'red';
+        }
+
+        return (
+          <Space>
+            <Progress
+              type="circle"
+              percent={score}
+              width={60}
+              status={status}
+              strokeColor={color}
+            />
+            <span>{score.toFixed(1)}%</span>
+          </Space>
+        );
+      },
+    },
+    {
+      title: '匹配状态',
+      dataIndex: 'matchStatus',
+      width: 120,
+      render: (status: string) => {
+        const statusMap = {
+          matched: { icon: <CheckCircleOutlined />, color: 'success', text: '已匹配' },
+          partial: { icon: <ExclamationCircleOutlined />, color: 'warning', text: '部分匹配' },
+          unmatched: { icon: <CloseCircleOutlined />, color: 'error', text: '未匹配' },
+        };
+        const config = statusMap[status as keyof typeof statusMap];
+        return (
+          <Tag icon={config.icon} color={config.color}>
+            {config.text}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: '匹配能力',
+      dataIndex: 'matchedCapabilities',
+      width: 200,
+      render: (capabilities: any[]) => (
+        <Space direction="vertical" size="small">
+          {capabilities.slice(0, 3).map((cap, idx) => (
+            <Tag key={idx}>{cap.name} ({(cap.score * 100).toFixed(0)}%)</Tag>
+          ))}
+          {capabilities.length > 3 && <Tag>+{capabilities.length - 3} more</Tag>}
+        </Space>
+      ),
+    },
+    {
+      title: '权重',
+      dataIndex: 'scoreWeight',
+      width: 80,
+      render: (weight: number) => `${(weight * 100).toFixed(0)}%`,
+    },
+    {
+      title: '建议',
+      dataIndex: 'suggestions',
+      width: 200,
+      render: (suggestions: string[]) => (
+        <ul style={{ paddingLeft: 20, margin: 0 }}>
+          {suggestions.map((s, idx) => (
+            <li key={idx}>{s}</li>
+          ))}
+        </ul>
+      ),
+    },
+  ];
+
+  if (loading) {
+    return <Card loading />;
+  }
+
+  if (!matchingData) {
+    return <Card>暂无匹配数据</Card>;
+  }
+
+  return (
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      {/* 整体匹配度概览 */}
+      <Card title="整体匹配度">
+        <Descriptions column={4}>
+          <Descriptions.Item label="总体匹配度">
+            <Progress
+              type="dashboard"
+              percent={matchingData.overallMatchScore}
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="强制需求匹配率">
+            <Progress
+              percent={matchingData.mandatoryMatchRate}
+              status={matchingData.mandatoryMatchRate >= 90 ? 'success' : 'exception'}
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="可选需求匹配率">
+            <Progress
+              percent={matchingData.optionalMatchRate}
+            />
+          </Descriptions.Item>
+          <Descriptions.Item label="需求统计">
+            <Space>
+              <Tag color="success">{matchingData.matchedCount} 已匹配</Tag>
+              <Tag color="warning">{matchingData.partialCount} 部分</Tag>
+              <Tag color="error">{matchingData.unmatchedCount} 未匹配</Tag>
+            </Space>
+          </Descriptions.Item>
+        </Descriptions>
+      </Card>
+
+      {/* 详细匹配矩阵 */}
+      <Card title="需求匹配明细">
+        <Table
+          dataSource={matchingData.requirements}
+          columns={columns}
+          rowKey="requirementId"
+          pagination={false}
+          scroll={{ x: 1200 }}
+          rowClassName={(record) => {
+            if (record.matchStatus === 'unmatched') return 'row-unmatched';
+            if (record.matchStatus === 'partial') return 'row-partial';
+            return 'row-matched';
+          }}
+        />
+      </Card>
+    </Space>
+  );
+}
+```
+
+**验证标准**:
+- [ ] 匹配矩阵可视化展示正确
+- [ ] 进度条颜色根据分数动态变化
+- [ ] 表格行样式根据匹配状态变化
+- [ ] 移动端响应式布局正常
+
+#### 3) Java后端
+
+```java
+@Service
+@RequiredArgsConstructor
+public class MatchingService {
+
+    private final RestTemplate restTemplate;
+    private final MatchingResultMapper matchingResultMapper;
+
+    /**
+     * 触发匹配分析
+     * 需求编号: REQ-AI-004
+     */
+    public MatchingResult triggerMatching(String projectId) {
+        log.info("Triggering matching analysis for project: {}", projectId);
+
+        // 调用Python AI服务执行匹配分析
+        String pythonAiUrl = "http://backend-python:8001/api/v1/ai/match/analyze";
+
+        MatchingRequest request = MatchingRequest.builder()
+            .projectId(projectId)
+            .matchThreshold(0.6)
+            .includePartial(true)
+            .build();
+
+        ResponseEntity<ApiResponse<MatchingMatrix>> response = restTemplate.postForEntity(
+            pythonAiUrl,
+            request,
+            new ParameterizedTypeReference<ApiResponse<MatchingMatrix>>() {}
+        );
+
+        MatchingMatrix matrix = response.getBody().getData();
+
+        // 保存匹配结果到数据库
+        MatchingResult result = new MatchingResult();
+        result.setProjectId(projectId);
+        result.setOrganizationId(matrix.getOrganizationId());
+        result.setOverallMatchScore(matrix.getOverallMatchScore());
+        result.setMandatoryMatchRate(matrix.getMandatoryMatchRate());
+        result.setOptionalMatchRate(matrix.getOptionalMatchRate());
+        result.setTotalRequirements(matrix.getTotalRequirements());
+        result.setMatchedCount(matrix.getMatchedCount());
+        result.setPartialCount(matrix.getPartialCount());
+        result.setUnmatchedCount(matrix.getUnmatchedCount());
+        result.setMatchDetails(convertMatchDetails(matrix.getRequirements()));
+        result.setGeneratedAt(LocalDateTime.now());
+
+        matchingResultMapper.insert(result);
+
+        return result;
+    }
+
+    /**
+     * 获取匹配结果
+     */
+    public MatchingResult getMatchingResult(String projectId) {
+        return matchingResultMapper.selectOne(
+            new QueryWrapper<MatchingResult>()
+                .eq("project_id", projectId)
+                .orderByDesc("generated_at")
+                .last("LIMIT 1")
+        );
+    }
+}
+```
+
+**验证标准**:
+- [ ] 能成功调用Python AI服务
+- [ ] 匹配结果能正确保存到数据库
+- [ ] 查询最新匹配结果功能正常
+
+#### 4) Python后端
+
+##### 匹配分析服务
+```python
+# app/services/ai/matching_service.py
+from typing import List, Dict, Any
+from app.models.matching import MatchingRequest, MatchingMatrix, RequirementMatch
+from app.services.ai.hybrid_search_service import HybridSearchService
+from app.services.ai.embedding_service import EmbeddingService
+from decimal import Decimal
+import httpx
+import logging
+
+logger = logging.getLogger(__name__)
+
+class MatchingService:
+    """智能匹配分析服务
+    需求编号: REQ-AI-004
+    """
+
+    def __init__(self):
+        self.search_service = HybridSearchService()
+        self.embedding_service = EmbeddingService()
+        self.java_client = httpx.AsyncClient(base_url="http://backend-java:8080")
+
+    async def analyze_matching(self, request: MatchingRequest) -> MatchingMatrix:
+        """
+        执行需求匹配分析
+
+        Args:
+            request: 匹配分析请求
+
+        Returns:
+            匹配矩阵
+        """
+        logger.info(f"Analyzing matching for project: {request.project_id}")
+
+        # 1. 从Java服务获取项目需求
+        requirements = await self._fetch_requirements(request.project_id)
+
+        # 2. 对每个需求进行匹配分析
+        requirement_matches = []
+        for req in requirements:
+            match_result = await self._match_single_requirement(
+                requirement=req,
+                organization_id=request.organization_id,
+                threshold=request.match_threshold
+            )
+            requirement_matches.append(match_result)
+
+        # 3. 计算整体匹配度
+        overall_stats = self._calculate_overall_stats(requirement_matches)
+
+        # 4. 构建匹配矩阵
+        matrix = MatchingMatrix(
+            project_id=request.project_id,
+            organization_id=request.organization_id,
+            requirements=requirement_matches,
+            overall_match_score=Decimal(overall_stats['overall_score']),
+            mandatory_match_rate=Decimal(overall_stats['mandatory_rate']),
+            optional_match_rate=Decimal(overall_stats['optional_rate']),
+            total_requirements=len(requirements),
+            matched_count=overall_stats['matched_count'],
+            partial_count=overall_stats['partial_count'],
+            unmatched_count=overall_stats['unmatched_count']
+        )
+
+        logger.info(f"Matching analysis completed. Overall score: {matrix.overall_match_score}")
+
+        return matrix
+
+    async def _fetch_requirements(self, project_id: str) -> List[Dict[str, Any]]:
+        """从Java服务获取项目需求"""
+        response = await self.java_client.get(
+            f"/api/v1/projects/{project_id}/requirements"
+        )
+        response.raise_for_status()
+        return response.json()['data']
+
+    async def _match_single_requirement(
+        self,
+        requirement: Dict[str, Any],
+        organization_id: str,
+        threshold: Decimal
+    ) -> RequirementMatch:
+        """
+        匹配单个需求
+
+        策略:
+        1. 向量检索（语义相似度，权重60%）
+        2. 关键词检索（精确匹配，权重40%）
+        3. 综合评分
+        """
+        req_text = f"{requirement['title']}: {requirement['description']}"
+
+        # 执行混合检索
+        from app.models.search import SearchRequest, SearchMode
+        search_request = SearchRequest(
+            query=req_text,
+            organization_id=organization_id,
+            search_mode=SearchMode.HYBRID,
+            vector_weight=0.6,
+            keyword_weight=0.4,
+            enable_rerank=True,
+            top_k=10
+        )
+
+        search_response = await self.search_service.search(search_request)
+
+        # 提取匹配的能力
+        matched_capabilities = []
+        for result in search_response.results:
+            matched_capabilities.append({
+                'capability_id': result.capability_id,
+                'capability_type': result.capability_type,
+                'name': result.name,
+                'score': float(result.relevance_score),
+                'vector_score': float(result.vector_score) if result.vector_score else None,
+                'keyword_score': float(result.keyword_score) if result.keyword_score else None,
+            })
+
+        # 计算匹配度
+        if matched_capabilities:
+            # 使用最佳匹配的分数
+            best_score = matched_capabilities[0]['score'] * 100
+            match_score = Decimal(best_score).quantize(Decimal('0.01'))
+
+            # 判断匹配状态
+            if match_score >= 80:
+                match_status = "matched"
+            elif match_score >= float(threshold) * 100:
+                match_status = "partial"
+            else:
+                match_status = "unmatched"
+        else:
+            match_score = Decimal(0)
+            match_status = "unmatched"
+
+        # 生成改进建议
+        suggestions = self._generate_suggestions(
+            requirement=requirement,
+            match_score=match_score,
+            matched_capabilities=matched_capabilities
+        )
+
+        return RequirementMatch(
+            requirement_id=requirement['id'],
+            requirement_title=requirement['title'],
+            requirement_type=requirement.get('requirement_type', 'technical'),
+            is_mandatory=requirement.get('is_mandatory', False),
+            score_weight=Decimal(requirement.get('score_weight', 1.0)),
+            matched_capabilities=matched_capabilities,
+            match_score=match_score,
+            match_status=match_status,
+            match_method="hybrid",
+            vector_similarity=Decimal(matched_capabilities[0]['vector_score']) if matched_capabilities else None,
+            keyword_coverage=Decimal(matched_capabilities[0]['keyword_score']) if matched_capabilities else None,
+            suggestions=suggestions
+        )
+
+    def _calculate_overall_stats(
+        self,
+        requirement_matches: List[RequirementMatch]
+    ) -> Dict[str, Any]:
+        """计算整体匹配统计"""
+        total = len(requirement_matches)
+        matched_count = sum(1 for m in requirement_matches if m.match_status == 'matched')
+        partial_count = sum(1 for m in requirement_matches if m.match_status == 'partial')
+        unmatched_count = sum(1 for m in requirement_matches if m.match_status == 'unmatched')
+
+        # 加权平均分数
+        total_weighted_score = sum(
+            float(m.match_score) * float(m.score_weight)
+            for m in requirement_matches
+        )
+        total_weight = sum(float(m.score_weight) for m in requirement_matches)
+        overall_score = total_weighted_score / total_weight if total_weight > 0 else 0
+
+        # 强制需求匹配率
+        mandatory_matches = [m for m in requirement_matches if m.is_mandatory]
+        if mandatory_matches:
+            mandatory_matched = sum(
+                1 for m in mandatory_matches
+                if m.match_status in ['matched', 'partial']
+            )
+            mandatory_rate = (mandatory_matched / len(mandatory_matches)) * 100
+        else:
+            mandatory_rate = 100
+
+        # 可选需求匹配率
+        optional_matches = [m for m in requirement_matches if not m.is_mandatory]
+        if optional_matches:
+            optional_matched = sum(
+                1 for m in optional_matches
+                if m.match_status in ['matched', 'partial']
+            )
+            optional_rate = (optional_matched / len(optional_matches)) * 100
+        else:
+            optional_rate = 100
+
+        return {
+            'overall_score': round(overall_score, 2),
+            'mandatory_rate': round(mandatory_rate, 2),
+            'optional_rate': round(optional_rate, 2),
+            'matched_count': matched_count,
+            'partial_count': partial_count,
+            'unmatched_count': unmatched_count
+        }
+
+    def _generate_suggestions(
+        self,
+        requirement: Dict[str, Any],
+        match_score: Decimal,
+        matched_capabilities: List[Dict[str, Any]]
+    ) -> List[str]:
+        """生成改进建议"""
+        suggestions = []
+
+        if match_score < 60:
+            suggestions.append("建议补充相关能力或案例")
+            if not matched_capabilities:
+                suggestions.append("未找到匹配能力，建议添加相关产品或服务")
+        elif match_score < 80:
+            suggestions.append("存在部分匹配，建议完善现有能力描述")
+            if matched_capabilities:
+                best_match = matched_capabilities[0]
+                suggestions.append(f"可强化 '{best_match['name']}' 的相关特性")
+
+        if requirement.get('is_mandatory') and match_score < 90:
+            suggestions.append("⚠️ 强制需求，建议重点关注")
+
+        return suggestions
+
+    async def close(self):
+        """关闭资源"""
+        await self.java_client.aclose()
+```
+
+##### API接口
+```python
+# app/api/v1/matching.py
+from fastapi import APIRouter, HTTPException
+from app.models.matching import MatchingRequest, MatchingMatrix
+from app.services.ai.matching_service import MatchingService
+
+router = APIRouter(prefix="/match", tags=["匹配分析"])
+
+matching_service = MatchingService()
+
+@router.post("/analyze", response_model=MatchingMatrix)
+async def analyze_matching(request: MatchingRequest):
+    """
+    需求匹配分析
+    需求编号: REQ-AI-004
+
+    分析招标需求与企业能力的匹配情况，生成匹配矩阵
+    """
+    try:
+        matrix = await matching_service.analyze_matching(request)
+        return matrix
+    except Exception as e:
+        logger.error(f"Matching analysis failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+**验证标准**:
+- [ ] 混合检索算法正确执行
+- [ ] 匹配度评分准确（0-100）
+- [ ] 强制/可选需求分别统计正确
+- [ ] 改进建议生成合理
+
+#### 5) 部署
+
+```yaml
+# docker-compose.yml
+services:
+  matching-worker:
+    build: ./backend-python
+    command: celery -A app.tasks.celery_app worker --loglevel=info -Q matching
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - JAVA_SERVICE_URL=http://backend-java:8080
+```
+
+**验证标准**:
+- [ ] Worker正常启动
+- [ ] 能处理匹配分析任务
+
+---
+
+### 二级任务 4.2: 竞争优势分析
+
+**工作量估算**: 4 人天
+**优先级**: P2 - 中优先级
+**技术难点**:
+- 优势识别算法
+- 差距量化分析
+- 改进建议生成
+
+#### 1) 数据定义
+
+##### Pydantic模型
+```python
+# app/models/competitive_analysis.py
+class CompetitiveAdvantage(BaseModel):
+    """竞争优势模型"""
+    advantage_type: str = Field(..., description="技术/商务/品牌/成本")
+    title: str = Field(..., description="优势标题")
+    description: str = Field(..., description="优势描述")
+    strength_score: Decimal = Field(..., ge=0, le=10, description="优势强度 (0-10)")
+    supporting_capabilities: List[str] = Field(default_factory=list, description="支撑能力")
+    supporting_cases: List[str] = Field(default_factory=list, description="支撑案例")
+
+class CompetitiveGap(BaseModel):
+    """竞争差距模型"""
+    gap_type: str = Field(..., description="能力/资质/经验/资源")
+    requirement_id: str = Field(..., description="关联需求ID")
+    gap_description: str = Field(..., description="差距描述")
+    severity: str = Field(..., description="high|medium|low")
+    impact_score: Decimal = Field(..., ge=0, le=10, description="影响程度")
+    improvement_suggestions: List[str] = Field(default_factory=list)
+    estimated_effort: Optional[str] = Field(None, description="改进预估工作量")
+
+class CompetitiveAnalysisResult(BaseModel):
+    """竞争分析结果"""
+    project_id: str
+    organization_id: str
+
+    # 优势列表
+    advantages: List[CompetitiveAdvantage] = Field(default_factory=list)
+    advantage_summary: str = Field(..., description="优势总结")
+
+    # 差距列表
+    gaps: List[CompetitiveGap] = Field(default_factory=list)
+    gap_summary: str = Field(..., description="差距总结")
+
+    # 综合评估
+    competitiveness_score: Decimal = Field(..., description="竞争力评分 (0-100)")
+    win_probability: Decimal = Field(..., description="中标概率 (0-100)")
+
+    # 战略建议
+    strategic_recommendations: List[str] = Field(default_factory=list)
+
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+**验证标准**:
+- [ ] 模型验证通过
+- [ ] 评分范围正确
+
+#### 2) 前端
+
+```typescript
+// src/components/Matching/CompetitiveAnalysis.tsx
+export default function CompetitiveAnalysis({ projectId }: Props) {
+  const [analysis, setAnalysis] = useState<CompetitiveAnalysisResult | null>(null);
+
+  useEffect(() => {
+    fetchAnalysis();
+  }, [projectId]);
+
+  const fetchAnalysis = async () => {
+    const response = await fetch(`http://localhost:8001/api/v1/ai/match/competitive-analysis`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project_id: projectId })
+    });
+    const result = await response.json();
+    setAnalysis(result.data);
+  };
+
+  return (
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      {/* 竞争力评估 */}
+      <Card title="竞争力评估">
+        <Row gutter={24}>
+          <Col span={12}>
+            <Statistic
+              title="竞争力评分"
+              value={analysis?.competitivenessScore}
+              suffix="/ 100"
+              valueStyle={{ color: getScoreColor(analysis?.competitivenessScore) }}
+            />
+          </Col>
+          <Col span={12}>
+            <Statistic
+              title="中标概率"
+              value={analysis?.winProbability}
+              suffix="%"
+              valueStyle={{ color: getScoreColor(analysis?.winProbability) }}
+            />
+          </Col>
+        </Row>
+      </Card>
+
+      {/* 竞争优势 */}
+      <Card title="竞争优势">
+        <List
+          dataSource={analysis?.advantages}
+          renderItem={(adv) => (
+            <List.Item>
+              <Card.Meta
+                avatar={<Trophy style={{ fontSize: 32, color: '#faad14' }} />}
+                title={<Space><Tag color="gold">{adv.advantageType}</Tag>{adv.title}</Space>}
+                description={
+                  <>
+                    <p>{adv.description}</p>
+                    <Space>
+                      <Rate disabled value={adv.strengthScore / 2} />
+                      <span>强度: {adv.strengthScore}/10</span>
+                    </Space>
+                  </>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      </Card>
+
+      {/* 能力差距 */}
+      <Card title="能力差距">
+        <List
+          dataSource={analysis?.gaps}
+          renderItem={(gap) => (
+            <List.Item>
+              <Alert
+                type={gap.severity === 'high' ? 'error' : gap.severity === 'medium' ? 'warning' : 'info'}
+                message={<Space><Tag>{gap.gapType}</Tag>{gap.gapDescription}</Space>}
+                description={
+                  <Space direction="vertical">
+                    <span>影响程度: {gap.impactScore}/10</span>
+                    <div>
+                      <strong>改进建议:</strong>
+                      <ul>
+                        {gap.improvementSuggestions.map((s, idx) => (
+                          <li key={idx}>{s}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    {gap.estimatedEffort && (
+                      <Tag color="blue">预估工作量: {gap.estimatedEffort}</Tag>
+                    )}
+                  </Space>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      </Card>
+
+      {/* 战略建议 */}
+      <Card title="战略建议">
+        <Timeline>
+          {analysis?.strategicRecommendations.map((rec, idx) => (
+            <Timeline.Item key={idx}>{rec}</Timeline.Item>
+          ))}
+        </Timeline>
+      </Card>
+    </Space>
+  );
+}
+```
+
+**验证标准**:
+- [ ] 优势和差距可视化展示正确
+- [ ] 评分仪表盘颜色动态变化
+- [ ] 战略建议展示清晰
+
+#### 3) Java后端
+
+```java
+@Service
+public class CompetitiveAnalysisService {
+
+    /**
+     * 触发竞争分析
+     * 需求编号: REQ-AI-004
+     */
+    public CompetitiveAnalysisResult triggerAnalysis(String projectId) {
+        // 调用Python AI服务
+        String url = "http://backend-python:8001/api/v1/ai/match/competitive-analysis";
+
+        CompetitiveAnalysisRequest request = CompetitiveAnalysisRequest.builder()
+            .projectId(projectId)
+            .build();
+
+        ResponseEntity<ApiResponse<CompetitiveAnalysisResult>> response =
+            restTemplate.postForEntity(url, request, ...);
+
+        return response.getBody().getData();
+    }
+}
+```
+
+**验证标准**:
+- [ ] 调用Python服务成功
+- [ ] 结果正确返回
+
+#### 4) Python后端
+
+```python
+# app/services/ai/competitive_analysis_service.py
+class CompetitiveAnalysisService:
+    """竞争分析服务"""
+
+    async def analyze_competitiveness(
+        self,
+        project_id: str,
+        organization_id: str
+    ) -> CompetitiveAnalysisResult:
+        """执行竞争分析"""
+
+        # 1. 获取匹配矩阵
+        matching_service = MatchingService()
+        matching_matrix = await matching_service.analyze_matching(
+            MatchingRequest(
+                project_id=project_id,
+                organization_id=organization_id
+            )
+        )
+
+        # 2. 识别竞争优势
+        advantages = await self._identify_advantages(matching_matrix)
+
+        # 3. 识别能力差距
+        gaps = await self._identify_gaps(matching_matrix)
+
+        # 4. 计算竞争力评分
+        competitiveness_score = self._calculate_competitiveness_score(
+            matching_matrix, advantages, gaps
+        )
+
+        # 5. 估算中标概率
+        win_probability = self._estimate_win_probability(
+            competitiveness_score, matching_matrix
+        )
+
+        # 6. 生成战略建议
+        strategic_recommendations = await self._generate_strategic_recommendations(
+            advantages, gaps, matching_matrix
+        )
+
+        return CompetitiveAnalysisResult(
+            project_id=project_id,
+            organization_id=organization_id,
+            advantages=advantages,
+            advantage_summary=f"识别到 {len(advantages)} 项竞争优势",
+            gaps=gaps,
+            gap_summary=f"发现 {len(gaps)} 项能力差距",
+            competitiveness_score=competitiveness_score,
+            win_probability=win_probability,
+            strategic_recommendations=strategic_recommendations
+        )
+
+    async def _identify_advantages(
+        self,
+        matching_matrix: MatchingMatrix
+    ) -> List[CompetitiveAdvantage]:
+        """识别竞争优势（匹配度高的需求）"""
+        advantages = []
+
+        for req_match in matching_matrix.requirements:
+            if req_match.match_score >= 85:  # 高匹配度视为优势
+                advantages.append(CompetitiveAdvantage(
+                    advantage_type="technical",
+                    title=f"在 '{req_match.requirement_title}' 方面具有强大能力",
+                    description=f"匹配度高达 {req_match.match_score}%",
+                    strength_score=Decimal(req_match.match_score / 10),
+                    supporting_capabilities=[
+                        cap['name'] for cap in req_match.matched_capabilities[:3]
+                    ]
+                ))
+
+        return advantages
+
+    async def _identify_gaps(
+        self,
+        matching_matrix: MatchingMatrix
+    ) -> List[CompetitiveGap]:
+        """识别能力差距（匹配度低的需求）"""
+        gaps = []
+
+        for req_match in matching_matrix.requirements:
+            if req_match.match_score < 60:  # 低匹配度视为差距
+                severity = "high" if req_match.is_mandatory else "medium"
+
+                gaps.append(CompetitiveGap(
+                    gap_type="capability",
+                    requirement_id=req_match.requirement_id,
+                    gap_description=f"在 '{req_match.requirement_title}' 方面能力不足",
+                    severity=severity,
+                    impact_score=Decimal((100 - req_match.match_score) / 10),
+                    improvement_suggestions=req_match.suggestions,
+                    estimated_effort="2-4周" if severity == "high" else "1-2周"
+                ))
+
+        return gaps
+```
+
+**验证标准**:
+- [ ] 优势识别准确
+- [ ] 差距分析合理
+- [ ] 中标概率估算有参考价值
+
+#### 5) 部署
+
+```yaml
+# 无特殊部署要求，使用现有Python服务即可
+```
+
+---
+
+### 二级任务 4.3: 智能推荐
+
+**工作量估算**: 4 人天
+**优先级**: P2 - 中优先级
+**技术难点**:
+- 推荐算法设计
+- 多维度综合排序
+- 个性化推荐
+
+#### 1) 数据定义
+
+```python
+# app/models/recommendation.py
+class RecommendationItem(BaseModel):
+    """推荐项模型"""
+    item_id: str
+    item_type: str = Field(..., description="case|template|person")
+    title: str
+    description: str
+    relevance_score: Decimal = Field(..., ge=0, le=1)
+    reason: str = Field(..., description="推荐理由")
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+
+class RecommendationResult(BaseModel):
+    """推荐结果"""
+    project_id: str
+
+    # 推荐的案例
+    recommended_cases: List[RecommendationItem] = Field(default_factory=list)
+
+    # 推荐的模板
+    recommended_templates: List[RecommendationItem] = Field(default_factory=list)
+
+    # 推荐的团队成员
+    recommended_persons: List[RecommendationItem] = Field(default_factory=list)
+
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+```
+
+**验证标准**:
+- [ ] 模型验证通过
+
+#### 2) 前端
+
+```typescript
+// src/components/Matching/Recommendations.tsx
+export default function Recommendations({ projectId }: Props) {
+  const [recommendations, setRecommendations] = useState<RecommendationResult | null>(null);
+
+  return (
+    <Tabs>
+      <TabPane tab="推荐案例" key="cases">
+        <List
+          dataSource={recommendations?.recommendedCases}
+          renderItem={(item) => (
+            <List.Item
+              actions={[<Button type="link">引用</Button>]}
+            >
+              <List.Item.Meta
+                title={<Space><Tag color="blue">相关度: {(item.relevanceScore * 100).toFixed(0)}%</Tag>{item.title}</Space>}
+                description={
+                  <>
+                    <p>{item.description}</p>
+                    <Tag color="green">推荐理由: {item.reason}</Tag>
+                  </>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      </TabPane>
+
+      <TabPane tab="推荐模板" key="templates">
+        {/* 类似结构 */}
+      </TabPane>
+
+      <TabPane tab="推荐团队" key="persons">
+        {/* 类似结构 */}
+      </TabPane>
+    </Tabs>
+  );
+}
+```
+
+**验证标准**:
+- [ ] 推荐列表正常展示
+- [ ] 引用功能正常
+
+#### 3) Java后端
+
+```java
+// 类似前面的服务调用模式
+```
+
+#### 4) Python后端
+
+```python
+# app/services/ai/recommendation_service.py
+class RecommendationService:
+    """智能推荐服务"""
+
+    async def generate_recommendations(
+        self,
+        project_id: str,
+        organization_id: str
+    ) -> RecommendationResult:
+        """生成推荐"""
+
+        # 1. 获取项目需求
+        requirements = await self._fetch_requirements(project_id)
+
+        # 2. 推荐相似案例
+        recommended_cases = await self._recommend_cases(
+            requirements, organization_id
+        )
+
+        # 3. 推荐合适模板
+        recommended_templates = await self._recommend_templates(
+            requirements
+        )
+
+        # 4. 推荐团队成员
+        recommended_persons = await self._recommend_persons(
+            requirements, organization_id
+        )
+
+        return RecommendationResult(
+            project_id=project_id,
+            recommended_cases=recommended_cases,
+            recommended_templates=recommended_templates,
+            recommended_persons=recommended_persons
+        )
+
+    async def _recommend_cases(
+        self,
+        requirements: List[Dict[str, Any]],
+        organization_id: str
+    ) -> List[RecommendationItem]:
+        """推荐相似案例（基于向量检索）"""
+        # 将需求合并为查询文本
+        query_text = "\n".join([
+            f"{req['title']}: {req['description']}"
+            for req in requirements
+        ])
+
+        # 向量检索
+        from app.models.search import SearchRequest, SearchMode
+        search_request = SearchRequest(
+            query=query_text,
+            organization_id=organization_id,
+            capability_types=['case'],
+            search_mode=SearchMode.HYBRID,
+            top_k=5
+        )
+
+        search_response = await self.search_service.search(search_request)
+
+        # 转换为推荐项
+        recommendations = []
+        for result in search_response.results:
+            recommendations.append(RecommendationItem(
+                item_id=result.capability_id,
+                item_type="case",
+                title=result.name,
+                description=result.description,
+                relevance_score=Decimal(result.relevance_score),
+                reason=f"与项目需求相似度 {(result.relevance_score * 100):.0f}%",
+                metadata=result.metadata
+            ))
+
+        return recommendations
+```
+
+**验证标准**:
+- [ ] 案例推荐准确
+- [ ] 模板推荐合理
+- [ ] 人员推荐匹配需求
+
+#### 5) 部署
+
+```yaml
+# 无特殊部署要求
+```
+
+---
+
+### 模块总结
+
+#### 完成进度统计
+
+**二级任务完成情况**:
+- 4.1 需求匹配分析: ✅ 详细规划完成（5人天）
+- 4.2 竞争优势分析: ✅ 详细规划完成（4人天）
+- 4.3 智能推荐: ✅ 详细规划完成（4人天）
+
+**预计总工作量**: 13 人天
+
+### 细化效果
+
+✅ **细化前**: 3个粗粒度子任务
+✅ **细化后**: 每个子任务拆分为5类别，共 15+ 具体任务项
+
+### 关键依赖
+
+1. **AI-003 → AI-004**: AI-004依赖AI-003的向量检索功能
+2. **AI-001 → AI-004**: 依赖文档解析和需求提取
+3. **匹配 → 推荐**: 推荐系统依赖匹配结果
+
+### 下一步行动
+
+1. **优先开始**: 二级任务 4.1（需求匹配分析）
+   - 核心功能，优先级最高
+   - 是竞争分析和推荐的基础
+
+2. **依次开发**:
+   - 需求匹配（4.1）→ 竞争分析（4.2）→ 智能推荐（4.3）
+   - 按依赖关系顺序开发
+
+---
+
+**返回**: [任务计划总览](./task-plan.md)

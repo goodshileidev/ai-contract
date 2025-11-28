@@ -1,0 +1,10 @@
+{
+  "function_id": 5,
+  "function_name": "模板管理",
+  "function_description": "标书模板的创建、编辑、管理",
+  "module_id": 5,
+  "function_type": "业务功能",
+  "is_core": "N",
+  "function_key": "TEMPLATE_MGT",
+  "project_id": 1
+}

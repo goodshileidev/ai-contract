@@ -1,0 +1,15 @@
+{
+  "user_requirement_id": 3,
+  "user_document_id": 1,
+  "user_document_name": "AIBidComposer产品需求文档",
+  "user_requirement_name": "企业能力库管理",
+  "requirement_type": "功能需求",
+  "project_id": 1,
+  "module_id": 3,
+  "function_id": 3,
+  "origin_content": "建立企业的产品、服务、案例、人员、资质等能力信息库",
+  "extension_requires": "支持多维度能力标签、智能分类、向量化存储便于语义检索",
+  "final_content": "构建全面的企业能力知识库，支持结构化存储和智能检索，为标书生成提供素材支撑",
+  "version": "1.0",
+  "is_locked": "N"
+}

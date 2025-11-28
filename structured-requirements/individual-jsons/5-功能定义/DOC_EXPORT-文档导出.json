@@ -1,0 +1,10 @@
+{
+  "function_id": 7,
+  "function_name": "文档导出",
+  "function_description": "导出为Word、PDF等格式",
+  "module_id": 7,
+  "function_type": "输出功能",
+  "is_core": "Y",
+  "function_key": "DOC_EXPORT",
+  "project_id": 1
+}

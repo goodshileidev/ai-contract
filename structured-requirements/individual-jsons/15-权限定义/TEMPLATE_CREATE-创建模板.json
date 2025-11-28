@@ -1,0 +1,18 @@
+{
+  "permission_id": 38,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "创建模板",
+  "permission_code": "TEMPLATE_CREATE",
+  "permission_title": "创建模板",
+  "permission_title_cn": "创建模板",
+  "permission_title_en": "Template Create",
+  "permission_title_jp": "创建模板",
+  "permission_type": "write",
+  "module_name": "模板管理",
+  "module_id": 4,
+  "resource_type": "templates",
+  "description": "模板管理模块的创建模板权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

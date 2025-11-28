@@ -1,0 +1,31 @@
+# ============================================================================
+# React Frontend - 开发环境 Dockerfile
+# ============================================================================
+# 用于 Docker Compose 开发环境，支持热重载
+
+FROM node:18-alpine
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装 pnpm（可选，如果使用 npm 则注释掉）
+# RUN npm install -g pnpm
+
+# 复制 package 文件
+COPY package.json package-lock.json ./
+
+# 安装依赖
+RUN npm ci && npm cache clean --force
+
+# 复制源代码（实际开发中会通过 volume 挂载，这里仅用于构建）
+COPY . .
+
+# 暴露端口
+EXPOSE 5173
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:5173/ || exit 1
+
+# 启动开发服务器
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

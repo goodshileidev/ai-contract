@@ -1,0 +1,175 @@
+{
+  "business_sql": [
+    {
+      "sql_code": "SQL001",
+      "sql_name": "查询用户是否存在",
+      "sql_type": "SELECT",
+      "process_code": "PROC001",
+      "description": "检查邮箱或手机号是否已注册",
+      "sql_template": "SELECT COUNT(*) AS count FROM users WHERE (email = :email OR phone = :phone) AND deleted_at IS NULL",
+      "parameters": [
+        {"name": "email", "type": "string", "required": false},
+        {"name": "phone", "type": "string", "required": false}
+      ],
+      "result_type": "single_value",
+      "cache": {
+        "enabled": true,
+        "ttl": 60
+      }
+    },
+    {
+      "sql_code": "SQL002",
+      "sql_name": "插入新用户",
+      "sql_type": "INSERT",
+      "process_code": "PROC001",
+      "description": "创建新用户账号",
+      "sql_template": "INSERT INTO users (id, email, phone, username, password_hash, organization_id, status, created_at) VALUES (:id, :email, :phone, :username, :password_hash, :organization_id, 'active', NOW())",
+      "parameters": [
+        {"name": "id", "type": "uuid", "required": true},
+        {"name": "email", "type": "string", "required": true},
+        {"name": "phone", "type": "string", "required": false},
+        {"name": "username", "type": "string", "required": true},
+        {"name": "password_hash", "type": "string", "required": true},
+        {"name": "organization_id", "type": "uuid", "required": false}
+      ],
+      "result_type": "affected_rows",
+      "transaction": true
+    },
+    {
+      "sql_code": "SQL003",
+      "sql_name": "查询项目列表",
+      "sql_type": "SELECT",
+      "description": "分页查询项目列表",
+      "sql_template": "SELECT p.*, o.name as organization_name, u.full_name as creator_name FROM projects p LEFT JOIN organizations o ON p.organization_id = o.id LEFT JOIN users u ON p.created_by = u.id WHERE p.organization_id = :organization_id AND p.deleted_at IS NULL ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset",
+      "parameters": [
+        {"name": "organization_id", "type": "uuid", "required": true},
+        {"name": "limit", "type": "integer", "default": 20},
+        {"name": "offset", "type": "integer", "default": 0}
+      ],
+      "result_type": "result_set",
+      "pagination": true
+    },
+    {
+      "sql_code": "SQL004",
+      "sql_name": "统计项目数量",
+      "sql_type": "SELECT",
+      "description": "按状态统计项目数量",
+      "sql_template": "SELECT status, COUNT(*) as count, SUM(budget_amount) as total_amount, AVG(win_probability) as avg_probability FROM projects WHERE organization_id = :organization_id AND created_at BETWEEN :start_date AND :end_date GROUP BY status",
+      "parameters": [
+        {"name": "organization_id", "type": "uuid", "required": true},
+        {"name": "start_date", "type": "date", "required": true},
+        {"name": "end_date", "type": "date", "required": true}
+      ],
+      "result_type": "result_set",
+      "cache": {
+        "enabled": true,
+        "ttl": 300
+      }
+    },
+    {
+      "sql_code": "SQL005",
+      "sql_name": "更新项目状态",
+      "sql_type": "UPDATE",
+      "description": "更新项目状态和相关信息",
+      "sql_template": "UPDATE projects SET status = :status, updated_at = NOW(), updated_by = :user_id WHERE id = :project_id AND organization_id = :organization_id",
+      "parameters": [
+        {"name": "project_id", "type": "uuid", "required": true},
+        {"name": "organization_id", "type": "uuid", "required": true},
+        {"name": "status", "type": "string", "required": true},
+        {"name": "user_id", "type": "uuid", "required": true}
+      ],
+      "result_type": "affected_rows",
+      "transaction": true,
+      "audit_log": true
+    },
+    {
+      "sql_code": "SQL006",
+      "sql_name": "搜索企业能力",
+      "sql_type": "SELECT",
+      "description": "全文搜索企业产品服务和案例",
+      "sql_template": "SELECT * FROM (SELECT 'product' as type, id, name, description, ts_rank(search_vector, query) as rank FROM products_services, plainto_tsquery('chinese', :keyword) query WHERE search_vector @@ query UNION ALL SELECT 'case' as type, id, project_name as name, project_description as description, ts_rank(search_vector, query) as rank FROM project_cases, plainto_tsquery('chinese', :keyword) query WHERE search_vector @@ query) results ORDER BY rank DESC LIMIT :limit",
+      "parameters": [
+        {"name": "keyword", "type": "string", "required": true},
+        {"name": "limit", "type": "integer", "default": 50}
+      ],
+      "result_type": "result_set",
+      "index": "fulltext_search_index"
+    },
+    {
+      "sql_code": "SQL007",
+      "sql_name": "批量插入需求",
+      "sql_type": "INSERT",
+      "process_code": "PROC003",
+      "description": "批量插入解析后的需求",
+      "sql_template": "INSERT INTO project_requirements (id, project_id, requirement_type, category, title, description, priority, is_mandatory, extracted_by) VALUES (unnest(:ids), :project_id, unnest(:types), unnest(:categories), unnest(:titles), unnest(:descriptions), unnest(:priorities), unnest(:mandatories), 'ai')",
+      "parameters": [
+        {"name": "ids", "type": "uuid[]", "required": true},
+        {"name": "project_id", "type": "uuid", "required": true},
+        {"name": "types", "type": "string[]", "required": true},
+        {"name": "categories", "type": "string[]", "required": true},
+        {"name": "titles", "type": "string[]", "required": true},
+        {"name": "descriptions", "type": "text[]", "required": true},
+        {"name": "priorities", "type": "string[]", "required": true},
+        {"name": "mandatories", "type": "boolean[]", "required": true}
+      ],
+      "result_type": "affected_rows",
+      "batch": true,
+      "transaction": true
+    },
+    {
+      "sql_code": "SQL008",
+      "sql_name": "查询匹配能力",
+      "sql_type": "SELECT",
+      "process_code": "PROC004",
+      "description": "查询与需求匹配的企业能力",
+      "sql_template": "WITH requirement_vectors AS (SELECT requirement_id, embedding FROM requirement_embeddings WHERE requirement_id = ANY(:requirement_ids)) SELECT c.*, rv.requirement_id, 1 - (c.embedding <=> rv.embedding) as similarity_score FROM capabilities c CROSS JOIN requirement_vectors rv WHERE 1 - (c.embedding <=> rv.embedding) > :threshold ORDER BY similarity_score DESC",
+      "parameters": [
+        {"name": "requirement_ids", "type": "uuid[]", "required": true},
+        {"name": "threshold", "type": "float", "default": 0.7}
+      ],
+      "result_type": "result_set",
+      "index": "vector_similarity_index"
+    },
+    {
+      "sql_code": "SQL009",
+      "sql_name": "记录AI使用日志",
+      "sql_type": "INSERT",
+      "description": "记录AI服务调用日志",
+      "sql_template": "INSERT INTO ai_usage_logs (id, user_id, organization_id, task_id, model_name, operation_type, prompt_tokens, completion_tokens, total_tokens, cost, status, created_at) VALUES (:id, :user_id, :organization_id, :task_id, :model_name, :operation_type, :prompt_tokens, :completion_tokens, :total_tokens, :cost, :status, NOW())",
+      "parameters": [
+        {"name": "id", "type": "uuid", "required": true},
+        {"name": "user_id", "type": "uuid", "required": true},
+        {"name": "organization_id", "type": "uuid", "required": false},
+        {"name": "task_id", "type": "uuid", "required": false},
+        {"name": "model_name", "type": "string", "required": true},
+        {"name": "operation_type", "type": "string", "required": true},
+        {"name": "prompt_tokens", "type": "integer", "required": true},
+        {"name": "completion_tokens", "type": "integer", "required": true},
+        {"name": "total_tokens", "type": "integer", "required": true},
+        {"name": "cost", "type": "decimal", "required": true},
+        {"name": "status", "type": "string", "required": true}
+      ],
+      "result_type": "affected_rows",
+      "async": true
+    },
+    {
+      "sql_code": "SQL010",
+      "sql_name": "获取文档版本历史",
+      "sql_type": "SELECT",
+      "description": "查询文档的所有版本历史",
+      "sql_template": "SELECT v.*, u.full_name as created_by_name FROM document_versions v LEFT JOIN users u ON v.created_by = u.id WHERE v.document_id = :document_id ORDER BY v.version_number DESC",
+      "parameters": [
+        {"name": "document_id", "type": "uuid", "required": true}
+      ],
+      "result_type": "result_set"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_sql": 80,
+    "sql_types": ["SELECT", "INSERT", "UPDATE", "DELETE", "CALL"],
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27",
+    "note": "示例数据，实际包含80+个业务SQL定义"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "role_id": 11,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "访客",
+  "role_code": "GUEST",
+  "role_title": "访客",
+  "role_title_cn": "访客",
+  "role_title_en": "Guest",
+  "role_title_jp": "访客",
+  "description": "访客角色，只读权限，可查看授权的项目内容",
+  "role_level": 6,
+  "is_system_role": "Y",
+  "can_be_assigned": "Y",
+  "is_locked": "Y",
+  "version": "1.0"
+}

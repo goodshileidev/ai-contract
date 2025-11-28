@@ -1,0 +1,323 @@
+{
+  "internal_apis": [
+    {
+      "api_code": "API001",
+      "api_name": "用户注册",
+      "api_path": "/api/v1/auth/register",
+      "method": "POST",
+      "service": "auth-service",
+      "function_code": "F001",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "email": "string",
+          "phone": "string",
+          "username": "string",
+          "password": "string",
+          "organization_name": "string"
+        },
+        "validation": {
+          "email": "required|email",
+          "username": "required|min:3|max:50",
+          "password": "required|min:8|max:20"
+        }
+      },
+      "response": {
+        "status_codes": {
+          "201": "Created",
+          "400": "Bad Request",
+          "409": "Conflict"
+        },
+        "body": {
+          "success": "boolean",
+          "data": {
+            "user_id": "uuid",
+            "email": "string",
+            "username": "string"
+          }
+        }
+      },
+      "auth": false,
+      "rate_limit": "5/minute"
+    },
+    {
+      "api_code": "API002",
+      "api_name": "发送验证码",
+      "api_path": "/api/v1/auth/send-code",
+      "method": "POST",
+      "service": "notification-service",
+      "function_code": "F001",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "type": "email|sms",
+          "target": "string"
+        }
+      },
+      "response": {
+        "status_codes": {
+          "200": "OK",
+          "429": "Too Many Requests"
+        }
+      },
+      "auth": false,
+      "rate_limit": "3/hour"
+    },
+    {
+      "api_code": "API003",
+      "api_name": "用户登录",
+      "api_path": "/api/v1/auth/login",
+      "method": "POST",
+      "service": "auth-service",
+      "function_code": "F001",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "username": "string",
+          "password": "string"
+        }
+      },
+      "response": {
+        "status_codes": {
+          "200": "OK",
+          "401": "Unauthorized"
+        },
+        "body": {
+          "access_token": "string",
+          "refresh_token": "string",
+          "expires_in": "integer"
+        }
+      },
+      "auth": false
+    },
+    {
+      "api_code": "API009",
+      "api_name": "上传招标文件",
+      "api_path": "/api/v1/documents/upload",
+      "method": "POST",
+      "service": "document-service",
+      "function_code": "F005",
+      "request": {
+        "content_type": "multipart/form-data",
+        "body": {
+          "file": "file",
+          "project_id": "uuid"
+        },
+        "validation": {
+          "file": "required|max:50MB|mimes:pdf,doc,docx"
+        }
+      },
+      "response": {
+        "status_codes": {
+          "200": "OK",
+          "413": "Payload Too Large"
+        },
+        "body": {
+          "document_id": "uuid",
+          "file_name": "string",
+          "file_size": "integer"
+        }
+      },
+      "auth": true,
+      "permissions": ["document:upload"]
+    },
+    {
+      "api_code": "API010",
+      "api_name": "解析文档",
+      "api_path": "/api/v1/documents/parse",
+      "method": "POST",
+      "service": "ai-service",
+      "function_code": "F005",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "document_id": "uuid",
+          "parse_options": {
+            "extract_requirements": "boolean",
+            "extract_scoring": "boolean",
+            "extract_timeline": "boolean"
+          }
+        }
+      },
+      "response": {
+        "status_codes": {
+          "202": "Accepted"
+        },
+        "body": {
+          "task_id": "uuid",
+          "status": "processing"
+        }
+      },
+      "auth": true,
+      "async": true,
+      "timeout": 300
+    },
+    {
+      "api_code": "API011",
+      "api_name": "提取需求",
+      "api_path": "/api/v1/ai/extract-requirements",
+      "method": "POST",
+      "service": "ai-service",
+      "function_code": "F006",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "text": "string",
+          "extraction_model": "string"
+        }
+      },
+      "response": {
+        "body": {
+          "requirements": [
+            {
+              "type": "string",
+              "title": "string",
+              "description": "string",
+              "priority": "string"
+            }
+          ]
+        }
+      },
+      "auth": true,
+      "billing": true
+    },
+    {
+      "api_code": "API020",
+      "api_name": "智能生成内容",
+      "api_path": "/api/v1/ai/generate",
+      "method": "POST",
+      "service": "ai-service",
+      "function_code": "F012",
+      "request": {
+        "content_type": "application/json",
+        "body": {
+          "prompt": "string",
+          "context": "object",
+          "model": "gpt-4|claude-3",
+          "temperature": "float",
+          "max_tokens": "integer"
+        }
+      },
+      "response": {
+        "body": {
+          "content": "string",
+          "tokens_used": "object",
+          "cost": "float"
+        }
+      },
+      "auth": true,
+      "stream": true,
+      "billing": true
+    },
+    {
+      "api_code": "API029",
+      "api_name": "保存文档",
+      "api_path": "/api/v1/documents/{id}/save",
+      "method": "PUT",
+      "service": "document-service",
+      "function_code": "F019",
+      "request": {
+        "content_type": "application/json",
+        "path_params": {
+          "id": "uuid"
+        },
+        "body": {
+          "content": "object",
+          "version_comment": "string"
+        }
+      },
+      "response": {
+        "body": {
+          "version": "string",
+          "saved_at": "datetime"
+        }
+      },
+      "auth": true,
+      "idempotent": true
+    },
+    {
+      "api_code": "API033",
+      "api_name": "导出文档",
+      "api_path": "/api/v1/documents/{id}/export",
+      "method": "POST",
+      "service": "export-service",
+      "function_code": "F021",
+      "request": {
+        "content_type": "application/json",
+        "path_params": {
+          "id": "uuid"
+        },
+        "body": {
+          "format": "pdf|docx|pptx",
+          "options": {
+            "watermark": "boolean",
+            "page_numbers": "boolean"
+          }
+        }
+      },
+      "response": {
+        "body": {
+          "download_url": "string",
+          "expires_at": "datetime"
+        }
+      },
+      "auth": true,
+      "async": true
+    },
+    {
+      "api_code": "API034",
+      "api_name": "实时协作WebSocket",
+      "api_path": "/ws/collaboration",
+      "method": "WebSocket",
+      "service": "collaboration-service",
+      "function_code": "F022",
+      "request": {
+        "query_params": {
+          "document_id": "uuid",
+          "token": "string"
+        }
+      },
+      "messages": {
+        "client_to_server": [
+          {
+            "type": "join",
+            "data": {"user_id": "uuid"}
+          },
+          {
+            "type": "edit",
+            "data": {"operation": "object"}
+          },
+          {
+            "type": "cursor",
+            "data": {"position": "object"}
+          }
+        ],
+        "server_to_client": [
+          {
+            "type": "sync",
+            "data": {"state": "object"}
+          },
+          {
+            "type": "user_joined",
+            "data": {"user": "object"}
+          },
+          {
+            "type": "update",
+            "data": {"changes": "array"}
+          }
+        ]
+      },
+      "auth": true,
+      "heartbeat": 30
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_apis": 50,
+    "api_types": ["REST", "WebSocket", "GraphQL"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "WebSocket"],
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27",
+    "note": "示例数据，实际包含50+个内部API定义"
+  }
+}

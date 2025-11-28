@@ -1,0 +1,18 @@
+{
+  "permission_id": 69,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看审计日志",
+  "permission_code": "AUDIT_LOG_VIEW",
+  "permission_title": "查看审计日志",
+  "permission_title_cn": "查看审计日志",
+  "permission_title_en": "Audit Log View",
+  "permission_title_jp": "查看审计日志",
+  "permission_type": "read",
+  "module_name": "系统管理",
+  "module_id": 99,
+  "resource_type": "audit_logs",
+  "description": "系统管理模块的查看审计日志权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

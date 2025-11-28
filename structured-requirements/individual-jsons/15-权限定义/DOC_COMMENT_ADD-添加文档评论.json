@@ -1,0 +1,18 @@
+{
+  "permission_id": 35,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "添加文档评论",
+  "permission_code": "DOC_COMMENT_ADD",
+  "permission_title": "添加文档评论",
+  "permission_title_cn": "添加文档评论",
+  "permission_title_en": "Doc Comment Add",
+  "permission_title_jp": "添加文档评论",
+  "permission_type": "write",
+  "module_name": "文档编辑",
+  "module_id": 3,
+  "resource_type": "document_comments",
+  "description": "文档编辑模块的添加文档评论权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

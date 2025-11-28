@@ -1,0 +1,229 @@
+openapi: 3.0.3
+info:
+  title: AIBidComposer API
+  version: 1.0.0
+  description: |
+    AI标书智能创作平台（AIBidComposer）API文档
+
+    ## 服务架构
+
+    本系统采用混合后端架构：
+    - **Java Spring Boot** (端口 8080) - 核心业务逻辑、数据管理
+    - **Python FastAPI** (端口 8001) - AI能力服务
+
+    ## 认证方式
+
+    使用JWT Bearer Token认证。在请求头中添加：
+    ```
+    Authorization: Bearer {access_token}
+    ```
+
+  contact:
+    name: AIBidComposer团队
+    email: support@aibidcomposer.com
+  license:
+    name: 私有软件
+
+servers:
+  - url: https://api.aibidcomposer.com/api/v1
+    description: 生产环境
+  - url: https://staging.aibidcomposer.com/api/v1
+    description: 预发环境
+  - url: http://localhost:8080/api/v1
+    description: 本地开发环境（Java服务）
+  - url: http://localhost:8001/api/v1
+    description: 本地开发环境（Python AI服务）
+
+tags:
+  - name: 认证授权
+    description: 用户认证和授权相关API
+  - name: 项目管理
+    description: 项目和招标管理API
+  - name: 文档管理
+    description: 标书文档管理API
+  - name: AI服务
+    description: AI智能服务API（Python服务）
+  - name: 模板管理
+    description: 模板库管理API
+  - name: 企业能力
+    description: 企业能力库管理API
+  - name: 协作
+    description: 实时协作相关API
+  - name: 导出
+    description: 文档导出API
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT访问令牌
+
+  schemas:
+    # 通用响应模型
+    SuccessResponse:
+      type: object
+      required:
+        - success
+        - data
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          description: 响应数据
+        message:
+          type: string
+          description: 响应消息
+        timestamp:
+          type: string
+          format: date-time
+          description: 响应时间戳
+
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - error
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: 错误代码
+            message:
+              type: string
+              description: 错误描述
+            details:
+              type: object
+              description: 错误详情
+            path:
+              type: string
+              description: 请求路径
+        timestamp:
+          type: string
+          format: date-time
+          description: 响应时间戳
+
+    PaginatedResponse:
+      type: object
+      required:
+        - success
+        - data
+        - timestamp
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required:
+            - items
+            - total
+            - page
+            - pageSize
+            - totalPages
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+            total:
+              type: integer
+              description: 总记录数
+            page:
+              type: integer
+              description: 当前页码
+            pageSize:
+              type: integer
+              description: 每页记录数
+            totalPages:
+              type: integer
+              description: 总页数
+        timestamp:
+          type: string
+          format: date-time
+
+# 引用各模块的API定义
+paths:
+  # 认证授权API
+  /auth/register:
+    $ref: './auth.yaml#/paths/~1auth~1register'
+  /auth/login:
+    $ref: './auth.yaml#/paths/~1auth~1login'
+  /auth/refresh-token:
+    $ref: './auth.yaml#/paths/~1auth~1refresh-token'
+  /auth/logout:
+    $ref: './auth.yaml#/paths/~1auth~1logout'
+  /auth/me:
+    $ref: './auth.yaml#/paths/~1auth~1me'
+
+  # 项目管理API
+  /projects:
+    $ref: './projects.yaml#/paths/~1projects'
+  /projects/{project_id}:
+    $ref: './projects.yaml#/paths/~1projects~1{project_id}'
+  /projects/{project_id}/members:
+    $ref: './projects.yaml#/paths/~1projects~1{project_id}~1members'
+
+  # 文档管理API
+  /documents/parse:
+    $ref: './documents.yaml#/paths/~1documents~1parse'
+  /documents:
+    $ref: './documents.yaml#/paths/~1documents'
+  /documents/{document_id}:
+    $ref: './documents.yaml#/paths/~1documents~1{document_id}'
+  /documents/{document_id}/versions:
+    $ref: './documents.yaml#/paths/~1documents~1{document_id}~1versions'
+
+  # AI服务API
+  /ai/analyze-requirements:
+    $ref: './ai-services.yaml#/paths/~1ai~1analyze-requirements'
+  /ai/match-capabilities:
+    $ref: './ai-services.yaml#/paths/~1ai~1match-capabilities'
+  /ai/generate-content:
+    $ref: './ai-services.yaml#/paths/~1ai~1generate-content'
+  /ai/review-quality:
+    $ref: './ai-services.yaml#/paths/~1ai~1review-quality'
+  /ai/tasks/{task_id}:
+    $ref: './ai-services.yaml#/paths/~1ai~1tasks~1{task_id}'
+
+  # 模板管理API
+  /templates:
+    $ref: './templates.yaml#/paths/~1templates'
+  /templates/{template_id}:
+    $ref: './templates.yaml#/paths/~1templates~1{template_id}'
+
+  # 企业能力API
+  /capabilities/products:
+    $ref: './capabilities.yaml#/paths/~1capabilities~1products'
+  /capabilities/cases:
+    $ref: './capabilities.yaml#/paths/~1capabilities~1cases'
+
+  # 协作API
+  /collaboration/ws:
+    $ref: './collaboration.yaml#/paths/~1collaboration~1ws'
+  /collaboration/sessions:
+    $ref: './collaboration.yaml#/paths/~1collaboration~1sessions'
+
+  # 导出API
+  /export/pdf:
+    $ref: './export.yaml#/paths/~1export~1pdf'
+  /export/word:
+    $ref: './export.yaml#/paths/~1export~1word'
+  /export/tasks/{task_id}:
+    $ref: './export.yaml#/paths/~1export~1tasks~1{task_id}'
+
+security:
+  - BearerAuth: []

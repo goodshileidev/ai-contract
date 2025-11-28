@@ -1,0 +1,15 @@
+{
+  "user_requirement_id": 4,
+  "user_document_id": 1,
+  "user_document_name": "AIBidComposer产品需求文档",
+  "user_requirement_name": "智能内容生成",
+  "requirement_type": "功能需求",
+  "project_id": 1,
+  "module_id": 4,
+  "function_id": 4,
+  "origin_content": "基于需求和企业能力，自动生成标书内容",
+  "extension_requires": "使用GPT-4等大模型，结合RAG技术，生成专业的技术方案和商务方案",
+  "final_content": "AI驱动的标书内容生成引擎，基于需求匹配和企业能力，自动生成高质量的标书文本",
+  "version": "1.0",
+  "is_locked": "N"
+}

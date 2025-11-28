@@ -1,0 +1,10 @@
+{
+  "module_id": 3,
+  "module_name": "能力库模块",
+  "module_description": "企业能力信息的管理和检索",
+  "project_id": 1,
+  "module_type": "业务模块",
+  "priority": "高",
+  "module_key": "CAPABILITY",
+  "module_no": "M003"
+}

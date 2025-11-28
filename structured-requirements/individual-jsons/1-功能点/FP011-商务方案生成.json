@@ -1,0 +1,13 @@
+{
+  "function_point_id": 11,
+  "function_point_name": "商务方案生成",
+  "function_point_no": "FP011",
+  "project_id": 1,
+  "module_id": 4,
+  "function_id": 4,
+  "user_requirement_id": 4,
+  "demand_description": "自动生成商务方案",
+  "basic_description": "生成报价、服务承诺、实施计划等",
+  "detail_description": "基于模板和规则引擎，结合AI优化商务条款",
+  "is_locked": "N"
+}

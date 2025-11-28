@@ -1,0 +1,18 @@
+{
+  "permission_id": 15,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "编辑项目",
+  "permission_code": "PROJECT_EDIT",
+  "permission_title": "编辑项目",
+  "permission_title_cn": "编辑项目",
+  "permission_title_en": "Project Edit",
+  "permission_title_jp": "编辑项目",
+  "permission_type": "write",
+  "module_name": "项目管理",
+  "module_id": 2,
+  "resource_type": "projects",
+  "description": "项目管理模块的编辑项目权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

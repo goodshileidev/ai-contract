@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.aibidcomposer</groupId>
+        <artifactId>ac-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../ac-parent/pom.xml</relativePath>
+    </parent>
+    <artifactId>ac-service-document</artifactId>
+    <packaging>jar</packaging>
+    <name>ac-service-document</name>
+    <description>文档管理服务模块</description>
+    <dependencies>
+        <dependency>
+            <groupId>com.aibidcomposer</groupId>
+            <artifactId>ac-common-biz</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aibidcomposer</groupId>
+            <artifactId>ac-dao-postgres</artifactId>
+        </dependency>
+    </dependencies>
+</project>

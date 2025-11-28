@@ -1,0 +1,18 @@
+{
+  "permission_id": 31,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "删除文档章节",
+  "permission_code": "DOC_SECTION_DELETE",
+  "permission_title": "删除文档章节",
+  "permission_title_cn": "删除文档章节",
+  "permission_title_en": "Doc Section Delete",
+  "permission_title_jp": "删除文档章节",
+  "permission_type": "write",
+  "module_name": "文档编辑",
+  "module_id": 3,
+  "resource_type": "document_sections",
+  "description": "文档编辑模块的删除文档章节权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

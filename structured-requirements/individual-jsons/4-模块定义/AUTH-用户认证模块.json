@@ -1,0 +1,10 @@
+{
+  "module_id": 1,
+  "module_name": "用户认证模块",
+  "module_description": "用户注册、登录、权限管理",
+  "project_id": 1,
+  "module_type": "基础模块",
+  "priority": "高",
+  "module_key": "AUTH",
+  "module_no": "M001"
+}

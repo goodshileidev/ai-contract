@@ -1,0 +1,120 @@
+[project]
+name = "ac-backend-python"
+version = "1.0.0"
+description = "AI Backend Service for AIBidComposer - Python FastAPI Service"
+authors = [
+    {name = "AIBidComposer Team", email = "dev@aibidcomposer.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "python-multipart>=0.0.6",
+    "httpx>=0.25.0",
+
+    # Database & Cache
+    "redis>=5.0.0",
+    "elasticsearch>=9.2.1",  # ✅ 升级到2025年11月最新版本(支持向量检索)
+
+    # AI & ML - 需求编号: REQ-AI-001
+    "llama-index>=0.14.8",   # ✅ 升级到2025年11月最新版本(主力RAG框架)
+    "langchain>=1.1.0",      # ✅ 新增备用框架(处理复杂Agent场景)
+    "openai>=1.0.0",
+    "anthropic>=0.7.0",
+    "tiktoken>=0.5.0",
+
+    # Message Queue
+    "celery>=5.3.0",
+    "kombu>=5.3.0",
+
+    # Document Processing
+    "PyPDF2>=3.0.0",
+    "pdfplumber>=0.10.0",
+    "python-docx>=1.0.0",
+    "openpyxl>=3.1.0",
+
+    # Utilities
+    "python-jose[cryptography]>=3.3.0",
+    "python-dotenv>=1.0.0",
+    "structlog>=23.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "httpx>=0.25.0",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --cov=app --cov-report=term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"

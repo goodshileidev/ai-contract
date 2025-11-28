@@ -1,0 +1,8 @@
+-r base.txt
+
+# Production-specific dependencies
+gunicorn>=21.2.0
+gevent>=23.9.0
+
+# Production monitoring
+sentry-sdk[fastapi]>=1.38.0

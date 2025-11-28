@@ -1,0 +1,15 @@
+{
+  "user_requirement_id": 6,
+  "user_document_id": 1,
+  "user_document_name": "AIBidComposer产品需求文档",
+  "user_requirement_name": "多人协作编辑",
+  "requirement_type": "功能需求",
+  "project_id": 1,
+  "module_id": 6,
+  "function_id": 6,
+  "origin_content": "支持多人同时编辑标书文档",
+  "extension_requires": "实时协作、版本控制、评论批注、任务分配",
+  "final_content": "基于CRDT技术的实时协作系统，支持多人并发编辑、冲突解决、历史追溯",
+  "version": "1.0",
+  "is_locked": "N"
+}

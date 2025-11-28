@@ -1,0 +1,18 @@
+{
+  "permission_id": 40,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "删除模板",
+  "permission_code": "TEMPLATE_DELETE",
+  "permission_title": "删除模板",
+  "permission_title_cn": "删除模板",
+  "permission_title_en": "Template Delete",
+  "permission_title_jp": "删除模板",
+  "permission_type": "write",
+  "module_name": "模板管理",
+  "module_id": 4,
+  "resource_type": "templates",
+  "description": "模板管理模块的删除模板权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

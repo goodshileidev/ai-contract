@@ -1,0 +1,13 @@
+{
+  "function_point_id": 3,
+  "function_point_name": "Word文档解析",
+  "function_point_no": "FP003",
+  "project_id": 1,
+  "module_id": 2,
+  "function_id": 2,
+  "user_requirement_id": 2,
+  "demand_description": "解析Word格式的招标文件",
+  "basic_description": "提取文档结构、段落、表格、图片等内容",
+  "detail_description": "使用python-docx库解析，保持格式信息，识别章节结构",
+  "is_locked": "N"
+}

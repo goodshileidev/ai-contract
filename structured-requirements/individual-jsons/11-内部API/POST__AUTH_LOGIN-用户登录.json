@@ -1,0 +1,79 @@
+{
+  "internal_api_id": 2,
+  "internal_api_name": "用户登录",
+  "internal_api_key": "POST__AUTH_LOGIN",
+  "source_type": "openapi_design",
+  "create_type": "auto_generated",
+  "project_id": 1,
+  "module_id": 1,
+  "internal_api_type": "create",
+  "basic_description": "使用邮箱和密码登录",
+  "api_version": "v1",
+  "api_template_version": "1.0",
+  "request_param_list": [
+    {
+      "field_name": "email",
+      "field_key": "EMAIL",
+      "param_name": "email",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": true,
+      "description": "",
+      "example": "user@example.com"
+    },
+    {
+      "field_name": "password",
+      "field_key": "PASSWORD",
+      "param_name": "password",
+      "param_type": "body",
+      "data_type": "string",
+      "is_required": true,
+      "description": "",
+      "example": "SecurePass123!"
+    }
+  ],
+  "response_field_list": [
+    {
+      "field_name": "access_token",
+      "field_key": "ACCESS_TOKEN",
+      "data_type": "string",
+      "description": "访问令牌",
+      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    },
+    {
+      "field_name": "refresh_token",
+      "field_key": "REFRESH_TOKEN",
+      "data_type": "string",
+      "description": "刷新令牌",
+      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    },
+    {
+      "field_name": "token_type",
+      "field_key": "TOKEN_TYPE",
+      "data_type": "string",
+      "description": "",
+      "example": "Bearer"
+    },
+    {
+      "field_name": "expires_in",
+      "field_key": "EXPIRES_IN",
+      "data_type": "integer",
+      "description": "令牌过期时间（秒）",
+      "example": 3600
+    },
+    {
+      "field_name": "user",
+      "field_key": "USER",
+      "data_type": "object",
+      "description": "",
+      "example": ""
+    }
+  ],
+  "http_method": "POST",
+  "http_path": "/auth/login",
+  "operation_id": "login",
+  "tags": [
+    "认证授权"
+  ],
+  "is_locked": "N"
+}

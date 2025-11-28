@@ -1,0 +1,10 @@
+{
+  "module_id": 4,
+  "module_name": "内容生成模块",
+  "module_description": "AI驱动的标书内容生成",
+  "project_id": 1,
+  "module_type": "AI模块",
+  "priority": "高",
+  "module_key": "GENERATOR",
+  "module_no": "M004"
+}

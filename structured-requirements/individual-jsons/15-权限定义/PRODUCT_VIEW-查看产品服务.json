@@ -1,0 +1,18 @@
+{
+  "permission_id": 45,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看产品服务",
+  "permission_code": "PRODUCT_VIEW",
+  "permission_title": "查看产品服务",
+  "permission_title_cn": "查看产品服务",
+  "permission_title_en": "Product View",
+  "permission_title_jp": "查看产品服务",
+  "permission_type": "read",
+  "module_name": "企业能力库",
+  "module_id": 5,
+  "resource_type": "products_services",
+  "description": "企业能力库模块的查看产品服务权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

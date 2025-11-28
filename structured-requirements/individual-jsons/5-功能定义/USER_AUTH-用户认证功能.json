@@ -1,0 +1,10 @@
+{
+  "function_id": 1,
+  "function_name": "用户认证功能",
+  "function_description": "用户注册、登录、密码管理等",
+  "module_id": 1,
+  "function_type": "基础功能",
+  "is_core": "Y",
+  "function_key": "USER_AUTH",
+  "project_id": 1
+}

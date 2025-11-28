@@ -1,0 +1,13 @@
+{
+  "function_point_id": 1,
+  "function_point_name": "用户注册功能",
+  "function_point_no": "FP001",
+  "project_id": 1,
+  "module_id": 1,
+  "function_id": 1,
+  "user_requirement_id": 1,
+  "demand_description": "实现用户通过邮箱或手机号注册账号",
+  "basic_description": "用户填写基本信息完成注册，发送验证邮件/短信",
+  "detail_description": "包括表单验证、重复检查、验证码发送、激活流程等",
+  "is_locked": "N"
+}

@@ -1,0 +1,356 @@
+{
+  "external_apis": [
+    {
+      "ext_api_code": "EXT001",
+      "api_name": "OpenAI GPT-4",
+      "provider": "OpenAI",
+      "api_endpoint": "https://api.openai.com/v1/chat/completions",
+      "method": "POST",
+      "usage": "智能内容生成",
+      "authentication": {
+        "type": "Bearer Token",
+        "header": "Authorization",
+        "token_prefix": "Bearer"
+      },
+      "request": {
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "model": "gpt-4-turbo-preview",
+          "messages": "array",
+          "temperature": "float",
+          "max_tokens": "integer",
+          "stream": "boolean"
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "choices": "array",
+          "usage": {
+            "prompt_tokens": "integer",
+            "completion_tokens": "integer",
+            "total_tokens": "integer"
+          }
+        }
+      },
+      "rate_limits": {
+        "requests_per_minute": 500,
+        "tokens_per_minute": 150000
+      },
+      "error_handling": {
+        "retry": true,
+        "max_retries": 3,
+        "backoff": "exponential"
+      },
+      "cost": {
+        "input": "$0.01/1K tokens",
+        "output": "$0.03/1K tokens"
+      }
+    },
+    {
+      "ext_api_code": "EXT002",
+      "api_name": "Claude 3 API",
+      "provider": "Anthropic",
+      "api_endpoint": "https://api.anthropic.com/v1/messages",
+      "method": "POST",
+      "usage": "长文本理解和分析",
+      "authentication": {
+        "type": "API Key",
+        "header": "x-api-key"
+      },
+      "request": {
+        "headers": {
+          "Content-Type": "application/json",
+          "anthropic-version": "2023-06-01"
+        },
+        "body": {
+          "model": "claude-3-opus-20240229",
+          "messages": "array",
+          "max_tokens": "integer"
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "content": "array",
+          "usage": "object"
+        }
+      },
+      "rate_limits": {
+        "requests_per_minute": 100
+      },
+      "cost": {
+        "input": "$15/1M tokens",
+        "output": "$75/1M tokens"
+      }
+    },
+    {
+      "ext_api_code": "EXT003",
+      "api_name": "阿里云短信服务",
+      "provider": "Alibaba Cloud",
+      "api_endpoint": "https://dysmsapi.aliyuncs.com",
+      "method": "POST",
+      "usage": "发送验证码短信",
+      "authentication": {
+        "type": "Signature",
+        "algorithm": "HMAC-SHA1"
+      },
+      "request": {
+        "params": {
+          "Action": "SendSms",
+          "Version": "2017-05-25",
+          "PhoneNumbers": "string",
+          "SignName": "string",
+          "TemplateCode": "string",
+          "TemplateParam": "json_string"
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "Code": "string",
+          "Message": "string",
+          "BizId": "string"
+        }
+      },
+      "rate_limits": {
+        "requests_per_second": 10
+      },
+      "cost": {
+        "per_message": "￥0.045"
+      }
+    },
+    {
+      "ext_api_code": "EXT004",
+      "api_name": "腾讯云邮件服务",
+      "provider": "Tencent Cloud",
+      "api_endpoint": "https://ses.tencentcloudapi.com",
+      "method": "POST",
+      "usage": "发送邮件通知",
+      "authentication": {
+        "type": "TC3-HMAC-SHA256"
+      },
+      "request": {
+        "headers": {
+          "Content-Type": "application/json",
+          "X-TC-Action": "SendEmail"
+        },
+        "body": {
+          "FromEmailAddress": "string",
+          "Destination": "array",
+          "Subject": "string",
+          "Template": {
+            "TemplateID": "integer",
+            "TemplateData": "json_string"
+          }
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "MessageId": "string"
+        }
+      },
+      "rate_limits": {
+        "emails_per_day": 50000
+      }
+    },
+    {
+      "ext_api_code": "EXT005",
+      "api_name": "MinIO对象存储",
+      "provider": "MinIO",
+      "api_endpoint": "https://minio.example.com",
+      "method": "Multiple",
+      "usage": "文件存储",
+      "authentication": {
+        "type": "AWS Signature V4"
+      },
+      "operations": [
+        {
+          "name": "PutObject",
+          "method": "PUT",
+          "path": "/{bucket}/{object}"
+        },
+        {
+          "name": "GetObject",
+          "method": "GET",
+          "path": "/{bucket}/{object}"
+        },
+        {
+          "name": "DeleteObject",
+          "method": "DELETE",
+          "path": "/{bucket}/{object}"
+        }
+      ],
+      "limits": {
+        "max_file_size": "5GB",
+        "allowed_types": ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "jpg", "png"]
+      }
+    },
+    {
+      "ext_api_code": "EXT006",
+      "api_name": "Elasticsearch",
+      "provider": "Elastic",
+      "api_endpoint": "https://elasticsearch.example.com",
+      "method": "Multiple",
+      "usage": "全文搜索和向量检索",
+      "authentication": {
+        "type": "Basic Auth"
+      },
+      "operations": [
+        {
+          "name": "Index Document",
+          "method": "POST",
+          "path": "/{index}/_doc"
+        },
+        {
+          "name": "Search",
+          "method": "POST",
+          "path": "/{index}/_search"
+        },
+        {
+          "name": "Vector Search",
+          "method": "POST",
+          "path": "/{index}/_knn_search"
+        }
+      ],
+      "features": {
+        "vector_dimensions": 1536,
+        "similarity": "cosine"
+      }
+    },
+    {
+      "ext_api_code": "EXT007",
+      "api_name": "百度文心一言",
+      "provider": "Baidu",
+      "api_endpoint": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat",
+      "method": "POST",
+      "usage": "中文内容生成",
+      "authentication": {
+        "type": "Access Token",
+        "token_endpoint": "https://aip.baidubce.com/oauth/2.0/token"
+      },
+      "request": {
+        "body": {
+          "messages": "array",
+          "temperature": "float",
+          "top_p": "float"
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "result": "string",
+          "usage": "object"
+        }
+      },
+      "rate_limits": {
+        "requests_per_second": 10
+      }
+    },
+    {
+      "ext_api_code": "EXT008",
+      "api_name": "支付宝支付",
+      "provider": "Alipay",
+      "api_endpoint": "https://openapi.alipay.com/gateway.do",
+      "method": "POST",
+      "usage": "支付服务",
+      "authentication": {
+        "type": "RSA2 Signature"
+      },
+      "request": {
+        "params": {
+          "method": "alipay.trade.page.pay",
+          "app_id": "string",
+          "sign_type": "RSA2",
+          "biz_content": "json_string"
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "trade_no": "string",
+          "out_trade_no": "string"
+        }
+      },
+      "callback": {
+        "notify_url": "https://api.example.com/payment/notify"
+      }
+    },
+    {
+      "ext_api_code": "EXT009",
+      "api_name": "腾讯云OCR",
+      "provider": "Tencent Cloud",
+      "api_endpoint": "https://ocr.tencentcloudapi.com",
+      "method": "POST",
+      "usage": "文档OCR识别",
+      "authentication": {
+        "type": "TC3-HMAC-SHA256"
+      },
+      "request": {
+        "headers": {
+          "X-TC-Action": "GeneralBasicOCR"
+        },
+        "body": {
+          "ImageBase64": "string",
+          "ImageUrl": "string"
+        }
+      },
+      "response": {
+        "format": "json",
+        "fields": {
+          "TextDetections": "array"
+        }
+      },
+      "rate_limits": {
+        "requests_per_second": 20
+      },
+      "cost": {
+        "per_request": "￥0.01"
+      }
+    },
+    {
+      "ext_api_code": "EXT010",
+      "api_name": "GitHub API",
+      "provider": "GitHub",
+      "api_endpoint": "https://api.github.com",
+      "method": "Multiple",
+      "usage": "版本控制集成",
+      "authentication": {
+        "type": "Personal Access Token",
+        "header": "Authorization",
+        "token_prefix": "token"
+      },
+      "operations": [
+        {
+          "name": "Create Repository",
+          "method": "POST",
+          "path": "/user/repos"
+        },
+        {
+          "name": "Create Commit",
+          "method": "POST",
+          "path": "/repos/{owner}/{repo}/git/commits"
+        },
+        {
+          "name": "Create Pull Request",
+          "method": "POST",
+          "path": "/repos/{owner}/{repo}/pulls"
+        }
+      ],
+      "rate_limits": {
+        "requests_per_hour": 5000
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_external_apis": 20,
+    "providers": ["OpenAI", "Anthropic", "Alibaba Cloud", "Tencent Cloud", "Baidu", "MinIO", "Elastic", "GitHub"],
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27",
+    "note": "示例数据，实际包含20+个外部API定义"
+  }
+}

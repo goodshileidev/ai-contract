@@ -1,0 +1,13 @@
+{
+  "function_point_id": 4,
+  "function_point_name": "PDF文档解析",
+  "function_point_no": "FP004",
+  "project_id": 1,
+  "module_id": 2,
+  "function_id": 2,
+  "user_requirement_id": 2,
+  "demand_description": "解析PDF格式的招标文件",
+  "basic_description": "提取PDF中的文本、表格、图片内容",
+  "detail_description": "使用PyPDF2/pdfplumber库，处理扫描件OCR识别",
+  "is_locked": "N"
+}

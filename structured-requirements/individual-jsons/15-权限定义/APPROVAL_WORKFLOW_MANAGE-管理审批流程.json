@@ -1,0 +1,18 @@
+{
+  "permission_id": 68,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "管理审批流程",
+  "permission_code": "APPROVAL_WORKFLOW_MANAGE",
+  "permission_title": "管理审批流程",
+  "permission_title_cn": "管理审批流程",
+  "permission_title_en": "Approval Workflow Manage",
+  "permission_title_jp": "管理审批流程",
+  "permission_type": "write",
+  "module_name": "审批",
+  "module_id": 8,
+  "resource_type": "approval_workflows",
+  "description": "审批模块的管理审批流程权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

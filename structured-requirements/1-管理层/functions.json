@@ -1,0 +1,307 @@
+{
+  "functions": [
+    {
+      "function_code": "F001",
+      "module_code": "M001",
+      "function_name": "用户注册登录",
+      "function_description": "用户账号注册、登录、密码管理",
+      "function_type": "基础功能",
+      "priority": "高",
+      "pages": ["P001", "P002", "P003"],
+      "apis": ["API001", "API002", "API003"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F002",
+      "module_code": "M001",
+      "function_name": "组织管理",
+      "function_description": "企业组织架构和部门管理",
+      "function_type": "基础功能",
+      "priority": "高",
+      "pages": ["P004", "P005"],
+      "apis": ["API004", "API005"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F003",
+      "module_code": "M001",
+      "function_name": "角色权限",
+      "function_description": "RBAC角色权限管理体系",
+      "function_type": "基础功能",
+      "priority": "高",
+      "pages": ["P006", "P007"],
+      "apis": ["API006", "API007"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F004",
+      "module_code": "M001",
+      "function_name": "用户管理",
+      "function_description": "用户信息管理和状态控制",
+      "function_type": "基础功能",
+      "priority": "中",
+      "pages": ["P008"],
+      "apis": ["API008"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F005",
+      "module_code": "M002",
+      "function_name": "文档上传解析",
+      "function_description": "招标文档上传和格式解析",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P009"],
+      "apis": ["API009", "API010"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F006",
+      "module_code": "M002",
+      "function_name": "需求智能提取",
+      "function_description": "AI驱动的需求自动提取",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P010"],
+      "apis": ["API011"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F007",
+      "module_code": "M002",
+      "function_name": "评分标准识别",
+      "function_description": "自动识别评分标准和权重",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P011"],
+      "apis": ["API012"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F008",
+      "module_code": "M003",
+      "function_name": "产品服务管理",
+      "function_description": "企业产品和服务信息管理",
+      "function_type": "业务功能",
+      "priority": "高",
+      "pages": ["P012", "P013"],
+      "apis": ["API013", "API014"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F009",
+      "module_code": "M003",
+      "function_name": "项目案例管理",
+      "function_description": "历史项目案例库管理",
+      "function_type": "业务功能",
+      "priority": "高",
+      "pages": ["P014", "P015"],
+      "apis": ["API015", "API016"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F010",
+      "module_code": "M003",
+      "function_name": "人员资质管理",
+      "function_description": "技术人员和资质管理",
+      "function_type": "业务功能",
+      "priority": "中",
+      "pages": ["P016", "P017"],
+      "apis": ["API017", "API018"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F011",
+      "module_code": "M003",
+      "function_name": "资质证书管理",
+      "function_description": "企业资质证书数字化管理",
+      "function_type": "业务功能",
+      "priority": "中",
+      "pages": ["P018"],
+      "apis": ["API019"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F012",
+      "module_code": "M004",
+      "function_name": "智能内容生成",
+      "function_description": "基于需求的智能内容生成",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P019"],
+      "apis": ["API020", "API021"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F013",
+      "module_code": "M004",
+      "function_name": "内容优化建议",
+      "function_description": "AI驱动的内容优化",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P020"],
+      "apis": ["API022"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F014",
+      "module_code": "M004",
+      "function_name": "智能问答助手",
+      "function_description": "交互式AI助手",
+      "function_type": "增强功能",
+      "priority": "中",
+      "pages": ["P021"],
+      "apis": ["API023"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F015",
+      "module_code": "M005",
+      "function_name": "模板创建编辑",
+      "function_description": "标书模板的创建和编辑",
+      "function_type": "业务功能",
+      "priority": "中",
+      "pages": ["P022", "P023"],
+      "apis": ["API024", "API025"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F016",
+      "module_code": "M005",
+      "function_name": "模板分类管理",
+      "function_description": "模板分类和标签管理",
+      "function_type": "业务功能",
+      "priority": "中",
+      "pages": ["P024"],
+      "apis": ["API026"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F017",
+      "module_code": "M005",
+      "function_name": "模板智能推荐",
+      "function_description": "基于项目特征的模板推荐",
+      "function_type": "增强功能",
+      "priority": "低",
+      "pages": ["P025"],
+      "apis": ["API027"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F018",
+      "module_code": "M006",
+      "function_name": "文档创建",
+      "function_description": "标书文档的创建和初始化",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P026"],
+      "apis": ["API028"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F019",
+      "module_code": "M006",
+      "function_name": "在线编辑",
+      "function_description": "富文本在线编辑器",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P027"],
+      "apis": ["API029", "API030"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F020",
+      "module_code": "M006",
+      "function_name": "版本控制",
+      "function_description": "文档版本管理和对比",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P028"],
+      "apis": ["API031", "API032"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F021",
+      "module_code": "M006",
+      "function_name": "文档导出",
+      "function_description": "多格式文档导出",
+      "function_type": "核心功能",
+      "priority": "高",
+      "pages": ["P029"],
+      "apis": ["API033"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F022",
+      "module_code": "M007",
+      "function_name": "实时协作",
+      "function_description": "多人实时协作编辑",
+      "function_type": "增强功能",
+      "priority": "中",
+      "pages": ["P030"],
+      "apis": ["API034"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F023",
+      "module_code": "M007",
+      "function_name": "审批流程",
+      "function_description": "审批流程定义和执行",
+      "function_type": "业务功能",
+      "priority": "中",
+      "pages": ["P031", "P032"],
+      "apis": ["API035", "API036"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F024",
+      "module_code": "M007",
+      "function_name": "评论批注",
+      "function_description": "文档评论和批注功能",
+      "function_type": "增强功能",
+      "priority": "低",
+      "pages": ["P033"],
+      "apis": ["API037"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F025",
+      "module_code": "M008",
+      "function_name": "数据统计",
+      "function_description": "投标数据统计分析",
+      "function_type": "辅助功能",
+      "priority": "低",
+      "pages": ["P034"],
+      "reports": ["R001", "R002"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F026",
+      "module_code": "M008",
+      "function_name": "成功率分析",
+      "function_description": "中标成功率分析",
+      "function_type": "辅助功能",
+      "priority": "低",
+      "pages": ["P035"],
+      "reports": ["R003"],
+      "status": "待开发"
+    },
+    {
+      "function_code": "F027",
+      "module_code": "M008",
+      "function_name": "智能报表",
+      "function_description": "自定义报表生成",
+      "function_type": "辅助功能",
+      "priority": "低",
+      "pages": ["P036"],
+      "reports": ["R004"],
+      "status": "待开发"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_functions": 27,
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27"
+  }
+}

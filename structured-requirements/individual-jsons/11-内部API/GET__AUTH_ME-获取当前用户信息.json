@@ -1,0 +1,86 @@
+{
+  "internal_api_id": 5,
+  "internal_api_name": "获取当前用户信息",
+  "internal_api_key": "GET__AUTH_ME",
+  "source_type": "openapi_design",
+  "create_type": "auto_generated",
+  "project_id": 1,
+  "module_id": 1,
+  "internal_api_type": "query_detail",
+  "basic_description": "获取当前登录用户的详细信息",
+  "api_version": "v1",
+  "api_template_version": "1.0",
+  "request_param_list": [],
+  "response_field_list": [
+    {
+      "field_name": "id",
+      "field_key": "ID",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "email",
+      "field_key": "EMAIL",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "username",
+      "field_key": "USERNAME",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "full_name",
+      "field_key": "FULL_NAME",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "avatar_url",
+      "field_key": "AVATAR_URL",
+      "data_type": "string",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "organization",
+      "field_key": "ORGANIZATION",
+      "data_type": "object",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "roles",
+      "field_key": "ROLES",
+      "data_type": "array",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "permissions",
+      "field_key": "PERMISSIONS",
+      "data_type": "array",
+      "description": "",
+      "example": ""
+    },
+    {
+      "field_name": "settings",
+      "field_key": "SETTINGS",
+      "data_type": "object",
+      "description": "",
+      "example": ""
+    }
+  ],
+  "http_method": "GET",
+  "http_path": "/auth/me",
+  "operation_id": "getCurrentUser",
+  "tags": [
+    "认证授权"
+  ],
+  "is_locked": "N"
+}

@@ -1,0 +1,255 @@
+# ============================================================================
+# AI标书智能创作平台 - .gitignore
+# ============================================================================
+
+# ============================================================================
+# 通用
+# ============================================================================
+.DS_Store
+.env
+.env.local
+.env.*.local
+*.log
+*.swp
+*.swo
+*~
+
+# ============================================================================
+# Java / Maven
+# ============================================================================
+apps/backend-java/target/
+apps/backend-java/.mvn/
+apps/backend-java/mvnw
+apps/backend-java/mvnw.cmd
+*.class
+*.jar
+*.war
+*.ear
+.settings/
+.project
+.classpath
+.factorypath
+
+# IntelliJ IDEA
+apps/backend-java/.idea/
+apps/backend-java/*.iml
+apps/backend-java/*.iws
+apps/backend-java/*.ipr
+*.iml
+.idea/
+
+# Eclipse
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# ============================================================================
+# Python
+# ============================================================================
+apps/backend-python/__pycache__/
+apps/backend-python/*.py[cod]
+apps/backend-python/*$py.class
+apps/backend-python/.pytest_cache/
+apps/backend-python/.coverage
+apps/backend-python/htmlcov/
+apps/backend-python/.tox/
+apps/backend-python/.mypy_cache/
+apps/backend-python/.dmypy.json
+apps/backend-python/dmypy.json
+apps/backend-python/.pyre/
+apps/backend-python/venv/
+apps/backend-python/env/
+apps/backend-python/ENV/
+apps/backend-python/env.bak/
+apps/backend-python/venv.bak/
+apps/backend-python/.venv/
+apps/backend-python/.Python
+apps/backend-python/pip-log.txt
+apps/backend-python/pip-delete-this-directory.txt
+apps/backend-python/.ipynb_checkpoints
+apps/backend-python/*.egg-info/
+apps/backend-python/dist/
+apps/backend-python/build/
+apps/backend-python/.eggs/
+
+# Celery
+apps/backend-python/celerybeat-schedule
+apps/backend-python/celerybeat.pid
+
+# ============================================================================
+# Node.js / React
+# ============================================================================
+apps/frontend/node_modules/
+apps/frontend/dist/
+apps/frontend/.umi/
+apps/frontend/.umi-production/
+apps/frontend/.cache/
+apps/frontend/.temp/
+apps/frontend/npm-debug.log*
+apps/frontend/yarn-debug.log*
+apps/frontend/yarn-error.log*
+apps/frontend/pnpm-debug.log*
+apps/frontend/.pnp
+apps/frontend/.pnp.js
+apps/frontend/coverage/
+apps/frontend/.nyc_output/
+
+# Production
+apps/frontend/build/
+apps/frontend/out/
+
+# Misc
+apps/frontend/.eslintcache
+apps/frontend/.stylelintcache
+
+# ============================================================================
+# Docker
+# ============================================================================
+.docker/
+
+# ============================================================================
+# 数据库
+# ============================================================================
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL
+*.sql.gz
+
+# ============================================================================
+# 日志和临时文件
+# ============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tgz
+.yarn-integrity
+
+# ============================================================================
+# IDE
+# ============================================================================
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# ============================================================================
+# 操作系统
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# 密钥和证书
+# ============================================================================
+*.pem
+*.key
+*.crt
+*.p12
+*.jks
+secrets/
+.secrets/
+
+# ============================================================================
+# 备份文件
+# ============================================================================
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+
+# ============================================================================
+# 测试相关
+# ============================================================================
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+junit.xml
+
+# ============================================================================
+# 本地配置
+# ============================================================================
+local.properties
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ============================================================================
+# MinIO / 对象存储
+# ============================================================================
+minio-data/
+uploads/
+
+# ============================================================================
+# Kubernetes
+# ============================================================================
+deploy/k8s/secrets/*.yaml
+!deploy/k8s/secrets/*.example.yaml
+
+# ============================================================================
+# 其他
+# ============================================================================
+TODO.md
+NOTES.md
+.scratch/

@@ -1,0 +1,10 @@
+{
+  "module_id": 7,
+  "module_name": "文档导出模块",
+  "module_description": "标书文档的格式转换和导出",
+  "project_id": 1,
+  "module_type": "功能模块",
+  "priority": "高",
+  "module_key": "EXPORT",
+  "module_no": "M007"
+}

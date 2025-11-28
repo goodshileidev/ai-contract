@@ -1,0 +1,18 @@
+{
+  "permission_id": 54,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "使用AI生成内容",
+  "permission_code": "AI_GENERATE_CONTENT",
+  "permission_title": "使用AI生成内容",
+  "permission_title_cn": "使用AI生成内容",
+  "permission_title_en": "Ai Generate Content",
+  "permission_title_jp": "使用AI生成内容",
+  "permission_type": "execute",
+  "module_name": "AI服务",
+  "module_id": 6,
+  "resource_type": "ai_tasks",
+  "description": "AI服务模块的使用AI生成内容权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

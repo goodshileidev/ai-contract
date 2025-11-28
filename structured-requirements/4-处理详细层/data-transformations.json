@@ -1,0 +1,252 @@
+{
+  "data_transformations": [
+    {
+      "transformation_code": "DT001",
+      "transformation_name": "用户密码加密",
+      "transformation_type": "encryption",
+      "process_code": "PROC001",
+      "input": {
+        "fields": ["password"],
+        "type": "string"
+      },
+      "transformation": {
+        "algorithm": "bcrypt",
+        "salt_rounds": 10
+      },
+      "output": {
+        "field": "password_hash",
+        "type": "string"
+      }
+    },
+    {
+      "transformation_code": "DT002",
+      "transformation_name": "邮箱格式标准化",
+      "transformation_type": "normalization",
+      "process_code": "PROC001",
+      "input": {
+        "fields": ["email"],
+        "type": "string"
+      },
+      "transformation": {
+        "steps": ["trim", "lowercase", "remove_dots"]
+      },
+      "output": {
+        "field": "normalized_email",
+        "type": "string"
+      }
+    },
+    {
+      "transformation_code": "DT003",
+      "transformation_name": "PDF文本提取",
+      "transformation_type": "extraction",
+      "process_code": "PROC002",
+      "input": {
+        "fields": ["pdf_file"],
+        "type": "binary"
+      },
+      "transformation": {
+        "method": "OCR",
+        "language": "zh_CN",
+        "preserve_layout": true
+      },
+      "output": {
+        "field": "extracted_text",
+        "type": "text"
+      }
+    },
+    {
+      "transformation_code": "DT004",
+      "transformation_name": "文本向量化",
+      "transformation_type": "vectorization",
+      "process_code": "PROC003",
+      "input": {
+        "fields": ["text_content"],
+        "type": "text"
+      },
+      "transformation": {
+        "model": "text-embedding-ada-002",
+        "dimensions": 1536,
+        "chunk_size": 500
+      },
+      "output": {
+        "field": "text_vectors",
+        "type": "vector[]"
+      }
+    },
+    {
+      "transformation_code": "DT005",
+      "transformation_name": "需求分类",
+      "transformation_type": "classification",
+      "process_code": "PROC003",
+      "input": {
+        "fields": ["requirement_text"],
+        "type": "text"
+      },
+      "transformation": {
+        "model": "bert-chinese",
+        "categories": ["技术需求", "商务需求", "资质需求", "服务需求"],
+        "threshold": 0.7
+      },
+      "output": {
+        "field": "requirement_category",
+        "type": "string"
+      }
+    },
+    {
+      "transformation_code": "DT006",
+      "transformation_name": "金额格式化",
+      "transformation_type": "formatting",
+      "input": {
+        "fields": ["amount"],
+        "type": "number"
+      },
+      "transformation": {
+        "format": "currency",
+        "currency": "CNY",
+        "locale": "zh-CN",
+        "decimals": 2
+      },
+      "output": {
+        "field": "formatted_amount",
+        "type": "string"
+      }
+    },
+    {
+      "transformation_code": "DT007",
+      "transformation_name": "日期时间转换",
+      "transformation_type": "conversion",
+      "input": {
+        "fields": ["date_string"],
+        "type": "string"
+      },
+      "transformation": {
+        "input_format": "YYYY年MM月DD日",
+        "output_format": "YYYY-MM-DD",
+        "timezone": "Asia/Shanghai"
+      },
+      "output": {
+        "field": "standard_date",
+        "type": "date"
+      }
+    },
+    {
+      "transformation_code": "DT008",
+      "transformation_name": "数据聚合统计",
+      "transformation_type": "aggregation",
+      "input": {
+        "fields": ["project_list"],
+        "type": "array"
+      },
+      "transformation": {
+        "operations": [
+          {"type": "count", "field": "total"},
+          {"type": "sum", "field": "amount", "output": "total_amount"},
+          {"type": "avg", "field": "score", "output": "avg_score"},
+          {"type": "group_by", "field": "status"}
+        ]
+      },
+      "output": {
+        "field": "statistics",
+        "type": "object"
+      }
+    },
+    {
+      "transformation_code": "DT009",
+      "transformation_name": "敏感信息脱敏",
+      "transformation_type": "masking",
+      "input": {
+        "fields": ["phone", "id_card", "bank_account"],
+        "type": "string"
+      },
+      "transformation": {
+        "rules": {
+          "phone": "mask_middle_4",
+          "id_card": "mask_birth_date",
+          "bank_account": "keep_last_4"
+        }
+      },
+      "output": {
+        "field": "masked_data",
+        "type": "string"
+      }
+    },
+    {
+      "transformation_code": "DT010",
+      "transformation_name": "JSON数据映射",
+      "transformation_type": "mapping",
+      "input": {
+        "fields": ["source_json"],
+        "type": "json"
+      },
+      "transformation": {
+        "mapping_rules": {
+          "user.name": "userName",
+          "user.email": "userEmail",
+          "project.title": "projectName",
+          "project.budget": "projectBudget"
+        },
+        "default_values": {
+          "status": "active",
+          "created_date": "now()"
+        }
+      },
+      "output": {
+        "field": "mapped_data",
+        "type": "json"
+      }
+    },
+    {
+      "transformation_code": "DT011",
+      "transformation_name": "文本相似度计算",
+      "transformation_type": "similarity",
+      "process_code": "PROC004",
+      "input": {
+        "fields": ["text1", "text2"],
+        "type": "text"
+      },
+      "transformation": {
+        "algorithm": "cosine_similarity",
+        "preprocessing": ["tokenize", "remove_stopwords"],
+        "threshold": 0.8
+      },
+      "output": {
+        "field": "similarity_score",
+        "type": "float"
+      }
+    },
+    {
+      "transformation_code": "DT012",
+      "transformation_name": "批量数据验证",
+      "transformation_type": "validation",
+      "input": {
+        "fields": ["data_batch"],
+        "type": "array"
+      },
+      "transformation": {
+        "rules": [
+          {"field": "email", "rule": "email_format"},
+          {"field": "phone", "rule": "phone_format"},
+          {"field": "amount", "rule": "positive_number"},
+          {"field": "date", "rule": "future_date"}
+        ]
+      },
+      "output": {
+        "field": "validation_result",
+        "type": "object",
+        "structure": {
+          "valid_count": "integer",
+          "invalid_count": "integer",
+          "errors": "array"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_transformations": 50,
+    "transformation_types": ["encryption", "normalization", "extraction", "vectorization", "classification", "formatting", "conversion", "aggregation", "masking", "mapping", "similarity", "validation"],
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27",
+    "note": "示例数据，实际包含50+个数据变换定义"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "role_id": 4,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "标书撰写人",
+  "role_code": "BID_WRITER",
+  "role_title": "标书撰写人",
+  "role_title_cn": "标书撰写人",
+  "role_title_en": "Bid Writer",
+  "role_title_jp": "标书撰写人",
+  "description": "标书内容撰写人员，负责撰写和编辑标书内容",
+  "role_level": 4,
+  "is_system_role": "N",
+  "can_be_assigned": "Y",
+  "is_locked": "N",
+  "version": "1.0"
+}

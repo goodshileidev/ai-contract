@@ -1,0 +1,13 @@
+{
+  "function_point_id": 7,
+  "function_point_name": "项目案例管理",
+  "function_point_no": "FP007",
+  "project_id": 1,
+  "module_id": 3,
+  "function_id": 3,
+  "user_requirement_id": 3,
+  "demand_description": "管理历史项目案例",
+  "basic_description": "案例的录入、编辑、分类、搜索",
+  "detail_description": "包括客户信息、项目规模、实施效果、亮点提炼等",
+  "is_locked": "N"
+}

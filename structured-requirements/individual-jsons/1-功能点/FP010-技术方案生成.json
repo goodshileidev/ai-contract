@@ -1,0 +1,13 @@
+{
+  "function_point_id": 10,
+  "function_point_name": "技术方案生成",
+  "function_point_no": "FP010",
+  "project_id": 1,
+  "module_id": 4,
+  "function_id": 4,
+  "user_requirement_id": 4,
+  "demand_description": "自动生成技术解决方案",
+  "basic_description": "基于需求和能力生成技术方案文本",
+  "detail_description": "调用GPT-4 API，结合RAG技术，生成专业技术内容",
+  "is_locked": "N"
+}

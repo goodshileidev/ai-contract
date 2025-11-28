@@ -1,0 +1,18 @@
+{
+  "permission_id": 37,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看模板详情",
+  "permission_code": "TEMPLATE_VIEW_DETAIL",
+  "permission_title": "查看模板详情",
+  "permission_title_cn": "查看模板详情",
+  "permission_title_en": "Template View Detail",
+  "permission_title_jp": "查看模板详情",
+  "permission_type": "read",
+  "module_name": "模板管理",
+  "module_id": 4,
+  "resource_type": "templates",
+  "description": "模板管理模块的查看模板详情权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

@@ -1,0 +1,18 @@
+{
+  "permission_id": 42,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "应用模板",
+  "permission_code": "TEMPLATE_APPLY",
+  "permission_title": "应用模板",
+  "permission_title_cn": "应用模板",
+  "permission_title_en": "Template Apply",
+  "permission_title_jp": "应用模板",
+  "permission_type": "execute",
+  "module_name": "模板管理",
+  "module_id": 4,
+  "resource_type": "templates",
+  "description": "模板管理模块的应用模板权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

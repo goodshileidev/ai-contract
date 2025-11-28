@@ -1,0 +1,18 @@
+{
+  "permission_id": 67,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看审批记录",
+  "permission_code": "APPROVAL_LOG_VIEW",
+  "permission_title": "查看审批记录",
+  "permission_title_cn": "查看审批记录",
+  "permission_title_en": "Approval Log View",
+  "permission_title_jp": "查看审批记录",
+  "permission_type": "read",
+  "module_name": "审批",
+  "module_id": 8,
+  "resource_type": "approval_logs",
+  "description": "审批模块的查看审批记录权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

@@ -1,0 +1,15 @@
+{
+  "user_requirement_id": 7,
+  "user_document_id": 1,
+  "user_document_name": "AIBidComposer产品需求文档",
+  "user_requirement_name": "文档导出功能",
+  "requirement_type": "功能需求",
+  "project_id": 1,
+  "module_id": 7,
+  "function_id": 7,
+  "origin_content": "将编辑完成的标书导出为Word、PDF等格式",
+  "extension_requires": "保持格式完整性、支持水印、电子签章",
+  "final_content": "专业的文档导出引擎，确保导出文档的格式规范性和完整性",
+  "version": "1.0",
+  "is_locked": "N"
+}

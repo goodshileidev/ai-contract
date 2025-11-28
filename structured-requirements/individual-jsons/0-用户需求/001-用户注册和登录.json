@@ -1,0 +1,15 @@
+{
+  "user_requirement_id": 1,
+  "user_document_id": 1,
+  "user_document_name": "AIBidComposer产品需求文档",
+  "user_requirement_name": "用户注册和登录",
+  "requirement_type": "功能需求",
+  "project_id": 1,
+  "module_id": 1,
+  "function_id": 1,
+  "origin_content": "系统需要支持用户注册、登录、找回密码等基础认证功能",
+  "extension_requires": "需要支持邮箱注册、手机号注册、第三方OAuth登录（微信、企业微信）",
+  "final_content": "实现完整的用户认证体系，包括多种注册方式、安全的密码管理、会话管理、多因素认证等",
+  "version": "1.0",
+  "is_locked": "N"
+}

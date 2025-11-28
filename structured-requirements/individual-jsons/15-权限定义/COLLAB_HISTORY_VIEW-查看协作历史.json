@@ -1,0 +1,18 @@
+{
+  "permission_id": 63,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看协作历史",
+  "permission_code": "COLLAB_HISTORY_VIEW",
+  "permission_title": "查看协作历史",
+  "permission_title_cn": "查看协作历史",
+  "permission_title_en": "Collab History View",
+  "permission_title_jp": "查看协作历史",
+  "permission_type": "read",
+  "module_name": "协作",
+  "module_id": 7,
+  "resource_type": "collaboration_events",
+  "description": "协作模块的查看协作历史权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

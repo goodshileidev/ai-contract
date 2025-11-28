@@ -1,0 +1,10 @@
+{
+  "function_id": 4,
+  "function_name": "智能内容生成",
+  "function_description": "基于AI的标书内容生成",
+  "module_id": 4,
+  "function_type": "AI功能",
+  "is_core": "Y",
+  "function_key": "CONTENT_GEN",
+  "project_id": 1
+}

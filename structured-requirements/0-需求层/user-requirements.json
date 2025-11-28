@@ -1,0 +1,56 @@
+{
+  "user_requirements": [
+    {
+      "requirement_no": "REQ-001",
+      "requirement_name": "AI标书智能创作平台",
+      "requirement_description": "构建一个基于AI技术的企业级标书智能创作SaaS平台，帮助企业快速生成高质量的投标文档",
+      "business_background": "企业在投标过程中面临标书制作周期长、质量参差不齐、知识复用困难等问题，需要通过AI技术提升效率和质量",
+      "target_users": ["投标经理", "商务人员", "技术专家", "企业管理层"],
+      "business_value": "降低标书制作成本60%，提升中标率30%，缩短制作周期70%",
+      "priority": "高",
+      "status": "待开发",
+      "created_date": "2025-11-27",
+      "updated_date": "2025-11-27",
+      "modules": [
+        {
+          "module_code": "M001",
+          "module_name": "用户与权限管理"
+        },
+        {
+          "module_code": "M002",
+          "module_name": "招标文件智能解析"
+        },
+        {
+          "module_code": "M003",
+          "module_name": "企业能力库管理"
+        },
+        {
+          "module_code": "M004",
+          "module_name": "智能内容生成"
+        },
+        {
+          "module_code": "M005",
+          "module_name": "标书模板管理"
+        },
+        {
+          "module_code": "M006",
+          "module_name": "标书文档管理"
+        },
+        {
+          "module_code": "M007",
+          "module_name": "协作与审批流程"
+        },
+        {
+          "module_code": "M008",
+          "module_name": "数据分析与报表"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created_by": "System Architect",
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27"
+  }
+}

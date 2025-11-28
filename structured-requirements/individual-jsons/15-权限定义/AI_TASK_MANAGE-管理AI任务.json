@@ -1,0 +1,18 @@
+{
+  "permission_id": 57,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "管理AI任务",
+  "permission_code": "AI_TASK_MANAGE",
+  "permission_title": "管理AI任务",
+  "permission_title_cn": "管理AI任务",
+  "permission_title_en": "Ai Task Manage",
+  "permission_title_jp": "管理AI任务",
+  "permission_type": "write",
+  "module_name": "AI服务",
+  "module_id": 6,
+  "resource_type": "ai_tasks",
+  "description": "AI服务模块的管理AI任务权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "function_id": 3,
+  "function_name": "能力信息管理",
+  "function_description": "产品、案例、人员等能力信息管理",
+  "module_id": 3,
+  "function_type": "业务功能",
+  "is_core": "Y",
+  "function_key": "CAP_MANAGE",
+  "project_id": 1
+}

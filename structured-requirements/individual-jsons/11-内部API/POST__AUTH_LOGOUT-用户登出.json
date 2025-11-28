@@ -1,0 +1,22 @@
+{
+  "internal_api_id": 4,
+  "internal_api_name": "用户登出",
+  "internal_api_key": "POST__AUTH_LOGOUT",
+  "source_type": "openapi_design",
+  "create_type": "auto_generated",
+  "project_id": 1,
+  "module_id": 1,
+  "internal_api_type": "create",
+  "basic_description": "使当前访问令牌失效",
+  "api_version": "v1",
+  "api_template_version": "1.0",
+  "request_param_list": [],
+  "response_field_list": [],
+  "http_method": "POST",
+  "http_path": "/auth/logout",
+  "operation_id": "logout",
+  "tags": [
+    "认证授权"
+  ],
+  "is_locked": "N"
+}

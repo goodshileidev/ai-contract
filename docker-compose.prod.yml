@@ -1,0 +1,358 @@
+# ============================================================================
+# AIBidComposer - Docker Compose 生产环境配置
+# ============================================================================
+# 用于生产环境部署的服务编排
+# 使用方式：docker-compose -f docker-compose.prod.yml up -d
+
+version: '3.8'
+
+# ============================================================================
+# 网络配置
+# ============================================================================
+networks:
+  aibidcomposer-network:
+    driver: bridge
+
+# ============================================================================
+# 数据卷配置
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+
+# ============================================================================
+# 服务定义
+# ============================================================================
+services:
+  # ==========================================================================
+  # 数据服务层
+  # ==========================================================================
+
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-15-alpine}
+    container_name: ac-postgres-prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # 生产环境不暴露端口到主机
+    # ports:
+    #   - "5432:5432"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-8.11.0}
+    container_name: ac-elasticsearch-prod
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
+      - "ES_JAVA_OPTS=${ES_JAVA_OPTS:--Xms4g -Xmx4g}"
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - TZ=${TZ:-Asia/Shanghai}
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:${ELASTICSEARCH_PASSWORD} -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:${REDIS_VERSION:-7-alpine}
+    container_name: ac-redis-prod
+    restart: always
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION:-3-management-alpine}
+    container_name: ac-rabbitmq-prod
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  minio:
+    image: minio/minio:${MINIO_VERSION:-latest}
+    container_name: ac-minio-prod
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - minio_data:/data
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # ==========================================================================
+  # 应用服务层
+  # ==========================================================================
+
+  backend-java:
+    build:
+      context: ./apps/backend-java
+      dockerfile: Dockerfile
+    image: aibidcomposer/backend-java:${VERSION:-latest}
+    container_name: ac-backend-java-prod
+    restart: always
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
+
+      # 数据库
+      SPRING_DATASOURCE_URL: ${JDBC_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+      # Redis
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD}
+
+      # RabbitMQ
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+
+      # MinIO
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+
+      # AI Service
+      AI_SERVICE_URL: http://backend-python:8001
+
+      # Security
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400}
+
+      # Logging
+      LOGGING_LEVEL_ROOT: ${LOG_LEVEL:-WARN}
+
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  backend-python:
+    build:
+      context: ./apps/backend-python
+      dockerfile: Dockerfile
+    image: aibidcomposer/backend-python:${VERSION:-latest}
+    container_name: ac-backend-python-prod
+    restart: always
+    environment:
+      ENVIRONMENT: production
+      WORKERS: ${WORKERS:-8}
+      LOG_LEVEL: ${PYTHON_LOG_LEVEL:-WARNING}
+
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USER: ${ELASTICSEARCH_USER}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+
+      JAVA_SERVICE_URL: http://backend-java:8080
+
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8001
+      --workers ${WORKERS:-8}
+      --log-level ${PYTHON_LOG_LEVEL:-warning}
+
+  ai-worker:
+    build:
+      context: ./apps/backend-python
+      dockerfile: Dockerfile
+    image: aibidcomposer/backend-python:${VERSION:-latest}
+    container_name: ac-ai-worker-prod
+    restart: always
+    deploy:
+      replicas: 3
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: ${PYTHON_LOG_LEVEL:-WARNING}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USER: ${ELASTICSEARCH_USER}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - aibidcomposer-network
+    command: >
+      celery -A app.tasks.celery_app worker
+      --loglevel=${PYTHON_LOG_LEVEL:-warning}
+      --concurrency=8
+      -Q ai_tasks
+
+  celery-beat:
+    build:
+      context: ./apps/backend-python
+      dockerfile: Dockerfile
+    image: aibidcomposer/backend-python:${VERSION:-latest}
+    container_name: ac-celery-beat-prod
+    restart: always
+    environment:
+      ENVIRONMENT: production
+      LOG_LEVEL: ${PYTHON_LOG_LEVEL:-WARNING}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - aibidcomposer-network
+    command: >
+      celery -A app.tasks.celery_app beat
+      --loglevel=${PYTHON_LOG_LEVEL:-warning}
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    image: aibidcomposer/frontend:${VERSION:-latest}
+    container_name: ac-frontend-prod
+    restart: always
+    ports:
+      - "${FRONTEND_PROD_PORT:-80}:80"
+    depends_on:
+      - backend-java
+      - backend-python
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  # ==========================================================================
+  # Nginx 反向代理（生产环境推荐）
+  # ==========================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: ac-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend-java
+      - backend-python
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 3s
+      retries: 3

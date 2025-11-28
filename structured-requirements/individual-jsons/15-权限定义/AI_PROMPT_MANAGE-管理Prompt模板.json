@@ -1,0 +1,18 @@
+{
+  "permission_id": 58,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "管理Prompt模板",
+  "permission_code": "AI_PROMPT_MANAGE",
+  "permission_title": "管理Prompt模板",
+  "permission_title_cn": "管理Prompt模板",
+  "permission_title_en": "Ai Prompt Manage",
+  "permission_title_jp": "管理Prompt模板",
+  "permission_type": "write",
+  "module_name": "AI服务",
+  "module_id": 6,
+  "resource_type": "ai_prompts",
+  "description": "AI服务模块的管理Prompt模板权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

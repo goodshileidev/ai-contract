@@ -1,0 +1,17 @@
+{
+  "role_id": 12,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "AI助手管理员",
+  "role_code": "AI_ADMIN",
+  "role_title": "AI助手管理员",
+  "role_title_cn": "AI助手管理员",
+  "role_title_en": "Ai Admin",
+  "role_title_jp": "AI助手管理员",
+  "description": "AI服务管理员，管理AI模型、Prompt模板和AI任务",
+  "role_level": 2,
+  "is_system_role": "Y",
+  "can_be_assigned": "Y",
+  "is_locked": "Y",
+  "version": "1.0"
+}

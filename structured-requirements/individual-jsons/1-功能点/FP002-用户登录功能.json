@@ -1,0 +1,13 @@
+{
+  "function_point_id": 2,
+  "function_point_name": "用户登录功能",
+  "function_point_no": "FP002",
+  "project_id": 1,
+  "module_id": 1,
+  "function_id": 1,
+  "user_requirement_id": 1,
+  "demand_description": "用户通过账号密码或第三方OAuth登录",
+  "basic_description": "支持账号密码登录、记住登录状态、自动登录",
+  "detail_description": "JWT令牌管理、会话控制、登录日志记录、异常登录检测",
+  "is_locked": "N"
+}

@@ -1,0 +1,18 @@
+{
+  "permission_id": 66,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "驳回审批",
+  "permission_code": "APPROVAL_REJECT",
+  "permission_title": "驳回审批",
+  "permission_title_cn": "驳回审批",
+  "permission_title_en": "Approval Reject",
+  "permission_title_jp": "驳回审批",
+  "permission_type": "execute",
+  "module_name": "审批",
+  "module_id": 8,
+  "resource_type": "approval_tasks",
+  "description": "审批模块的驳回审批权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

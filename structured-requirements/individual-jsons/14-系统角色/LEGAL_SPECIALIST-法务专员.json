@@ -1,0 +1,17 @@
+{
+  "role_id": 9,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "法务专员",
+  "role_code": "LEGAL_SPECIALIST",
+  "role_title": "法务专员",
+  "role_title_cn": "法务专员",
+  "role_title_en": "Legal Specialist",
+  "role_title_jp": "法务专员",
+  "description": "法务专员，审核合同条款的法律合规性",
+  "role_level": 4,
+  "is_system_role": "N",
+  "can_be_assigned": "Y",
+  "is_locked": "N",
+  "version": "1.0"
+}

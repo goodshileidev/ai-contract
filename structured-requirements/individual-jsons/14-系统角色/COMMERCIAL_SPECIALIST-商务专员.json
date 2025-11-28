@@ -1,0 +1,17 @@
+{
+  "role_id": 7,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "商务专员",
+  "role_code": "COMMERCIAL_SPECIALIST",
+  "role_title": "商务专员",
+  "role_title_cn": "商务专员",
+  "role_title_en": "Commercial Specialist",
+  "role_title_jp": "商务专员",
+  "description": "商务方案专员，负责商务条款和报价策略",
+  "role_level": 4,
+  "is_system_role": "N",
+  "can_be_assigned": "Y",
+  "is_locked": "N",
+  "version": "1.0"
+}

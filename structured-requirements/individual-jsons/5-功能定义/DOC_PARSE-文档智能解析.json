@@ -1,0 +1,10 @@
+{
+  "function_id": 2,
+  "function_name": "文档智能解析",
+  "function_description": "解析Word、PDF等格式的招标文件",
+  "module_id": 2,
+  "function_type": "AI功能",
+  "is_core": "Y",
+  "function_key": "DOC_PARSE",
+  "project_id": 1
+}

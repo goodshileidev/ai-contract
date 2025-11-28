@@ -1,0 +1,107 @@
+{
+  "modules": [
+    {
+      "module_code": "M001",
+      "module_name": "用户与权限管理",
+      "module_description": "负责用户认证、授权、组织管理、角色权限等功能",
+      "module_type": "基础模块",
+      "priority": "高",
+      "owner": "后端团队",
+      "status": "待开发",
+      "dependencies": [],
+      "estimated_effort": "4人周",
+      "functions": ["F001", "F002", "F003", "F004"]
+    },
+    {
+      "module_code": "M002",
+      "module_name": "招标文件智能解析",
+      "module_description": "使用AI技术解析招标文档，提取需求和评分标准",
+      "module_type": "核心模块",
+      "priority": "高",
+      "owner": "AI团队",
+      "status": "待开发",
+      "dependencies": ["M001"],
+      "estimated_effort": "6人周",
+      "functions": ["F005", "F006", "F007"]
+    },
+    {
+      "module_code": "M003",
+      "module_name": "企业能力库管理",
+      "module_description": "管理企业产品、服务、案例、人员、资质等核心能力",
+      "module_type": "核心模块",
+      "priority": "高",
+      "owner": "后端团队",
+      "status": "待开发",
+      "dependencies": ["M001"],
+      "estimated_effort": "5人周",
+      "functions": ["F008", "F009", "F010", "F011"]
+    },
+    {
+      "module_code": "M004",
+      "module_name": "智能内容生成",
+      "module_description": "基于大语言模型的智能内容生成和优化引擎",
+      "module_type": "核心模块",
+      "priority": "高",
+      "owner": "AI团队",
+      "status": "待开发",
+      "dependencies": ["M002", "M003"],
+      "estimated_effort": "8人周",
+      "functions": ["F012", "F013", "F014"]
+    },
+    {
+      "module_code": "M005",
+      "module_name": "标书模板管理",
+      "module_description": "行业标准模板和自定义模板的管理系统",
+      "module_type": "业务模块",
+      "priority": "中",
+      "owner": "后端团队",
+      "status": "待开发",
+      "dependencies": ["M001"],
+      "estimated_effort": "3人周",
+      "functions": ["F015", "F016", "F017"]
+    },
+    {
+      "module_code": "M006",
+      "module_name": "标书文档管理",
+      "module_description": "标书文档的创建、编辑、版本控制和导出",
+      "module_type": "核心模块",
+      "priority": "高",
+      "owner": "全栈团队",
+      "status": "待开发",
+      "dependencies": ["M004", "M005"],
+      "estimated_effort": "5人周",
+      "functions": ["F018", "F019", "F020", "F021"]
+    },
+    {
+      "module_code": "M007",
+      "module_name": "协作与审批流程",
+      "module_description": "团队协作编辑和审批流程管理",
+      "module_type": "业务模块",
+      "priority": "中",
+      "owner": "全栈团队",
+      "status": "待开发",
+      "dependencies": ["M001", "M006"],
+      "estimated_effort": "4人周",
+      "functions": ["F022", "F023", "F024"]
+    },
+    {
+      "module_code": "M008",
+      "module_name": "数据分析与报表",
+      "module_description": "投标数据分析、统计报表和智能洞察",
+      "module_type": "辅助模块",
+      "priority": "低",
+      "owner": "数据团队",
+      "status": "待开发",
+      "dependencies": ["M001", "M006"],
+      "estimated_effort": "3人周",
+      "functions": ["F025", "F026", "F027"]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_modules": 8,
+    "total_effort": "38人周",
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27"
+  }
+}

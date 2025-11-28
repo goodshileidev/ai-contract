@@ -1,0 +1,18 @@
+{
+  "permission_id": 59,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看AI使用统计",
+  "permission_code": "AI_USAGE_VIEW",
+  "permission_title": "查看AI使用统计",
+  "permission_title_cn": "查看AI使用统计",
+  "permission_title_en": "Ai Usage View",
+  "permission_title_jp": "查看AI使用统计",
+  "permission_type": "read",
+  "module_name": "AI服务",
+  "module_id": 6,
+  "resource_type": "ai_usage_logs",
+  "description": "AI服务模块的查看AI使用统计权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

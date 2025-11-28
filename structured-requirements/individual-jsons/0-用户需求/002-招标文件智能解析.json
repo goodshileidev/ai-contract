@@ -1,0 +1,15 @@
+{
+  "user_requirement_id": 2,
+  "user_document_id": 1,
+  "user_document_name": "AIBidComposer产品需求文档",
+  "user_requirement_name": "招标文件智能解析",
+  "requirement_type": "功能需求",
+  "project_id": 1,
+  "module_id": 2,
+  "function_id": 2,
+  "origin_content": "系统需要能够自动解析Word、PDF格式的招标文件，提取关键信息",
+  "extension_requires": "使用AI技术识别需求点、评分标准、资质要求、商务条款等关键信息",
+  "final_content": "基于大语言模型的智能文档解析引擎，支持多格式文档解析，自动提取结构化需求信息",
+  "version": "1.0",
+  "is_locked": "N"
+}

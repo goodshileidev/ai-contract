@@ -1,0 +1,176 @@
+{
+  "reports": [
+    {
+      "report_code": "R001",
+      "report_name": "投标项目统计报表",
+      "report_type": "统计报表",
+      "function_code": "F025",
+      "description": "展示投标项目的整体统计数据",
+      "metrics": [
+        {
+          "metric_code": "M001",
+          "metric_name": "项目总数",
+          "metric_type": "计数",
+          "calculation": "COUNT(projects)",
+          "dimension": ["时间", "状态", "行业"]
+        },
+        {
+          "metric_code": "M002",
+          "metric_name": "中标率",
+          "metric_type": "比率",
+          "calculation": "COUNT(won) / COUNT(total)",
+          "dimension": ["时间", "行业", "金额区间"]
+        },
+        {
+          "metric_code": "M003",
+          "metric_name": "平均金额",
+          "metric_type": "平均值",
+          "calculation": "AVG(amount)",
+          "dimension": ["行业", "地区"]
+        }
+      ],
+      "charts": [
+        {
+          "chart_code": "C001",
+          "chart_type": "柱状图",
+          "chart_title": "月度项目数量趋势",
+          "x_axis": "月份",
+          "y_axis": "项目数量"
+        },
+        {
+          "chart_code": "C002",
+          "chart_type": "饼图",
+          "chart_title": "项目状态分布",
+          "dimension": "项目状态"
+        }
+      ],
+      "filters": ["时间范围", "项目状态", "行业类型"],
+      "export_formats": ["PDF", "Excel", "CSV"]
+    },
+    {
+      "report_code": "R002",
+      "report_name": "团队工作量报表",
+      "report_type": "统计报表",
+      "function_code": "F025",
+      "description": "展示团队成员的工作量和效率",
+      "metrics": [
+        {
+          "metric_code": "M004",
+          "metric_name": "人均处理项目数",
+          "metric_type": "平均值",
+          "calculation": "COUNT(projects) / COUNT(users)",
+          "dimension": ["部门", "角色"]
+        },
+        {
+          "metric_code": "M005",
+          "metric_name": "平均处理时长",
+          "metric_type": "平均值",
+          "calculation": "AVG(processing_time)",
+          "dimension": ["项目类型", "团队"]
+        },
+        {
+          "metric_code": "M006",
+          "metric_name": "工作效率",
+          "metric_type": "比率",
+          "calculation": "completed / total_hours",
+          "dimension": ["个人", "团队"]
+        }
+      ],
+      "charts": [
+        {
+          "chart_code": "C003",
+          "chart_type": "热力图",
+          "chart_title": "团队工作量分布",
+          "x_axis": "日期",
+          "y_axis": "团队成员"
+        }
+      ],
+      "filters": ["时间范围", "部门", "成员"],
+      "export_formats": ["PDF", "Excel"]
+    },
+    {
+      "report_code": "R003",
+      "report_name": "中标成功率分析报表",
+      "report_type": "分析报表",
+      "function_code": "F026",
+      "description": "分析影响中标的关键因素",
+      "metrics": [
+        {
+          "metric_code": "M007",
+          "metric_name": "行业中标率",
+          "metric_type": "分组比率",
+          "calculation": "GROUP BY industry, COUNT(won) / COUNT(*)",
+          "dimension": ["行业"]
+        },
+        {
+          "metric_code": "M008",
+          "metric_name": "金额区间中标率",
+          "metric_type": "分组比率",
+          "calculation": "GROUP BY amount_range, COUNT(won) / COUNT(*)",
+          "dimension": ["金额区间"]
+        },
+        {
+          "metric_code": "M009",
+          "metric_name": "关键因素相关性",
+          "metric_type": "相关系数",
+          "calculation": "CORRELATION(factors, win_rate)",
+          "dimension": ["影响因素"]
+        }
+      ],
+      "charts": [
+        {
+          "chart_code": "C004",
+          "chart_type": "散点图",
+          "chart_title": "金额与中标率关系",
+          "x_axis": "项目金额",
+          "y_axis": "中标概率"
+        },
+        {
+          "chart_code": "C005",
+          "chart_type": "雷达图",
+          "chart_title": "中标因素分析",
+          "dimensions": ["技术得分", "商务得分", "资质得分", "案例得分"]
+        }
+      ],
+      "ai_insights": true,
+      "filters": ["时间范围", "行业", "金额范围"],
+      "export_formats": ["PDF", "PPT"]
+    },
+    {
+      "report_code": "R004",
+      "report_name": "自定义分析报表",
+      "report_type": "自定义报表",
+      "function_code": "F027",
+      "description": "用户自定义的数据分析报表",
+      "metrics": [
+        {
+          "metric_code": "M010",
+          "metric_name": "自定义指标",
+          "metric_type": "用户定义",
+          "calculation": "USER_DEFINED",
+          "dimension": ["用户选择"]
+        }
+      ],
+      "charts": [
+        {
+          "chart_code": "C006",
+          "chart_type": "用户选择",
+          "chart_title": "自定义图表",
+          "configurable": true
+        }
+      ],
+      "query_builder": true,
+      "drag_drop_interface": true,
+      "filters": ["动态筛选器"],
+      "export_formats": ["PDF", "Excel", "PNG"]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "total_reports": 4,
+    "total_metrics": 10,
+    "total_charts": 6,
+    "created_date": "2025-11-27",
+    "last_updated": "2025-11-27"
+  }
+}

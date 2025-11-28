@@ -1,0 +1,18 @@
+{
+  "permission_id": 4,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "编辑用户",
+  "permission_code": "USER_EDIT",
+  "permission_title": "编辑用户",
+  "permission_title_cn": "编辑用户",
+  "permission_title_en": "User Edit",
+  "permission_title_jp": "编辑用户",
+  "permission_type": "write",
+  "module_name": "用户管理",
+  "module_id": 1,
+  "resource_type": "users",
+  "description": "用户管理模块的编辑用户权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

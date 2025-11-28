@@ -1,0 +1,18 @@
+{
+  "permission_id": 26,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "解析招标文件",
+  "permission_code": "BID_DOC_PARSE_RFP",
+  "permission_title": "解析招标文件",
+  "permission_title_cn": "解析招标文件",
+  "permission_title_en": "Bid Doc Parse Rfp",
+  "permission_title_jp": "解析招标文件",
+  "permission_type": "execute",
+  "module_name": "标书管理",
+  "module_id": 3,
+  "resource_type": "bidding_documents",
+  "description": "标书管理模块的解析招标文件权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

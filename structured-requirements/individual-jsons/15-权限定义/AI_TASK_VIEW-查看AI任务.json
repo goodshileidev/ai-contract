@@ -1,0 +1,18 @@
+{
+  "permission_id": 56,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看AI任务",
+  "permission_code": "AI_TASK_VIEW",
+  "permission_title": "查看AI任务",
+  "permission_title_cn": "查看AI任务",
+  "permission_title_en": "Ai Task View",
+  "permission_title_jp": "查看AI任务",
+  "permission_type": "read",
+  "module_name": "AI服务",
+  "module_id": 6,
+  "resource_type": "ai_tasks",
+  "description": "AI服务模块的查看AI任务权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

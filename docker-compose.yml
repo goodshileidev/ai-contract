@@ -1,0 +1,485 @@
+# ============================================================================
+# AIBidComposer - Docker Compose 开发环境配置
+# ============================================================================
+# 用于本地开发环境的服务编排
+# 使用方式：docker-compose up -d
+
+version: '3.8'
+
+# ============================================================================
+# 网络配置
+# ============================================================================
+networks:
+  aibidcomposer-network:
+    driver: bridge
+
+# ============================================================================
+# 数据卷配置
+# ============================================================================
+volumes:
+  postgres_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+
+# ============================================================================
+# 服务定义
+# ============================================================================
+services:
+  # ==========================================================================
+  # 数据服务层
+  # ==========================================================================
+
+  # PostgreSQL 数据库（主数据库）
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-15-alpine}
+    container_name: ac-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aibidcomposer}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Elasticsearch（向量检索 + 全文搜索）
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-8.11.0}
+    container_name: ac-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD:-elastic}
+      - "ES_JAVA_OPTS=${ES_JAVA_OPTS:--Xms2g -Xmx2g}"
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - TZ=${TZ:-Asia/Shanghai}
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -u elastic:${ELASTICSEARCH_PASSWORD:-elastic} -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Redis（缓存 + 会话存储）
+  redis:
+    image: redis:${REDIS_VERSION:-7-alpine}
+    container_name: ac-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-redis}
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # RabbitMQ（消息队列，Java 和 Python 服务间通信）
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION:-3-management-alpine}
+    container_name: ac-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-rabbitmq}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq}
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # MinIO（对象存储，文件上传）
+  minio:
+    image: minio/minio:${MINIO_VERSION:-latest}
+    container_name: ac-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  # Neo4j（可选：知识图谱）
+  # 注释掉以节省资源，需要时取消注释
+  # neo4j:
+  #   image: neo4j:${NEO4J_VERSION:-5.13-community}
+  #   container_name: ac-neo4j
+  #   restart: unless-stopped
+  #   environment:
+  #     NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-neo4j}
+  #     NEO4J_PLUGINS: '["apoc"]'
+  #     NEO4J_dbms_security_procedures_unrestricted: apoc.*
+  #     TZ: ${TZ:-Asia/Shanghai}
+  #   ports:
+  #     - "${NEO4J_BOLT_PORT:-7687}:7687"
+  #     - "${NEO4J_HTTP_PORT:-7474}:7474"
+  #   volumes:
+  #     - neo4j_data:/data
+  #     - neo4j_logs:/logs
+  #   networks:
+  #     - aibidcomposer-network
+  #   healthcheck:
+  #     test: ["CMD", "cypher-shell", "-u", "${NEO4J_USER:-neo4j}", "-p", "${NEO4J_PASSWORD:-neo4j}", "RETURN 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+
+  # ==========================================================================
+  # 应用服务层
+  # ==========================================================================
+
+  # Java Spring Boot 后端服务（核心业务逻辑）
+  backend-java:
+    build:
+      context: ./apps/backend-java
+      dockerfile: Dockerfile
+    container_name: ac-backend-java
+    restart: unless-stopped
+    environment:
+      # Spring 配置
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SERVER_PORT: ${JAVA_SERVICE_PORT:-8080}
+
+      # 数据库配置
+      SPRING_DATASOURCE_URL: ${JDBC_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
+      # Redis 配置
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
+
+      # RabbitMQ 配置
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-rabbitmq}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-rabbitmq}
+
+      # MinIO 配置
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME:-aibidcomposer}
+
+      # Python AI 服务URL
+      AI_SERVICE_URL: ${AI_SERVICE_URL}
+
+      # JWT 配置
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400}
+
+      # 日志配置
+      LOGGING_LEVEL_ROOT: ${LOG_LEVEL:-INFO}
+
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${JAVA_SERVICE_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      # 开发模式：挂载源码以支持热重载
+      - ./apps/backend-java/src:/app/src
+      - ./apps/backend-java/target:/app/target
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # Python FastAPI AI 服务（AI 能力）
+  backend-python:
+    build:
+      context: ./apps/backend-python
+      dockerfile: Dockerfile
+    container_name: ac-backend-python
+    restart: unless-stopped
+    environment:
+      # 基础配置
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      WORKERS: ${WORKERS:-4}
+      LOG_LEVEL: ${PYTHON_LOG_LEVEL:-INFO}
+
+      # Redis 配置
+      REDIS_URL: ${REDIS_URL}
+
+      # RabbitMQ 配置
+      RABBITMQ_URL: ${RABBITMQ_URL}
+
+      # Elasticsearch 配置
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USER: ${ELASTICSEARCH_USER:-elastic}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:-elastic}
+
+      # MinIO 配置
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+
+      # Neo4j 配置（可选）
+      # NEO4J_URI: ${NEO4J_URI}
+      # NEO4J_USER: ${NEO4J_USER:-neo4j}
+      # NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4j}
+
+      # AI 服务配置
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_BASE: ${OPENAI_API_BASE:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4-turbo-preview}
+
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-3-opus-20240229}
+
+      # Pinecone 配置（可选备选方案）
+      PINECONE_API_KEY: ${PINECONE_API_KEY}
+      PINECONE_ENVIRONMENT: ${PINECONE_ENVIRONMENT}
+
+      # Java 服务URL（用于调用业务API）
+      JAVA_SERVICE_URL: ${JAVA_SERVICE_URL}
+
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${PYTHON_SERVICE_PORT:-8001}:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      # 开发模式：挂载源码以支持热重载
+      - ./apps/backend-python/app:/app/app
+    networks:
+      - aibidcomposer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8001
+      --reload
+      --log-level ${PYTHON_LOG_LEVEL:-info}
+
+  # Python AI Worker (Celery) - 异步任务处理
+  ai-worker:
+    build:
+      context: ./apps/backend-python
+      dockerfile: Dockerfile
+    container_name: ac-ai-worker
+    restart: unless-stopped
+    environment:
+      # 继承 backend-python 的所有环境变量
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${PYTHON_LOG_LEVEL:-INFO}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_USER: ${ELASTICSEARCH_USER:-elastic}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:-elastic}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend-python/app:/app/app
+    networks:
+      - aibidcomposer-network
+    command: >
+      celery -A app.tasks.celery_app worker
+      --loglevel=${PYTHON_LOG_LEVEL:-info}
+      --concurrency=4
+      -Q ai_tasks
+
+  # Celery Beat - 定时任务调度器
+  celery-beat:
+    build:
+      context: ./apps/backend-python
+      dockerfile: Dockerfile
+    container_name: ac-celery-beat
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${PYTHON_LOG_LEVEL:-INFO}
+      REDIS_URL: ${REDIS_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      TZ: ${TZ:-Asia/Shanghai}
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend-python/app:/app/app
+    networks:
+      - aibidcomposer-network
+    command: >
+      celery -A app.tasks.celery_app beat
+      --loglevel=${PYTHON_LOG_LEVEL:-info}
+
+  # React 前端服务（开发模式）
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.dev
+      args:
+        VITE_JAVA_API_BASE_URL: ${VITE_JAVA_API_BASE_URL}
+        VITE_AI_API_BASE_URL: ${VITE_AI_API_BASE_URL}
+        VITE_WS_BASE_URL: ${VITE_WS_BASE_URL}
+    container_name: ac-frontend
+    restart: unless-stopped
+    environment:
+      # Vite 环境变量
+      VITE_JAVA_API_BASE_URL: ${VITE_JAVA_API_BASE_URL}
+      VITE_AI_API_BASE_URL: ${VITE_AI_API_BASE_URL}
+      VITE_WS_BASE_URL: ${VITE_WS_BASE_URL}
+      VITE_APP_NAME: ${VITE_APP_NAME:-AIBidComposer}
+      VITE_APP_ENV: ${VITE_APP_ENV:-development}
+      VITE_DEBUG: ${VITE_DEBUG:-true}
+
+      # 时区
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${FRONTEND_DEV_PORT:-5173}:5173"
+    depends_on:
+      - backend-java
+      - backend-python
+    volumes:
+      # 开发模式：挂载源码以支持热重载
+      - ./apps/frontend/src:/app/src
+      - ./apps/frontend/public:/app/public
+      - ./apps/frontend/index.html:/app/index.html
+      - ./apps/frontend/vite.config.ts:/app/vite.config.ts
+      # 排除 node_modules
+      - /app/node_modules
+    networks:
+      - aibidcomposer-network
+    command: npm run dev
+
+  # ==========================================================================
+  # 开发工具（可选）
+  # ==========================================================================
+
+  # pgAdmin - PostgreSQL 管理工具
+  # 取消注释以启用
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: ac-pgadmin
+  #   restart: unless-stopped
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@aibidcomposer.com}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #     TZ: ${TZ:-Asia/Shanghai}
+  #   ports:
+  #     - "${PGADMIN_PORT:-5050}:80"
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - aibidcomposer-network
+
+  # Flower - Celery 监控工具
+  # 取消注释以启用
+  # flower:
+  #   build:
+  #     context: ./apps/backend-python
+  #     dockerfile: Dockerfile
+  #   container_name: ac-flower
+  #   restart: unless-stopped
+  #   environment:
+  #     CELERY_BROKER_URL: ${RABBITMQ_URL}
+  #     CELERY_RESULT_BACKEND: ${REDIS_URL}
+  #   ports:
+  #     - "5555:5555"
+  #   depends_on:
+  #     - redis
+  #     - rabbitmq
+  #   networks:
+  #     - aibidcomposer-network
+  #   command: >
+  #     celery -A app.tasks.celery_app flower
+  #     --port=5555

@@ -1,0 +1,10 @@
+{
+  "module_id": 2,
+  "module_name": "文档解析模块",
+  "module_description": "招标文件的智能解析和信息提取",
+  "project_id": 1,
+  "module_type": "AI模块",
+  "priority": "高",
+  "module_key": "PARSER",
+  "module_no": "M002"
+}

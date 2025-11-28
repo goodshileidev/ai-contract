@@ -1,0 +1,18 @@
+{
+  "permission_id": 2,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "查看用户详情",
+  "permission_code": "USER_VIEW_DETAIL",
+  "permission_title": "查看用户详情",
+  "permission_title_cn": "查看用户详情",
+  "permission_title_en": "User View Detail",
+  "permission_title_jp": "查看用户详情",
+  "permission_type": "read",
+  "module_name": "用户管理",
+  "module_id": 1,
+  "resource_type": "users",
+  "description": "用户管理模块的查看用户详情权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

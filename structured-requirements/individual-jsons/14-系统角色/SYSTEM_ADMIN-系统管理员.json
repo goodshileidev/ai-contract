@@ -1,0 +1,17 @@
+{
+  "role_id": 1,
+  "project_id": 1,
+  "source_type": "system_design",
+  "role_name": "系统管理员",
+  "role_code": "SYSTEM_ADMIN",
+  "role_title": "系统管理员",
+  "role_title_cn": "系统管理员",
+  "role_title_en": "System Admin",
+  "role_title_jp": "系统管理员",
+  "description": "系统最高权限管理员，可管理整个系统的配置、用户和数据",
+  "role_level": 1,
+  "is_system_role": "Y",
+  "can_be_assigned": "Y",
+  "is_locked": "Y",
+  "version": "1.0"
+}

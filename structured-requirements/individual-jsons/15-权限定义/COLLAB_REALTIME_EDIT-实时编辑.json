@@ -1,0 +1,18 @@
+{
+  "permission_id": 62,
+  "project_id": 1,
+  "source_type": "system_design",
+  "permission_name": "实时编辑",
+  "permission_code": "COLLAB_REALTIME_EDIT",
+  "permission_title": "实时编辑",
+  "permission_title_cn": "实时编辑",
+  "permission_title_en": "Collab Realtime Edit",
+  "permission_title_jp": "实时编辑",
+  "permission_type": "write",
+  "module_name": "协作",
+  "module_id": 7,
+  "resource_type": "collaboration_sessions",
+  "description": "协作模块的实时编辑权限",
+  "is_system_permission": "Y",
+  "version": "1.0"
+}

@@ -1,0 +1,13 @@
+{
+  "function_point_id": 9,
+  "function_point_name": "需求能力匹配",
+  "function_point_no": "FP009",
+  "project_id": 1,
+  "module_id": 4,
+  "function_id": 4,
+  "user_requirement_id": 4,
+  "demand_description": "将需求与企业能力进行智能匹配",
+  "basic_description": "基于语义相似度匹配相关能力",
+  "detail_description": "向量化检索、知识图谱推理、匹配度评分",
+  "is_locked": "N"
+}

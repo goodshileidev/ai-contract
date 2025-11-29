@@ -2,7 +2,7 @@
 
 **Project**: AI Bidding Document Intelligent Creation Platform (AIBidComposer)
 **Version**: 2.2
-**Last Updated**: 2025-11-29
+**Last Updated**: 2025-11-30 00:25
 **Updater**: gemini-pro
 **Project Phase**: Architecture design complete, preparing for development phase
 
@@ -132,9 +132,14 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ---
 
-## Project Iron Laws (11 Rules to Obey)
+## Project Iron Laws (13 Rules to Obey)
 
 > 🚨 **Important**: All work must adhere to these laws. Violations will result in non-compliant deliverables.
+
+### 0. 实时Git提交 💾
+- ✅ **每次修改文档内容后，都必须立即执行Git提交**。
+- ✅ 提交信息需遵循[Git Commit Convention](#git-commit-convention)。
+- ❌ 不得批量修改多个文档后再提交。
 
 ### 1. 强制使用简体中文 🇨🇳
 - ✅ **所有文档、文档名、注释、代码提交信息、以及所有交流都必须使用简体中文**。
@@ -330,60 +335,10 @@ graph LR
 ```
 
 ---
-## Git Commit Convention
 
-### Message Format
-```
-<type>(<scope>): <subject>
+## 修改历史
 
-<body>
-
-<footer>
-```
-
-### Type
-- `feat`: A new feature
-- `fix`: A bug fix
-- `docs`: Documentation only changes
-- `refactor`: A code change that neither fixes a bug nor adds a feature
-- `test`: Adding missing tests or correcting existing tests
-- `chore`: Changes to the build process or auxiliary tools
-
-### Example
-```
-feat(user-module): Implement user management feature
-
-Requirement ID: REQ-2025-11-001
-Impact:
-- Added UserService and UserController.
-- Added new APIs for user management.
-
-Verification: Unit tests passed.
-```
-
----
-
-## Project Directory Structure
-
-```
-ai-contract/
-├── apps/
-│   ├── backend-java/      # Java Spring Boot Service
-│   ├── backend-python/    # Python FastAPI AI Service
-│   └── frontend/          # React Frontend
-├── docs/                  # 项目文档
-│   ├── 01-原则指引/
-│   ├── 02-需求定义/
-│   ├── 03-架构设计/
-│   ├── 04-业务设计/
-│   ├── 05-编码实现/
-│   ├── 06-测试验证/
-│   ├── 07-交付部署/
-│   └── 99-知识积累/
-├── docker/                # Docker configurations
-├── scripts/               # Helper scripts
-├── .gitignore
-├── docker-compose.yml
-├── GEMINI.md              # This file
-└── README.md
-```
+| 日期 | 版本 | 修改者 | 修改内容概要 |
+|---|---|---|---|
+| 2025-11-30 00:25 | 1.1 | gemini-pro | 新增“实时Git提交”铁律，并重新编号所有铁律；更新文档元数据。 |
+| 2025-11-29 | 1.0 | gemini-pro | 初始创建文档。 |

@@ -1,0 +1,178 @@
+# ================================================================
+# 文档到JSON抽取 - 配置文件
+# ================================================================
+
+# 项目基本信息
+project:
+  name: "AIBidComposer"
+  version: "1.0.0"
+
+# 文档抽取配置
+extractor:
+  # 源文档目录（相对于项目根目录）
+  source_docs_dir: "docs/04-设计"
+
+  # Schema定义目录（可选，如果为null则尝试自动查找）
+  # 示例: "/mnt/data/PythonProjects/generator-springcrud/src/04-projects/ngs-ex/ddl/schema"
+  schema_dir: null
+
+  # 输出目录（相对于项目根目录）
+  output_dir: "structured-requirements/individual-jsons"
+
+  # 是否在生成后自动验证
+  auto_validate: true
+
+  # 是否添加元数据字段（_metadata）
+  add_metadata: true
+
+# 模块ID映射（根据项目实际模块调整）
+module_map:
+  "认证授权": 1
+  "用户认证": 1
+  "项目管理": 2
+  "文档管理": 3
+  "标书文档": 3
+  "模板管理": 4
+  "企业能力": 5
+  "能力库": 5
+  "AI服务": 6
+  "协作": 7
+  "协作编辑": 7
+  "审批": 8
+  "系统管理": 9
+  "报表统计": 10
+  "搜索": 11
+  "导出": 12
+
+# JSON类型配置
+json_types:
+  # 业务SQL定义
+  program_sql:
+    schema: "program_sql-schema.json"
+    output_subdir: "16-业务SQL"
+    description: "业务SQL定义（复杂查询、统计分析）"
+    file_naming: "{KEY}-{NAME}.json"
+
+    # 抽取规则
+    extraction_rules:
+      # 从哪些文档类型抽取
+      source_docs:
+        - "API接口设计/*.md"
+        - "数据库设计/*.md"
+
+      # 识别关键词
+      keywords:
+        - "查询"
+        - "统计"
+        - "聚合"
+        - "报表"
+        - "分析"
+        - "GROUP BY"
+        - "JOIN"
+
+      # 排除的场景（基本CRUD不需要）
+      exclude_keywords:
+        - "CRUD"
+        - "基本查询"
+        - "简单查询"
+
+  # 业务流程定义
+  biz_flow:
+    schema: "biz_flow-schema.json"
+    output_subdir: "17-业务流程"
+    description: "业务流程定义（工作流、时序图）"
+    file_naming: "{KEY}-{NAME}.json"
+
+    extraction_rules:
+      source_docs:
+        - "API接口设计/*.md"
+        - "业务流程/*.md"
+
+      # 查找Mermaid代码块
+      mermaid_types:
+        - "sequenceDiagram"
+        - "graph"
+        - "flowchart"
+
+      # 流程图附近的文本作为描述
+      context_lines: 5
+
+  # 报表定义
+  report:
+    schema: "report-schema.json"
+    output_subdir: "18-报表定义"
+    description: "报表定义（统计报表、数据展示）"
+    file_naming: "{KEY}-{NAME}.json"
+
+    extraction_rules:
+      source_docs:
+        - "API接口设计/*.md"
+        - "报表设计/*.md"
+
+      keywords:
+        - "报表"
+        - "统计"
+        - "看板"
+        - "图表"
+        - "Dashboard"
+
+  # 内部API定义
+  internal_api:
+    schema: "internal_api-schema.json"
+    output_subdir: "11-内部API"
+    description: "内部API接口定义"
+    file_naming: "{METHOD}__{PATH}-{NAME}.json"
+
+    extraction_rules:
+      source_docs:
+        - "API接口设计/*.md"
+
+      # 识别API定义格式
+      api_patterns:
+        - "GET /api/"
+        - "POST /api/"
+        - "PUT /api/"
+        - "DELETE /api/"
+        - "PATCH /api/"
+
+# 抽取选项
+extraction_options:
+  # 并发处理（是否并行读取多个文档）
+  parallel: false
+
+  # 最大文档数量（0表示无限制）
+  max_documents: 0
+
+  # 是否覆盖已存在的JSON文件
+  overwrite: false
+
+  # 是否生成抽取报告
+  generate_report: true
+
+  # 报告保存路径
+  report_path: "docs/07-交付"
+
+# 验证选项
+validation:
+  # 是否启用严格验证
+  strict: true
+
+  # 是否验证必填字段
+  required_fields: true
+
+  # 是否检查额外字段
+  additional_properties: true
+
+# 日志选项
+logging:
+  # 日志级别: DEBUG, INFO, WARNING, ERROR
+  level: "INFO"
+
+  # 是否输出详细信息
+  verbose: true
+
+  # 是否保存日志文件
+  save_to_file: false
+
+  # 日志文件路径
+  log_file: "extraction.log"

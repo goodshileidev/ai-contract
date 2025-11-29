@@ -1,0 +1,102 @@
+{
+  "program_sql_id": 1,
+  "program_sql_name": "项目列表查询",
+  "program_sql_no": "SQL-001",
+  "project_id": 1,
+  "module_id": 2,
+  "function_id": 0,
+  "source_type": "business_requirement",
+  "sql_structure": {
+    "table_type": "main",
+    "table_key": "projects",
+    "column_list": "p.id, p.name, p.code, p.description, p.status, p.priority, p.budget_amount, p.submission_deadline, p.win_probability, p.created_at, p.updated_at, u.id as creator_id, u.username as creator_name",
+    "join_condition_list": "LEFT JOIN users u ON p.created_by = u.id",
+    "where_condition_list": "p.organization_id = :org_id AND (:status IS NULL OR p.status = :status) AND (:priority IS NULL OR p.priority = :priority) AND (:search IS NULL OR p.name LIKE :search OR p.code LIKE :search)",
+    "group_field_list": "",
+    "group_key_list": "",
+    "sort_key_list": "ORDER BY p.:sortBy :sortOrder"
+  },
+  "sql_text": "-- 业务需求: 获取项目列表，支持状态筛选、优先级筛选、关键词搜索、排序和分页\n-- 功能说明: 从projects表查询项目列表，关联users表获取创建者信息，支持多条件动态筛选和排序\n-- 输出说明: 返回项目基本信息、创建者信息，以及分页元数据(total, page, pageSize)\n-- 数据来源: docs/04-设计/API接口设计/02-项目管理API.md (第25-69行)\n-- 注意: 具体SQL实现由开发人员根据实际数据库结构编写",
+  "sql_param_list": [
+    {
+      "field_key": "org_id",
+      "field_name": "组织ID",
+      "field_type": "uuid",
+      "default_value": "",
+      "description": "必填，筛选指定组织的项目"
+    },
+    {
+      "field_key": "status",
+      "field_name": "项目状态",
+      "field_type": "string",
+      "default_value": "",
+      "description": "可选，筛选指定状态(draft|in_progress|review|submitted|won|lost|archived)"
+    },
+    {
+      "field_key": "priority",
+      "field_name": "优先级",
+      "field_type": "string",
+      "default_value": "",
+      "description": "可选，筛选优先级(low|medium|high|urgent)"
+    },
+    {
+      "field_key": "search",
+      "field_name": "搜索关键词",
+      "field_type": "string",
+      "default_value": "",
+      "description": "可选，搜索项目名称或编号"
+    },
+    {
+      "field_key": "sortBy",
+      "field_name": "排序字段",
+      "field_type": "string",
+      "default_value": "created_at",
+      "description": "排序字段(created_at|updated_at|submission_deadline)"
+    },
+    {
+      "field_key": "sortOrder",
+      "field_name": "排序方向",
+      "field_type": "string",
+      "default_value": "desc",
+      "description": "排序方向(asc|desc)"
+    },
+    {
+      "field_key": "page",
+      "field_name": "页码",
+      "field_type": "integer",
+      "default_value": "1",
+      "description": "当前页码"
+    },
+    {
+      "field_key": "pageSize",
+      "field_name": "每页数量",
+      "field_type": "integer",
+      "default_value": "20",
+      "description": "每页记录数(max: 100)"
+    }
+  ],
+  "input_table_list": [
+    {
+      "entity_id": 0,
+      "entity_name": "projects",
+      "entity_key": "projects",
+      "table_key": "projects",
+      "table_name": "projects",
+      "input_output_type": "input"
+    },
+    {
+      "entity_id": 0,
+      "entity_name": "users",
+      "entity_key": "users",
+      "table_key": "users",
+      "table_name": "users",
+      "input_output_type": "input"
+    }
+  ],
+  "input_table_field_list": [],
+  "output_table_list": [],
+  "output_table_field_list": [],
+  "mock_var_list": {},
+  "demand_function_point_list": [],
+  "is_locked": "N"
+}

@@ -83,6 +83,14 @@ class JsonSchemaValidator:
         if parent_dir == '13-页面组件':
             return 'page_section'
 
+        # 16-业务SQL目录下的文件使用 program_sql schema
+        if parent_dir == '16-业务SQL':
+            return 'program_sql'
+
+        # 17-业务流程目录下的文件使用 biz_flow schema
+        if parent_dir == '17-业务流程':
+            return 'biz_flow'
+
         # 映射规则（针对文件名）
         schema_mapping = {
             # 4-模块定义（只匹配纯模块关键字，避免与功能混淆）
@@ -196,7 +204,9 @@ class JsonSchemaValidator:
             '12-页面定义': [],
             '13-页面组件': [],
             '14-系统角色': [],
-            '15-权限定义': []
+            '15-权限定义': [],
+            '16-业务SQL': [],
+            '17-业务流程': []
         }
 
         for category in results.keys():

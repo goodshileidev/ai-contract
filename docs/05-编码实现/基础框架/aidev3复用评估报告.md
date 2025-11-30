@@ -3,7 +3,7 @@
 需求编号: DOC-2025-11-003
 创建日期: 2025-11-30 09:00
 创建者: claude-opus-4-1-20250805
-最后更新: 2025-11-30 09:00
+最后更新: 2025-11-30 09:15
 更新者: claude-opus-4-1-20250805
 状态: 已批准
 ---
@@ -37,7 +37,7 @@
 
 | 功能模块 | aidev3 实现程度 | AIBidComposer 需求 | 可复用度 | 复用策略 |
 |---------|---------------|------------------|----------|----------|
-| **富文本编辑器** | ✅ 100% (Blacknode) | 需要 | 95% | 直接复用，替换为 TipTap |
+| **富文本编辑器** | ✅ 100% (Blacknode) | 需要 | 100% | 完全复用 Blacknode |
 | **模板管理系统** | ✅ 100% | 需要 | 90% | 调整为标书模板 |
 | **项目管理** | ✅ 100% | 需要 | 85% | 增加招投标特性 |
 | **任务管理** | ✅ 100% (看板) | 需要 | 80% | 适配标书流程 |
@@ -100,8 +100,8 @@ StandardFunction → CompanyCapability  // 标准功能 → 企业能力
 ```typescript
 // aidev3 现有实现 (Blacknode)
 const DeliverableEditor = ({ content, onChange, variables }) => {
-  // 可以直接复用 95% 的逻辑
-  // 只需要替换编辑器库为 TipTap
+  // 可以直接复用 100% 的逻辑
+  // 完全复用 Blacknode 编辑器
 }
 
 // AIBidComposer 适配
@@ -203,7 +203,7 @@ interface BidTemplate extends Template {
 | **项目管理模块** | 添加招标项目特性 | 2-3天 |
 | **任务看板** | 适配标书编写流程 | 2天 |
 | **模板管理** | 增加标书模板特性 | 3天 |
-| **文档编辑器** | 替换为 TipTap，增加标书功能 | 5天 |
+| **文档编辑器** | 保留 Blacknode，增加标书功能 | 2天 |
 | **导出功能** | 实现 Word/PDF 导出 | 3天 |
 
 ### 3.3 需要重新实现的部分
@@ -238,9 +238,10 @@ cp -r /aidev3/src /AIBidComposer/frontend/
 ### 4.2 第二阶段：核心功能移植（2周）
 
 ```typescript
-// 1. 移植编辑器系统
+// 1. 复用编辑器系统
 - 将 DeliverableEditor 改造为 BidDocumentEditor
-- 保留变量插入、AI 辅助等核心功能
+- 完全复用 Blacknode 编辑器
+- 保留所有变量插入、AI 辅助等核心功能
 - 增加标书特定的工具栏和功能
 
 // 2. 移植模板系统
@@ -508,7 +509,7 @@ i18n/                                           # 国际化
 | TypeScript | 5.0 | 5.0 | ✅ 无需改动 |
 | 状态管理 | TanStack Query + Zustand | 相同 | ✅ 无需改动 |
 | UI库 | Material-UI | Ant Design Pro | ⚠️ 需要适配 |
-| 编辑器 | Blacknode | TipTap | ⚠️ 需要替换 |
+| 编辑器 | Blacknode | Blacknode | ✅ 无需改动 |
 | 构建工具 | Vite | Vite | ✅ 无需改动 |
 | 后端 | Node.js | Java + Python | ❌ 需要重写接口 |
 
@@ -531,6 +532,7 @@ i18n/                                           # 国际化
 | 日期 | 版本 | 修改者 | 修改内容概要 |
 |------|------|--------|-------------|
 | 2025-11-30 09:00 | 1.0 | claude-opus-4-1-20250805 | 创建初始评估报告 |
+| 2025-11-30 09:15 | 1.1 | claude-opus-4-1-20250805 | 更新编辑器策略：保留 Blacknode 而非替换为 TipTap |
 
 ---
 
